@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6">
   <div>
-    <div class="mat-headline-medium text-on-surface">Redeem offer claim</div>
-    <p class="text-on-surface-variant">Enter the customer’s claim code to validate it before applying the offer.</p>
+    <div class="mat-headline-medium text-on-surface">{{ 'redeem.title' | translate }}</div>
+    <p class="text-on-surface-variant">{{ 'redeem.subtitle' | translate }}</p>
   </div>
 
   <mat-card class="p-4">
@@ -9,20 +9,20 @@
       <div class="flex flex-col gap-2">
         <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
           <mat-form-field appearance="outline" class="min-w-0 flex-1">
-            <mat-label>Claim code</mat-label>
+            <mat-label>{{ 'redeem.claimCode' | translate }}</mat-label>
             <input matInput [formControl]="claimCode" placeholder="QP-XXXXXXXXXXXXXXX" autocomplete="off" (keyup.enter)="validateClaim()" />
-            @if (claimCode.hasError('required')) { <mat-error>Claim code is required</mat-error> }
+            @if (claimCode.hasError('required')) { <mat-error>{{ 'redeem.claimCodeRequired' | translate }}</mat-error> }
           </mat-form-field>
           <button mat-stroked-button type="button" class="sm:mt-2" (click)="toggleScanner()" [attr.aria-expanded]="scannerOpen">
             <mat-icon>qr_code_scanner</mat-icon>
-            {{ scannerOpen ? 'Close scanner' : 'Scan QR code' }}
+            {{ scannerOpen ? ('redeem.closeScanner' | translate) : ('redeem.scan' | translate) }}
           </button>
         </div>
 
         @if (scannerOpen) {
           <div class="qr-scanner-panel rounded-xl border border-outline-variant bg-surface-container-low p-4" aria-live="polite">
             <div class="flex items-center justify-between gap-3">
-              <div class="font-semibold">Quick QR check</div>
+              <div class="font-semibold">{{ 'redeem.quickCheck' | translate }}</div>
               <button mat-icon-button type="button" aria-label="Close QR scanner" (click)="toggleScanner()"><mat-icon>close</mat-icon></button>
             </div>
             @if (scannerError) {
@@ -39,17 +39,17 @@
       </div>
 
       <mat-form-field appearance="outline">
-        <mat-label>Order amount</mat-label>
-        <input matInput type="number" min="0.01" [formControl]="orderAmount" placeholder="Only needed to calculate the discount" />
+        <mat-label>{{ 'redeem.orderAmount' | translate }}</mat-label>
+        <input matInput type="number" min="0.01" [formControl]="orderAmount" [placeholder]="'redeem.orderAmountHelp' | translate" />
         <span matTextSuffix>{{ organizationStore.organizaiton()?.currency }}</span>
-        @if (orderAmount.hasError('min')) { <mat-error>Order amount must be greater than zero</mat-error> }
+        @if (orderAmount.hasError('min')) { <mat-error>{{ 'redeem.orderAmountError' | translate }}</mat-error> }
       </mat-form-field>
 
       <div class="flex gap-3">
         <button mat-flat-button type="button" (click)="validateClaim()" [disabled]="isValidating || claimCode.invalid">
-          {{ isValidating ? 'Checking…' : 'Validate code' }}
+          {{ isValidating ? ('redeem.checking' | translate) : ('redeem.validate' | translate) }}
         </button>
-        <button mat-button type="button" (click)="reset()">Clear</button>
+        <button mat-button type="button" (click)="reset()">{{ 'redeem.clear' | translate }}</button>
       </div>
     </div>
   </mat-card>
@@ -68,31 +68,31 @@
     <mat-card class="p-4">
       <div class="flex flex-col gap-2">
         <div class="text-lg font-semibold">{{ validation?.claim?.offerTitle }}</div>
-        <div>Customer: {{ validation?.claim?.customerEmail }}</div>
-        <div>Code: <span class="font-mono">{{ validation?.claim?.displayCode }}</span></div>
-        <div>Valid until: {{ validation?.claim?.expiresAt | date : 'medium' }}</div>
-        @if (validation?.orderAmountRequired) { <div class="text-on-surface-variant">Enter the order amount to calculate the server-side discount.</div> }
+        <div>{{ 'redeem.customer' | translate }}: {{ validation?.claim?.customerEmail }}</div>
+        <div>{{ 'redeem.code' | translate }}: <span class="font-mono">{{ validation?.claim?.displayCode }}</span></div>
+        <div>{{ 'redeem.validUntil' | translate }}: {{ validation?.claim?.expiresAt | date : 'medium' }}</div>
+        @if (validation?.orderAmountRequired) { <div class="text-on-surface-variant">{{ 'redeem.orderAmountServer' | translate }}</div> }
         @if (validation?.discount !== null && validation?.discount !== undefined) {
-          <div>Calculated discount: {{ validation?.discount | currency : organizationStore.organizaiton()?.currency : 'symbol' }}</div>
+          <div>{{ 'redeem.discount' | translate }}: {{ validation?.discount | currency : organizationStore.organizaiton()?.currency : 'symbol' }}</div>
         }
         <button mat-flat-button color="primary" type="button" (click)="redeemClaim()" [disabled]="isRedeeming || orderAmount.invalid || orderAmount.value == null">
-          {{ isRedeeming ? 'Redeeming…' : 'Confirm redemption' }}
+          {{ isRedeeming ? ('redeem.redeeming' | translate) : ('redeem.confirm' | translate) }}
         </button>
       </div>
     </mat-card>
   }
 
   <mat-card class="p-4">
-    <div class="text-lg font-semibold mb-3">Recent offer redemptions</div>
+    <div class="text-lg font-semibold mb-3">{{ 'redeem.recent' | translate }}</div>
     @if (history.length === 0) {
-      <p class="text-on-surface-variant">No offer claims have been redeemed yet.</p>
+      <p class="text-on-surface-variant">{{ 'redeem.noRecent' | translate }}</p>
     } @else {
-      <div class="overflow-auto">
-        <table class="w-full min-w-[860px] text-left">
-          <thead><tr><th class="whitespace-nowrap p-2">Offer</th><th class="whitespace-nowrap p-2">Claim</th><th class="whitespace-nowrap p-2">Customer</th><th class="whitespace-nowrap p-2">Discount</th><th class="whitespace-nowrap p-2">Redeemed</th><th class="whitespace-nowrap p-2">By</th></tr></thead>
+      <div class="w-full overflow-hidden">
+        <table class="w-full table-fixed text-left">
+          <thead><tr><th class="w-[27%] p-2 sm:w-[20%] lg:w-[18%]">{{ 'redemptions.offer' | translate }}</th><th class="hidden w-[20%] p-2 sm:table-cell lg:w-[17%]">{{ 'redemptions.claimCode' | translate }}</th><th class="w-[39%] p-2 sm:w-[27%] lg:w-[24%]">{{ 'redemptions.customer' | translate }}</th><th class="w-[34%] p-2 sm:w-[15%] lg:w-[14%]">{{ 'redemptions.discount' | translate }}</th><th class="hidden w-[18%] p-2 sm:table-cell">{{ 'redemptions.redeemedAt' | translate }}</th><th class="hidden w-[9%] p-2 lg:table-cell">{{ 'redemptions.redeemedBy' | translate }}</th></tr></thead>
           <tbody>
             @for (row of history; track row.redemptionId) {
-              <tr class="border-t border-outline-variant"><td class="whitespace-nowrap p-2">{{ row.offerTitle }}</td><td class="whitespace-nowrap p-2 font-mono">{{ row.claimCode }}</td><td class="whitespace-nowrap p-2">{{ row.customerEmail }}</td><td class="whitespace-nowrap p-2">{{ row.discount | currency : organizationStore.organizaiton()?.currency : 'symbol' }}</td><td class="whitespace-nowrap p-2">{{ row.redeemedAt | date : 'short' }}</td><td class="whitespace-nowrap p-2">{{ row.redeemedBy }}</td></tr>
+              <tr class="border-t border-outline-variant"><td class="max-w-0 truncate p-2" [title]="row.offerTitle">{{ row.offerTitle }}</td><td class="hidden max-w-0 truncate p-2 font-mono sm:table-cell" [title]="row.claimCode">{{ row.claimCode }}</td><td class="max-w-0 truncate p-2" [title]="row.customerEmail">{{ row.customerEmail }}</td><td class="whitespace-nowrap p-2">{{ row.discount | currency : organizationStore.organizaiton()?.currency : 'symbol' }}</td><td class="hidden whitespace-nowrap p-2 sm:table-cell">{{ row.redeemedAt | date : 'short' }}</td><td class="hidden max-w-0 truncate p-2 lg:table-cell" [title]="row.redeemedBy">{{ row.redeemedBy }}</td></tr>
             }
           </tbody>
         </table>

@@ -11,11 +11,12 @@ import { RestaurantOfferService } from '../../../services/restaurant-offer.servi
 import { SnackbarService } from '../../../services/snackbar.service';
 import { RestaurantOfferDto } from '../../../../dtos/restaurant-offer.dto';
 import { offerPublicationStatusEnum, discountTypeEnum } from '../../../../enums';
+import { TranslatePipe } from '../../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-offers',
   standalone: true,
-  imports: [CommonModule, TitleCasePipe, MatButtonModule, MatCardModule, MatIconModule, MatMenuModule, RouterLink],
+  imports: [CommonModule, TitleCasePipe, MatButtonModule, MatCardModule, MatIconModule, MatMenuModule, RouterLink, TranslatePipe],
   templateUrl: './offers.component.html',
   styleUrl: './offers.component.css',
 })

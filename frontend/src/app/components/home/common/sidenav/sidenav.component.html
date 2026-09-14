@@ -1,7 +1,7 @@
 <div>
-  <div class="!w-[312px]" disableClose>
-    <div class="pt-[30px] pr-[16px] pl-[16px] pb-[12px]">
-      <mat-nav-list class="cursor-pointer flex flex-col gap-[4px]">
+  <div class="w-full lg:!w-[312px]" disableClose>
+    <div class="px-3 py-3 sm:px-4 lg:pt-[30px] lg:pb-[12px]">
+      <mat-nav-list class="cursor-pointer grid grid-cols-2 gap-1 sm:grid-cols-3 lg:flex lg:flex-col lg:gap-[4px]">
         <a routerLink="./dashboard" routerLinkActive #dashboard="routerLinkActive"
           [routerLinkActiveOptions]="{ exact: false }">
           <mat-list-item [activated]="dashboard.isActive">
@@ -9,7 +9,7 @@
               dashboard_2
             </mat-icon>
             <div matListItemTitle class="mat-label-large" [ngClass]="{ 'font-semibold': dashboard.isActive }">
-              Dashboard
+              {{ 'nav.dashboard' | translate }}
             </div>
           </mat-list-item>
         </a>
@@ -18,7 +18,7 @@
           <mat-list-item [activated]="offers.isActive">
             <mat-icon matListItemIcon class="material-symbols-outlined text-on-surface"> local_activity </mat-icon>
             <div matListItemTitle class="mat-label-large" [ngClass]="{ 'font-semibold': offers.isActive }">
-              Offers
+              {{ 'nav.offers' | translate }}
             </div>
           </mat-list-item>
         </a>
@@ -27,7 +27,7 @@
           <mat-list-item [activated]="redemptions.isActive">
             <mat-icon matListItemIcon class="material-symbols-outlined text-on-surface"> receipt_long </mat-icon>
             <div matListItemTitle class="mat-label-large" [ngClass]="{ 'font-semibold': redemptions.isActive }">
-              Redemptions
+              {{ 'nav.redemptions' | translate }}
             </div>
           </mat-list-item>
         </a>
@@ -36,7 +36,7 @@
           <mat-list-item [activated]="redeem.isActive">
             <mat-icon matListItemIcon class="material-symbols-outlined text-on-surface">qr_code_scanner</mat-icon>
             <div matListItemTitle class="mat-label-large" [ngClass]="{ 'font-semibold': redeem.isActive }">
-              Redeem offer
+              {{ 'nav.redeem' | translate }}
             </div>
           </mat-list-item>
         </a>
@@ -45,7 +45,7 @@
           <mat-list-item [activated]="settings.isActive">
             <mat-icon matListItemIcon class="material-symbols-outlined text-on-surface">settings</mat-icon>
             <div matListItemTitle class="mat-label-large" [ngClass]="{ 'font-semibold': settings.isActive }">
-              Settings
+              {{ 'nav.settings' | translate }}
             </div>
           </mat-list-item>
         </a>

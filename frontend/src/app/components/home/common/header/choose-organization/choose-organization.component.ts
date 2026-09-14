@@ -12,6 +12,7 @@ import { OrganizationDto } from '../../../../../../dtos/organization.dto';
 import { OrganizationUserDto } from '../../../../../../dtos/organization-user.dto';
 import { OrganizationStore } from '../../../../../store/organization.store';
 import { PermissionsService } from '../../../../../services/permission.service';
+import { TranslatePipe } from '../../../../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-choose-organization',
@@ -22,6 +23,7 @@ import { PermissionsService } from '../../../../../services/permission.service';
     AvatarModule,
     MatRippleModule,
     NgxSkeletonLoaderModule,
+    TranslatePipe,
   ],
   templateUrl: './choose-organization.component.html',
   styleUrl: './choose-organization.component.css',

@@ -1,10 +1,10 @@
 <div class="flex flex-col gap-7">
   <div class="flex flex-wrap items-start justify-between gap-4">
     <div>
-      <p class="mat-headline-medium text-on-surface m-0">Restaurant dashboard</p>
-      <p class="mat-body-medium text-on-surface-variant mt-2">A clear view of your Offers, customer claims, and redemptions.</p>
+      <p class="mat-headline-medium text-on-surface m-0">{{ 'dashboard.title' | translate }}</p>
+      <p class="mat-body-medium text-on-surface-variant mt-2">{{ 'dashboard.subtitle' | translate }}</p>
     </div>
-    <a mat-flat-button class="rounded-full" routerLink="../offers/new"><mat-icon>add</mat-icon> Create offer</a>
+    <a mat-flat-button class="rounded-full" routerLink="../offers/new"><mat-icon>add</mat-icon> {{ 'dashboard.createOffer' | translate }}</a>
   </div>
 
   @if (loading()) {
@@ -20,19 +20,19 @@
     </div>
   } @else if (dashboard(); as data) {
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">local_activity</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">Active Offers</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.activeOffers | number }}</p></mat-card-content></mat-card>
-      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">confirmation_number</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">Total Claims</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.totalClaims | number }}</p></mat-card-content></mat-card>
-      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">redeem</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">Total Redemptions</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.totalRedemptions | number }}</p></mat-card-content></mat-card>
-      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">today</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">Today’s Redemptions</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.todaysRedemptions | number }}</p></mat-card-content></mat-card>
-      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">percent</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">Redemption Rate</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.redemptionRate | number:'1.0-2' }}%</p><p class="mat-body-small text-on-surface-variant mt-1">Redeemed claims ÷ all claims</p></mat-card-content></mat-card>
+      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">local_activity</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">{{ 'dashboard.activeOffers' | translate }}</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.activeOffers | number }}</p></mat-card-content></mat-card>
+      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">confirmation_number</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">{{ 'dashboard.totalClaims' | translate }}</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.totalClaims | number }}</p></mat-card-content></mat-card>
+      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">redeem</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">{{ 'dashboard.totalRedemptions' | translate }}</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.totalRedemptions | number }}</p></mat-card-content></mat-card>
+      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">today</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">{{ 'dashboard.todaysRedemptions' | translate }}</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.todaysRedemptions | number }}</p></mat-card-content></mat-card>
+      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">percent</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">{{ 'dashboard.redemptionRate' | translate }}</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.redemptionRate | number:'1.0-2' }}%</p><p class="mat-body-small text-on-surface-variant mt-1">{{ 'dashboard.rateHelp' | translate }}</p></mat-card-content></mat-card>
     </div>
 
     <mat-card appearance="outlined" class="overflow-hidden bg-surface-container-lowest">
       <mat-card-header class="p-5 pb-2">
         <div class="flex flex-wrap items-start justify-between gap-4 w-full">
           <div>
-            <mat-card-title>Sales trend</mat-card-title>
-            <mat-card-subtitle>Gross and net sales from redeemed claims.</mat-card-subtitle>
+          <mat-card-title>{{ 'dashboard.salesTrend' | translate }}</mat-card-title>
+          <mat-card-subtitle>{{ 'dashboard.salesSubtitle' | translate }}</mat-card-subtitle>
           </div>
           <app-date-range-filter></app-date-range-filter>
         </div>
@@ -53,20 +53,20 @@
 
     <div class="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-5">
       <mat-card appearance="outlined" class="overflow-hidden">
-        <mat-card-header class="p-5 pb-2"><mat-card-title>Recent Redemptions</mat-card-title><mat-card-subtitle>Claim-backed Offer activity from your restaurant.</mat-card-subtitle></mat-card-header>
+        <mat-card-header class="p-5 pb-2"><mat-card-title>{{ 'dashboard.recentRedemptions' | translate }}</mat-card-title><mat-card-subtitle>{{ 'dashboard.recentSubtitle' | translate }}</mat-card-subtitle></mat-card-header>
         <mat-card-content class="p-0">
           @if (recentRows().length === 0) {
-            <div class="p-10 text-center text-on-surface-variant"><mat-icon>receipt_long</mat-icon><p class="mat-body-large mt-3">No redemptions yet.</p><p class="mat-body-medium">Redeemed claims will appear here.</p></div>
+            <div class="p-10 text-center text-on-surface-variant"><mat-icon>receipt_long</mat-icon><p class="mat-body-large mt-3">{{ 'dashboard.noRedemptions' | translate }}</p><p class="mat-body-medium">{{ 'dashboard.redeemedClaimsAppear' | translate }}</p></div>
           } @else {
-            <div class="overflow-auto"><table class="w-full text-left"><thead><tr class="border-b border-outline-variant"><th class="p-4">Offer</th><th class="p-4">Customer</th><th class="p-4">Discount</th><th class="p-4">Redeemed</th></tr></thead><tbody>@for (row of recentRows(); track row.redemptionId) {<tr class="border-b border-outline-variant last:border-0"><td class="p-4 font-medium">{{ row.offerTitle }}</td><td class="p-4">{{ customerLabel(row) }}</td><td class="p-4">{{ row.discount | currency:currency():'symbol' }}</td><td class="p-4 text-on-surface-variant">{{ row.redeemedAt | date:'short' }}</td></tr>}</tbody></table></div>
+            <div class="overflow-hidden"><table class="w-full table-fixed text-left"><thead><tr class="border-b border-outline-variant"><th class="w-[28%] p-4">{{ 'dashboard.offer' | translate }}</th><th class="w-[32%] p-4">{{ 'dashboard.customer' | translate }}</th><th class="w-[18%] p-4">{{ 'dashboard.discount' | translate }}</th><th class="w-[22%] p-4">{{ 'dashboard.redeemed' | translate }}</th></tr></thead><tbody>@for (row of recentRows(); track row.redemptionId) {<tr class="border-b border-outline-variant last:border-0"><td class="max-w-0 truncate p-4 font-medium" [title]="row.offerTitle">{{ row.offerTitle }}</td><td class="max-w-0 truncate p-4" [title]="customerLabel(row)">{{ customerLabel(row) }}</td><td class="whitespace-nowrap p-4">{{ row.discount | currency:currency():'symbol' }}</td><td class="p-4 text-xs leading-tight text-on-surface-variant sm:whitespace-nowrap sm:text-base">{{ row.redeemedAt | date:'short' }}</td></tr>}</tbody></table></div>
           }
         </mat-card-content>
-        @if (recentRows().length > 0) { <mat-card-actions class="p-4"><a mat-button routerLink="../redemptions">View all redemptions</a></mat-card-actions> }
+        @if (recentRows().length > 0) { <mat-card-actions class="p-4"><a mat-button routerLink="../redemptions">{{ 'dashboard.viewAllRedemptions' | translate }}</a></mat-card-actions> }
       </mat-card>
 
-      <mat-card appearance="outlined" class="p-5"><mat-card-content><div class="mat-title-large">Best Performing Offer</div>@if (data.bestPerformingOffer; as best) {<div class="mt-6 flex items-start gap-3"><mat-icon class="text-primary">star</mat-icon><div><div class="mat-body-large font-medium">{{ best.title }}</div><div class="mat-body-medium text-on-surface-variant mt-1">{{ best.redemptions }} successful redemption{{ best.redemptions === 1 ? '' : 's' }}</div></div></div><a mat-button class="mt-5" [routerLink]="['../offers', best.offerId]">View offer</a>} @else {<p class="mat-body-medium text-on-surface-variant mt-6">No redeemed Offers yet.</p>}</mat-card-content></mat-card>
+      <mat-card appearance="outlined" class="p-5"><mat-card-content><div class="mat-title-large">{{ 'dashboard.bestOffer' | translate }}</div>@if (data.bestPerformingOffer; as best) {<div class="mt-6 flex items-start gap-3"><mat-icon class="text-primary">star</mat-icon><div><div class="mat-body-large font-medium">{{ best.title }}</div><div class="mat-body-medium text-on-surface-variant mt-1">{{ best.redemptions }} {{ (best.redemptions === 1 ? 'dashboard.successfulRedemption' : 'dashboard.successfulRedemptions') | translate }}</div></div></div><a mat-button class="mt-5" [routerLink]="['../offers', best.offerId]">{{ 'dashboard.viewOffer' | translate }}</a>} @else {<p class="mat-body-medium text-on-surface-variant mt-6">{{ 'dashboard.noRedeemedOffers' | translate }}</p>}</mat-card-content></mat-card>
     </div>
 
-    @if (data.offers.length === 0) {<mat-card appearance="outlined" class="p-10 text-center"><mat-icon class="text-on-surface-variant">local_offer</mat-icon><div class="mat-title-large mt-3">No offers yet.</div><div class="mat-body-medium text-on-surface-variant mt-2">Create your first offer to start collecting claims and redemptions.</div><a mat-flat-button class="rounded-full mt-5" routerLink="../offers/new">Create offer</a></mat-card>}
+    @if (data.offers.length === 0) {<mat-card appearance="outlined" class="p-10 text-center"><mat-icon class="text-on-surface-variant">local_offer</mat-icon><div class="mat-title-large mt-3">{{ 'dashboard.noOffers' | translate }}</div><div class="mat-body-medium text-on-surface-variant mt-2">{{ 'dashboard.firstOfferHelp' | translate }}</div><a mat-flat-button class="rounded-full mt-5" routerLink="../offers/new">{{ 'dashboard.createOffer' | translate }}</a></mat-card>}
   }
 </div>

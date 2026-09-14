@@ -1,5 +1,6 @@
 import {
   Component,
+  inject,
   Input,
   OnChanges,
   SimpleChanges,
@@ -10,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { DateRangeType } from '../../../../store/date-range.store';
+import { LanguageService } from '../../../../services/language.service';
 
 Chart.register(...registerables);
 
@@ -34,7 +36,7 @@ interface ChartPoint {
   imports: [CommonModule, BaseChartDirective],
   template: `
     <div class="bg-surface-container-lowest relative">
-      <h3 class="text-base text-on-surface-variant font-medium mb-3">Sales</h3>
+      <h3 class="text-base text-on-surface-variant font-medium mb-3">{{ languageService.translate('chart.sales') }}</h3>
 
       <div class="h-[410px] relative mb-4 border border-outline-variant rounded-lg p-6">
         <!-- Always render chart -->
@@ -50,7 +52,7 @@ interface ChartPoint {
           *ngIf="!hasData"
           class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
           <p class="font-medium text-on-surface">
-            No data available
+            {{ languageService.translate('chart.noData') }}
           </p>
         </div>
       </div>
@@ -58,6 +60,7 @@ interface ChartPoint {
   `,
 })
 export class SalesTrendChartComponent implements OnChanges, OnDestroy {
+  readonly languageService = inject(LanguageService);
   @Input() graphData: DailyData[] = [];
   @Input() dateRangeType: DateRangeType = '30';
   @Input() startDate: Date | null = null;

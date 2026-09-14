@@ -15,6 +15,8 @@ import { environment } from '../../../../../../environments/environment';
 import { ThemeService } from '../../../../../services/theme.service';
 import { Theme } from '../../../../../../enums';
 import { Observable, Subject, takeUntil } from 'rxjs';
+import { Language, LanguageService } from '../../../../../services/language.service';
+import { TranslatePipe } from '../../../../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-profile',
@@ -27,6 +29,7 @@ import { Observable, Subject, takeUntil } from 'rxjs';
     CommonModule,
     MatButtonModule,
     MatButtonToggleModule,
+    TranslatePipe,
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
@@ -45,7 +48,7 @@ export class ProfileComponent implements OnInit {
   user = this.userStore.user;
   organizations = this.organizationUserStore.organizations;
 
-  constructor(private router: Router, private authService: AuthService, private themeService: ThemeService) {
+  constructor(private router: Router, private authService: AuthService, private themeService: ThemeService, readonly languageService: LanguageService) {
     this.selectedThemePreference = Theme.SYSTEM
 
     effect(() => {
@@ -65,6 +68,10 @@ export class ProfileComponent implements OnInit {
 
   changeTheme(event: MatButtonToggleChange) {
     this.themeService.setTheme(event.value)
+  }
+
+  changeLanguage(event: MatButtonToggleChange) {
+    this.languageService.setLanguage(event.value as Language);
   }
 
   getRole() {

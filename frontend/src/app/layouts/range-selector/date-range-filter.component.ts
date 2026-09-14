@@ -21,6 +21,8 @@ import { signal } from '@angular/core';
 import * as _moment from 'moment';
 import { default as _rollupMoment } from 'moment';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+import { TranslatePipe } from '../../pipe/translate.pipe';
+import { LanguageService } from '../../services/language.service';
 
 export const MY_FORMATS = {
   parse: { dateInput: 'Do MMM, YYYY' },
@@ -45,6 +47,7 @@ export const MY_FORMATS = {
     MatNativeDateModule,
     MatIconModule,
     PortalModule,
+    TranslatePipe,
   ],
   templateUrl: './date-range-filter.component.html',
   styleUrls: ['./date-range-filter.component.css'],
@@ -56,6 +59,7 @@ export class DateRangeFilterComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private overlay = inject(Overlay);
   private dateRangeStore = inject(DateRangeStore);
+  readonly languageService = inject(LanguageService);
 
   @ViewChild(CdkPortal) portal!: CdkPortal;
   @ViewChild('triggerBtn', { read: ElementRef }) triggerBtn!: ElementRef;
@@ -70,12 +74,12 @@ export class DateRangeFilterComponent implements OnInit, OnDestroy {
   });
 
   sidebarRanges: { label: string; value: DateRangeType }[] = [
-    { label: 'Last 7 days', value: '7' },
-    { label: 'Last 30 days', value: '30' },
-    { label: 'Last 90 days', value: '90' },
-    { label: 'Last 365 days', value: '365' },
-    { label: 'All time', value: 'all' },
-    { label: 'Custom', value: 'custom' },
+    { label: 'range.7', value: '7' },
+    { label: 'range.30', value: '30' },
+    { label: 'range.90', value: '90' },
+    { label: 'range.365', value: '365' },
+    { label: 'range.all', value: 'all' },
+    { label: 'range.custom', value: 'custom' },
   ];
 
 
@@ -83,6 +87,10 @@ export class DateRangeFilterComponent implements OnInit, OnDestroy {
   activeRange = this.dateRangeStore.activeRange;
   label = this.dateRangeStore.label;
   selectedDateRangeText = this.dateRangeStore.formattedRange;
+
+  rangeLabel() {
+    return this.languageService.translate(`range.${this.activeRange()}`, this.label());
+  }
 
   // Local temp selection before Apply
   tempRangeType: DateRangeType = this.dateRangeStore.activeRange();

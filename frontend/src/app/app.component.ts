@@ -5,6 +5,7 @@ import { ColorUtil } from './utils/color-util';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { registerIcons } from './app.config';
+import { LanguageService } from './services/language.service';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,7 @@ import { registerIcons } from './app.config';
 export class AppComponent {
   title = 'qpon';
 
-  constructor(private themeService: ThemeService, private iconRegistry: MatIconRegistry, private sanitizer: DomSanitizer) {}
+  constructor(private themeService: ThemeService, private iconRegistry: MatIconRegistry, private sanitizer: DomSanitizer, private languageService: LanguageService) {}
 
   ngOnInit() {
     ColorUtil.setThemeFromSeed('#4D5C92');

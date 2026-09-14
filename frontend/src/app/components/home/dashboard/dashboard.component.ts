@@ -13,11 +13,12 @@ import { DateRangeStore } from '../../../store/date-range.store';
 import { OrganizationStore } from '../../../store/organization.store';
 import { DateRangeFilterComponent } from '../../../layouts/range-selector/date-range-filter.component';
 import { SalesTrendChartComponent } from './sales-chart/sales-trend-chart.component';
+import { TranslatePipe } from '../../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatCardModule, MatIconModule, RouterLink, CurrencyPipe, DatePipe, DecimalPipe, DateRangeFilterComponent, SalesTrendChartComponent],
+  imports: [CommonModule, MatButtonModule, MatCardModule, MatIconModule, RouterLink, CurrencyPipe, DatePipe, DecimalPipe, DateRangeFilterComponent, SalesTrendChartComponent, TranslatePipe],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })

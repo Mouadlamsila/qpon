@@ -10,11 +10,12 @@ import { firstValueFrom } from 'rxjs';
 import { OfferClaimRedemption } from '../../../../dtos/offer-claim-redemption.dto';
 import { OfferClaimRedemptionService } from '../../../services/offer-claim-redemption.service';
 import { OrganizationStore } from '../../../store/organization.store';
+import { TranslatePipe } from '../../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-offer-redemptions',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, DatePipe, MatButtonModule, MatCardModule, MatIconModule, MatSortModule, MatTableModule, RouterLink],
+  imports: [CommonModule, CurrencyPipe, DatePipe, MatButtonModule, MatCardModule, MatIconModule, MatSortModule, MatTableModule, RouterLink, TranslatePipe],
   templateUrl: './redemptions.component.html',
   styleUrl: './redemptions.component.css',
 })
@@ -49,7 +50,7 @@ export class RedemptionsComponent implements OnInit {
     } catch {
       this.rows = [];
       this.dataSource.data = [];
-      this.error = 'We could not load redemptions. Please try again.';
+      this.error = 'redemptions.loadError';
     } finally {
       this.loading = false;
     }

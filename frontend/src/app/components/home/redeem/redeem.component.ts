@@ -12,10 +12,11 @@ import { OrganizationStore } from '../../../store/organization.store';
 import { OfferClaimRedemptionService } from '../../../services/offer-claim-redemption.service';
 import { OfferClaimService } from '../../../services/offer-claim.service';
 import { OfferClaimValidation, OfferClaimRedemption } from '../../../../dtos/offer-claim-redemption.dto';
+import { TranslatePipe } from '../../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-redeem',
-  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, CurrencyPipe, DatePipe],
+  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule, CurrencyPipe, DatePipe, TranslatePipe],
   templateUrl: './redeem.component.html',
   styleUrl: './redeem.component.css',
 })

@@ -13,7 +13,7 @@
       <div class="mat-body-medium text-on-surface truncate max-w-[170px] block">
         {{ currentOrganization()?.name }}
       </div>
-    <div class="mat-body-small text-on-surface-variant">You’re the {{ currentOrganization()?.role?.replace('_', ' ') }}</div>
+    <div class="mat-body-small text-on-surface-variant">{{ 'organizations.youAre' | translate }} {{ currentOrganization()?.role?.replace('_', ' ') }}</div>
   </div>
   <div class="py-2.5 px-2">
     <mat-icon class="text-on-surface-variant">unfold_more</mat-icon>
@@ -87,7 +87,7 @@
         @if(currentOrganization()?.role == 'super_admin') {
           <button mat-menu-item (click)="onViewAllOrganization()">
           <div class="mat-body-medium text-primary">
-            View all organisations
+            {{ 'organizations.viewAll' | translate }}
           </div>
         </button>
         }
@@ -149,7 +149,7 @@
         }
         <button mat-menu-item (click)="onViewAllOrganization()">
           <div class="mat-body-medium text-primary">
-            View all organisations
+            {{ 'organizations.viewAll' | translate }}
           </div>
         </button>
       }

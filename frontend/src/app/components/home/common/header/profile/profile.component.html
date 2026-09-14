@@ -44,6 +44,20 @@
               </mat-button-toggle>
             </mat-button-toggle-group>
           </div>
+          <div class="flex items-center justify-between gap-3 border-t border-outline-variant pt-4" (click)="$event.stopPropagation()">
+            <div class="flex items-center gap-2 text-on-surface-variant mat-body-medium">
+              <mat-icon class="material-symbols-outlined text-[20px]">translate</mat-icon>
+              <span>{{ 'profile.language' | translate }}</span>
+            </div>
+            <mat-button-toggle-group
+              (change)="changeLanguage($event)"
+              [hideSingleSelectionIndicator]="true"
+              [value]="languageService.language()"
+              [attr.aria-label]="'profile.language' | translate">
+              <mat-button-toggle value="en">EN</mat-button-toggle>
+              <mat-button-toggle value="fr">FR</mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
         </div>
 
         <div class="flex flex-col mat-body-large text-on-surface-variant">
@@ -51,7 +65,7 @@
             (click)="goToSettings()">
             <mat-icon class="material-symbols-outlined mr-0">settings</mat-icon>
             <div class="cursor-pointer">
-              Settings
+              {{ 'profile.settings' | translate }}
             </div>
           </div>
         </div>
@@ -60,7 +74,7 @@
             (click)="logout()">
             <mat-icon class="material-symbols-outlined mr-0">logout</mat-icon>
             <div class="cursor-pointer">
-              Sign out
+              {{ 'profile.signOut' | translate }}
             </div>
           </div>
         </div>

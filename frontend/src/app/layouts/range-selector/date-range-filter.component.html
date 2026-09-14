@@ -7,7 +7,7 @@
   <mat-icon class="material-icons-outlined text-outline">
     calendar_month
   </mat-icon>
-  <span class="text-on-surface text-sm">{{ label() }}</span>
+  <span class="text-on-surface text-sm">{{ rangeLabel() }}</span>
   <mat-icon class="text-on-surface-variant">
     arrow_drop_down
   </mat-icon>
@@ -30,14 +30,14 @@
             [class.text-on-surface]="tempActiveRange() === range.value"
             (click)="selectRange(range.value)"
           >
-            {{ range.label }}
+            {{ range.label | translate }}
           </button>
         </div>
 
         <!-- Content -->
         <div class="content flex-1 flex flex-col px-6 py-5">
           <p class="text-sm font-medium text-on-surface mb-3">
-            Selected date range
+            {{ 'range.selected' | translate }}
           </p>
 
           <!-- Date range picker -->
@@ -80,7 +80,7 @@
             *ngIf="tempActiveRange() === 'all'"
             class="text-sm text-on-surface mt-2"
           >
-            Showing all data
+            {{ 'range.showingAll' | translate }}
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@
           class="text-primary border-none font-small rounded-3xl px-4 py-1.5 hover:bg-surface-container"
           (click)="closePopup()"
         >
-          Cancel
+          {{ 'range.cancel' | translate }}
         </button>
         <button
           mat-flat-button
@@ -103,7 +103,7 @@
           class="bg-primary text-on-primary font-small rounded-3xl px-5 py-1.5"
           (click)="apply()"
         >
-          Apply
+          {{ 'range.apply' | translate }}
         </button>
       </div>
     </div>

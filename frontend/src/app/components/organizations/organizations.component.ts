@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { MatDividerModule } from '@angular/material/divider';
+import { TranslatePipe } from '../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-organizations',
@@ -15,6 +16,7 @@ import { MatDividerModule } from '@angular/material/divider';
     MatDividerModule,
     CommonModule,
     NgxSkeletonLoaderModule,
+    TranslatePipe,
   ],
   templateUrl: './organizations.component.html',
   styleUrl: './organizations.component.css',
