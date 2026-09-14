@@ -4,5 +4,48 @@
   @if (loading) {<mat-card appearance="outlined" class="p-10 animate-pulse h-64"></mat-card>}
   @else if (error) {<div class="rounded-lg border border-error p-4 text-error" role="alert">{{ error }}</div>}
   @else if (rows.length === 0) {<mat-card appearance="outlined" class="p-10 text-center"><mat-icon class="text-on-surface-variant">receipt_long</mat-icon><p class="mat-title-large mt-3">No redemptions yet.</p><p class="mat-body-medium text-on-surface-variant mt-2">Successful Offer redemptions will appear here.</p></mat-card>}
-  @else {<mat-card appearance="outlined" class="overflow-hidden"><div class="overflow-auto"><table class="w-full text-left"><thead><tr class="border-b border-outline-variant"><th class="p-4">Offer</th><th class="p-4">Customer</th><th class="p-4">Claim code</th><th class="p-4">Order amount</th><th class="p-4">Discount</th><th class="p-4">Redeemed at</th><th class="p-4">Redeemed by</th></tr></thead><tbody>@for (row of rows; track row.redemptionId) {<tr class="border-b border-outline-variant last:border-0"><td class="p-4 font-medium">{{ row.offerTitle }}</td><td class="p-4">{{ row.customerEmail || 'Customer' }}</td><td class="p-4 font-mono">{{ row.claimCode || '—' }}</td><td class="p-4">{{ row.baseOrderValue | currency:currency():'symbol' }}</td><td class="p-4">{{ row.discount | currency:currency():'symbol' }}</td><td class="p-4 text-on-surface-variant">{{ row.redeemedAt | date:'medium' }}</td><td class="p-4">{{ row.redeemedBy || 'Team member' }}</td></tr>}</tbody></table></div></mat-card>}
+  @else {
+    <mat-card appearance="outlined" class="overflow-hidden bg-surface-container-lowest">
+      <mat-card-header class="p-5 pb-2">
+        <mat-card-title>Redemption history</mat-card-title>
+        <mat-card-subtitle>Sortable records of successful Offer claims.</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content class="p-0">
+        <div class="overflow-auto">
+          <table mat-table [dataSource]="dataSource" matSort matSortActive="redeemedAt" matSortDirection="desc" class="w-full min-w-[980px]">
+            <ng-container matColumnDef="offerTitle">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-6 py-4 text-on-surface-variant">Offer</th>
+              <td mat-cell *matCellDef="let row" class="px-6 py-5 font-medium">{{ row.offerTitle || '—' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="customerEmail">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-6 py-4 text-on-surface-variant">Customer</th>
+              <td mat-cell *matCellDef="let row" class="px-6 py-5">{{ row.customerEmail || 'Customer' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="claimCode">
+              <th mat-header-cell *matHeaderCellDef class="px-6 py-4 text-on-surface-variant">Claim code</th>
+              <td mat-cell *matCellDef="let row" class="px-6 py-5 font-mono">{{ row.claimCode || '—' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="baseOrderValue">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-6 py-4 text-on-surface-variant">Order amount</th>
+              <td mat-cell *matCellDef="let row" class="px-6 py-5">{{ row.baseOrderValue | currency:currency():'symbol' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="discount">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-6 py-4 text-on-surface-variant">Discount</th>
+              <td mat-cell *matCellDef="let row" class="px-6 py-5 text-primary">{{ row.discount | currency:currency():'symbol' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="redeemedAt">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-6 py-4 text-on-surface-variant">Redeemed at</th>
+              <td mat-cell *matCellDef="let row" class="px-6 py-5 text-on-surface-variant">{{ row.redeemedAt | date:'medium' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="redeemedBy">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-6 py-4 text-on-surface-variant">Redeemed by</th>
+              <td mat-cell *matCellDef="let row" class="px-6 py-5">{{ row.redeemedBy || 'Team member' }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
 </div>

@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 import { MatRadioModule } from '@angular/material/radio';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -16,11 +17,11 @@ import { RestaurantOfferDto } from '../../../../dtos/restaurant-offer.dto';
 @Component({
   selector: 'app-offer-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatRadioModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatRadioModule, RouterLink],
   templateUrl: './offer-form.component.html',
   styleUrl: './offer-form.component.css',
 })
-export class OfferFormComponent implements OnInit {
+export class OfferFormComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -43,7 +44,10 @@ export class OfferFormComponent implements OnInit {
   offerId?: string;
   existing?: RestaurantOfferDto;
   selectedFile?: File;
+  imagePreviewUrl: string | null = null;
+  draggingImage = false;
   saving = false;
+  private objectUrl: string | null = null;
 
   async ngOnInit() {
     this.offerId = this.route.snapshot.paramMap.get('offer_id') ?? undefined;
@@ -51,6 +55,7 @@ export class OfferFormComponent implements OnInit {
       const response = await firstValueFrom(this.offerService.get(this.organization()!.organizationId!, this.offerId));
       this.existing = response.data;
       if (this.existing) {
+        this.imagePreviewUrl = this.existing.imageUrl;
         this.form.patchValue({
           title: this.existing.title,
           description: this.existing.description ?? '',
@@ -70,12 +75,40 @@ export class OfferFormComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
+    this.setImageFile(file, input);
+  }
+
+  onImageDragOver(event: DragEvent) {
+    event.preventDefault();
+    this.draggingImage = true;
+  }
+
+  onImageDragLeave(event: DragEvent) {
+    event.preventDefault();
+    this.draggingImage = false;
+  }
+
+  onImageDrop(event: DragEvent) {
+    event.preventDefault();
+    this.draggingImage = false;
+    const file = event.dataTransfer?.files?.[0];
+    if (file) this.setImageFile(file);
+  }
+
+  private setImageFile(file: File, input?: HTMLInputElement) {
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
       this.snackbar.openSnackBar('Choose a JPEG, PNG, or WebP image up to 5 MB', undefined);
-      input.value = '';
+      if (input) input.value = '';
       return;
     }
+    if (this.objectUrl) URL.revokeObjectURL(this.objectUrl);
+    this.objectUrl = URL.createObjectURL(file);
+    this.imagePreviewUrl = this.objectUrl;
     this.selectedFile = file;
+  }
+
+  ngOnDestroy() {
+    if (this.objectUrl) URL.revokeObjectURL(this.objectUrl);
   }
 
   async save() {

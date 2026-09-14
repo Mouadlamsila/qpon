@@ -53,7 +53,7 @@
       elevated-container-elevation: var(--mat-sys-level0),
       elevated-container-color: var(--sys-surface-container-lowest),
       outlined-outline-color: var(--sys-outline-variant),
-      outlined-container-color: var(--sys-on-primary),
+      outlined-container-color: var(--sys-surface-container-lowest),
     )
   );
 
@@ -107,11 +107,7 @@
 
 @mixin dark-theme-palette-overrides {
   & {
-    --sys-surface-container-low: color-mix(
-      in srgb,
-      var(--sys-neutral-10) 95%,
-      var(--sys-primary) 5%
-    );
+    --sys-surface-container-low: var(--sys-surface-container);
   }
 }
 

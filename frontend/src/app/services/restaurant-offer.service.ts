@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ApiResponse } from '../../dtos/api-response.dto';
 import {
@@ -15,11 +16,15 @@ export class RestaurantOfferService {
   constructor(private readonly http: HttpClient) {}
 
   list(organizationId: string) {
-    return this.http.get<ApiResponse<RestaurantOfferDto[]>>(`${this.endpoint}/organizations/${organizationId}/offers`);
+    return this.http.get<ApiResponse<RestaurantOfferDto[]>>(`${this.endpoint}/organizations/${organizationId}/offers`).pipe(
+      map((response) => ({ ...response, data: response.data?.map((offer) => this.withResolvedImage(offer)) ?? response.data })),
+    );
   }
 
   get(organizationId: string, offerId: string) {
-    return this.http.get<ApiResponse<RestaurantOfferDto>>(`${this.endpoint}/organizations/${organizationId}/offers/${offerId}`);
+    return this.http.get<ApiResponse<RestaurantOfferDto>>(`${this.endpoint}/organizations/${organizationId}/offers/${offerId}`).pipe(
+      map((response) => ({ ...response, data: response.data ? this.withResolvedImage(response.data) : response.data })),
+    );
   }
 
   create(organizationId: string, body: CreateRestaurantOfferDto) {
@@ -51,11 +56,25 @@ export class RestaurantOfferService {
   uploadImage(organizationId: string, offerId: string, file: File) {
     const body = new FormData();
     body.append('image', file);
-    return this.http.post<ApiResponse<RestaurantOfferDto>>(`${this.endpoint}/organizations/${organizationId}/offers/${offerId}/image`, body);
+    return this.http.post<ApiResponse<RestaurantOfferDto>>(`${this.endpoint}/organizations/${organizationId}/offers/${offerId}/image`, body).pipe(
+      map((response) => ({ ...response, data: response.data ? this.withResolvedImage(response.data) : response.data })),
+    );
   }
 
   publicOffer(slug: string) {
-    return this.http.get<ApiResponse<PublicRestaurantOfferDto>>(`${this.endpoint}/public/offers/${encodeURIComponent(slug)}`);
+    return this.http.get<ApiResponse<PublicRestaurantOfferDto>>(`${this.endpoint}/public/offers/${encodeURIComponent(slug)}`).pipe(
+      map((response) => ({ ...response, data: response.data ? { ...response.data, imageUrl: this.resolveImageUrl(response.data.imageUrl) } : response.data })),
+    );
+  }
+
+  private withResolvedImage(offer: RestaurantOfferDto): RestaurantOfferDto {
+    return { ...offer, imageUrl: this.resolveImageUrl(offer.imageUrl) };
+  }
+
+  private resolveImageUrl(imageUrl: string | null): string | null {
+    if (!imageUrl || imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) return imageUrl;
+    if (environment.production) return imageUrl;
+    return `${this.endpoint.replace(/\/api\/?$/, '')}${imageUrl}`;
   }
 
   private toApiPayload(body: Partial<CreateRestaurantOfferDto>) {

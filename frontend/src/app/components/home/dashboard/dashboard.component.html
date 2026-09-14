@@ -27,6 +27,30 @@
       <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">percent</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">Redemption Rate</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.redemptionRate | number:'1.0-2' }}%</p><p class="mat-body-small text-on-surface-variant mt-1">Redeemed claims ÷ all claims</p></mat-card-content></mat-card>
     </div>
 
+    <mat-card appearance="outlined" class="overflow-hidden bg-surface-container-lowest">
+      <mat-card-header class="p-5 pb-2">
+        <div class="flex flex-wrap items-start justify-between gap-4 w-full">
+          <div>
+            <mat-card-title>Sales trend</mat-card-title>
+            <mat-card-subtitle>Gross and net sales from redeemed claims.</mat-card-subtitle>
+          </div>
+          <app-date-range-filter></app-date-range-filter>
+        </div>
+      </mat-card-header>
+      <mat-card-content class="p-5 pt-2">
+        @if (salesLoading()) {
+          <div class="h-64 rounded-lg animate-pulse bg-surface-container" aria-label="Loading sales trend"></div>
+        } @else {
+          <app-sales-trend-chart
+            [graphData]="salesGraph()"
+            [dateRangeType]="dateRangeStore.activeRange()"
+            [startDate]="dateRangeStore.start()"
+            [endDate]="dateRangeStore.end()">
+          </app-sales-trend-chart>
+        }
+      </mat-card-content>
+    </mat-card>
+
     <div class="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-5">
       <mat-card appearance="outlined" class="overflow-hidden">
         <mat-card-header class="p-5 pb-2"><mat-card-title>Recent Redemptions</mat-card-title><mat-card-subtitle>Claim-backed Offer activity from your restaurant.</mat-card-subtitle></mat-card-header>

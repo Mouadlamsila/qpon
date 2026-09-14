@@ -28,9 +28,49 @@ body {
   }
 
   .dark-theme {
-    //sytem level colors
+    color: var(--sys-on-surface);
+    // Apply the complete dark component palette as well as the system tokens.
+    // Without this, Material cards/tables keep the light component colors.
     @include mat.system-level-colors(theme.$dark-theme);
-    //component theme
+    @include mat.all-component-colors(theme.$dark-theme);
+    // The application also uses the --sys-* tokens directly in utility classes.
+    // Keep Material's internal aliases on the same dark palette.
+    --mat-sys-surface: var(--sys-surface);
+    --mat-sys-surface-container: var(--sys-surface-container);
+    --mat-sys-surface-container-low: var(--sys-surface-container-low);
+    --mat-sys-surface-container-lowest: var(--sys-surface-container-lowest);
+    --mat-sys-surface-container-high: var(--sys-surface-container-high);
+    --mat-sys-surface-container-highest: var(--sys-surface-container-highest);
+    --mat-sys-surface-variant: var(--sys-surface-variant);
+    --mat-sys-on-surface: var(--sys-on-surface);
+    --mat-sys-on-surface-variant: var(--sys-on-surface-variant);
+    --mat-sys-outline: var(--sys-outline);
+    --mat-sys-outline-variant: var(--sys-outline-variant);
+    --mat-sys-primary: var(--sys-primary);
+    --mat-sys-on-primary: var(--sys-on-primary);
+    --mat-sys-error: var(--sys-error);
+    --mat-sys-on-error: var(--sys-on-error);
+    .mat-mdc-card-title,
+    .mat-mdc-card-subtitle,
+    .mat-mdc-table .mat-mdc-cell,
+    .mat-mdc-table .mat-mdc-header-cell {
+      color: var(--sys-on-surface);
+    }
+
+    .mat-mdc-card-subtitle,
+    .mat-mdc-table .mat-mdc-header-cell {
+      color: var(--sys-on-surface-variant);
+    }
+
+    // Some legacy screens use native tables instead of MatTable.
+    table th,
+    table td {
+      color: var(--sys-on-surface);
+    }
+
+    table th {
+      color: var(--sys-on-surface-variant);
+    }
     @include extendedPalette.extended-dark-theme();
 
     @include overrides.dark-theme-palette-overrides();
