@@ -1,6 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { Expose } from 'class-transformer';
-import { Equals, IsString, IsDate, IsOptional, IsEmail, MaxLength } from 'class-validator';
+import { Equals, IsString, IsDate, IsOptional, IsEmail, MaxLength, IsEnum } from 'class-validator';
+import { organizationStatusEnum } from '../enums';
 
 export class OrganizationDto {
   @Expose({ name: '@entity' })
@@ -15,6 +16,9 @@ export class OrganizationDto {
 
   @IsString()
   currency: string;
+
+  @IsEnum(organizationStatusEnum)
+  status: organizationStatusEnum;
 
   @IsOptional()
   @Expose({ name: 'external_id' })

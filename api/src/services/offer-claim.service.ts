@@ -13,6 +13,7 @@ import { CreateOfferClaimDto, PublicOfferClaimDto } from '../dtos';
 import { Customer } from '../entities/customer.entity';
 import { OfferClaim } from '../entities/offer-claim.entity';
 import { RestaurantOffer } from '../entities/restaurant-offer.entity';
+import { RateLimitService } from './rate-limit.service';
 import {
   campaignStatusEnum,
   couponCodeStatusEnum,
@@ -21,18 +22,16 @@ import {
   statusEnum,
 } from '../enums';
 
-type RateLimitEntry = { count: number; resetAt: number };
-
 @Injectable()
 export class OfferClaimService {
-  private readonly publicClaimAttempts = new Map<string, RateLimitEntry>();
-  private readonly rateLimitWindowMs = 10 * 60 * 1000;
-  private readonly rateLimitMaxAttempts = 10;
+  private readonly rateLimitWindowMs = Number(process.env.PUBLIC_CLAIM_RATE_LIMIT_WINDOW_MS ?? 10 * 60 * 1000);
+  private readonly rateLimitMaxAttempts = Number(process.env.PUBLIC_CLAIM_RATE_LIMIT_MAX ?? 10);
 
   constructor(
     @InjectRepository(OfferClaim)
     private readonly claimRepository: Repository<OfferClaim>,
     private readonly datasource: DataSource,
+    private readonly rateLimitService: RateLimitService,
   ) {}
 
   async create(publicSlug: string, body: CreateOfferClaimDto, clientIp?: string) {
@@ -116,6 +115,7 @@ export class OfferClaimService {
     });
 
     if (!claim) throw new NotFoundException('Claim not found');
+    if (claim.organization?.status !== 'active') throw new NotFoundException('Claim not found');
     if (claim.status === offerClaimStatusEnum.CLAIMED && claim.expiresAt.getTime() <= Date.now()) {
       claim.status = offerClaimStatusEnum.EXPIRED;
       await this.claimRepository.save(claim);
@@ -127,6 +127,7 @@ export class OfferClaimService {
   private validateOfferAvailability(offer: RestaurantOffer) {
     const code = offer.coupon?.couponCodes?.[0];
     if (
+      offer.organization?.status !== 'active' ||
       offer.publicationStatus !== offerPublicationStatusEnum.PUBLISHED ||
       offer.coupon?.status !== statusEnum.ACTIVE ||
       !code ||
@@ -216,19 +217,12 @@ export class OfferClaimService {
 
   private checkRateLimit(publicSlug: string, clientIp?: string) {
     const key = `${clientIp || 'unknown'}:${publicSlug}`;
-    const now = Date.now();
-    const current = this.publicClaimAttempts.get(key);
-    if (!current || current.resetAt <= now) {
-      this.publicClaimAttempts.set(key, { count: 1, resetAt: now + this.rateLimitWindowMs });
-      return;
-    }
-    if (current.count >= this.rateLimitMaxAttempts) {
+    if (!this.rateLimitService.consume(key, this.rateLimitMaxAttempts, this.rateLimitWindowMs)) {
       throw new HttpException(
         'Too many claim attempts. Try again later.',
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
-    current.count += 1;
   }
 
   private hashToken(token: string) {
@@ -236,7 +230,7 @@ export class OfferClaimService {
   }
 
   private encryptionKey() {
-    const secret = process.env.JWT_SECRET;
+    const secret = process.env.CLAIM_TOKEN_SECRET || (process.env.NODE_ENV !== 'production' ? process.env.JWT_SECRET : undefined);
     if (!secret) throw new InternalServerErrorException('Claim token encryption is not configured');
     return createHash('sha256').update(secret).digest();
   }

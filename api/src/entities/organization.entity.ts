@@ -14,6 +14,7 @@ import { Redemption } from './redemption.entity';
 import { CouponCode } from './coupon-code.entity';
 import { Campaign } from './campaign.entity';
 import { RestaurantOffer } from './restaurant-offer.entity';
+import { organizationStatusEnum } from '../enums';
 
 @Entity()
 export class Organization {
@@ -25,6 +26,9 @@ export class Organization {
 
   @Column()
   currency: string;
+
+  @Column('enum', { enum: organizationStatusEnum, default: organizationStatusEnum.ACTIVE })
+  status: organizationStatusEnum;
 
   @Column({ name: 'external_id', nullable: true })
   externalId: string;

@@ -1,5 +1,6 @@
 import { Expose, Transform } from 'class-transformer';
 import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
+import { OrganizationStatus } from '../enums';
 
 export class OrganizationMvDto {
   @Expose({ name: '@entity' })
@@ -11,6 +12,9 @@ export class OrganizationMvDto {
 
   @IsString()
   name?: string;
+
+  @IsOptional()
+  status?: OrganizationStatus;
 
   @Expose({ name: 'total_members' })
   @IsNumber()

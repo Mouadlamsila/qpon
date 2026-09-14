@@ -50,7 +50,9 @@ const imageMimeTypes: Record<string, string> = {
 
 @Injectable()
 export class RestaurantOfferService {
-  private readonly imageDirectory = join(__dirname, '..', '..', 'public', 'uploads', 'offers');
+  private readonly imageDirectory = process.env.UPLOADS_DIR
+    ? (process.env.UPLOADS_DIR.startsWith('/') ? process.env.UPLOADS_DIR : join(process.cwd(), process.env.UPLOADS_DIR))
+    : join(__dirname, '..', '..', 'public', 'uploads', 'offers');
 
   constructor(
     @InjectRepository(RestaurantOffer)
@@ -222,7 +224,7 @@ export class RestaurantOfferService {
       where: { publicSlug },
       relations: { organization: true, coupon: { couponCodes: true } },
     });
-    if (!offer || this.effectiveStatus(offer) !== offerPublicationStatusEnum.PUBLISHED) {
+    if (!offer || offer.organization?.status !== 'active' || this.effectiveStatus(offer) !== offerPublicationStatusEnum.PUBLISHED) {
       throw new NotFoundException('Offer not found');
     }
     const code = this.primaryCode(offer);

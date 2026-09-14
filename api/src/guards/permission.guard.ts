@@ -20,6 +20,7 @@ import { UserService } from '../services/user.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { LoggerService } from '../services/logger.service';
 import { roleEnum } from '../enums';
+import { OrganizationService } from '../services/organization.service';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -28,6 +29,7 @@ export class PermissionGuard implements CanActivate {
     private userService: UserService,
     private authorizationService: AuthorizationService,
     private logger: LoggerService,
+    private organizationService: OrganizationService,
   ) {}
 
   async canActivate(context: ExecutionContext) {
@@ -43,6 +45,8 @@ export class PermissionGuard implements CanActivate {
     if (isPublic) {
       return true;
     }
+
+    const routeOrganizationId = request.params.organization_id as string;
 
     const permissionParams = this.reflector.get(
       CHECK_PERMISSIONS_KEY,
@@ -64,7 +68,6 @@ export class PermissionGuard implements CanActivate {
       if (!user) {
         throw new ForbiddenException('User not authenticated');
       }
-      const routeOrganizationId = request.params.organization_id as string;
       const isGlobalSuperAdmin = user.role === roleEnum.SUPER_ADMIN;
       const belongsToRouteOrganization = user.organizationUser?.some(
         (membership) => membership.organizationId === routeOrganizationId,
@@ -73,7 +76,20 @@ export class PermissionGuard implements CanActivate {
       if (routeOrganizationId && !isGlobalSuperAdmin && !belongsToRouteOrganization) {
         throw new ForbiddenException('User does not belong to this organization');
       }
+      if (routeOrganizationId && !isGlobalSuperAdmin) {
+        const organization = await this.organizationService.fetchOrganization(routeOrganizationId);
+        if (organization.status === 'suspended') {
+          throw new ForbiddenException('Restaurant account is suspended');
+        }
+      }
       ability = this.authorizationService.getUserAbility(user);
+    }
+
+    if (apiKeyId && routeOrganizationId) {
+      const organization = await this.organizationService.fetchOrganization(routeOrganizationId);
+      if (organization.status === 'suspended') {
+        throw new ForbiddenException('Restaurant account is suspended');
+      }
     }
 
     // Even endpoints without a CASL decorator must not bypass organization

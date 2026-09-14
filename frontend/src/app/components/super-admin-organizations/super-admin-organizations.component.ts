@@ -1,159 +1,71 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { OrganizationsStore } from './store/organizations.store';
-import { Router } from '@angular/router';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { OrganizationMvDto } from '../../../dtos/organizationsMv.dto';
-import { PaginationOptions } from '../../types/PaginatedOptions';
-import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { MatSortModule, Sort } from '@angular/material/sort';
-import { sortOrderEnum } from '../../../enums';
-import { CustomDatePipe } from '../../pipe/date.pipe';
+import { MatTableModule } from '@angular/material/table';
+import { OrganizationStatus } from '../../../enums';
+import { PlatformRestaurantSummary } from '../../../dtos/platform-admin.dto';
+import { PlatformAdminService } from '../../services/platform-admin.service';
 
 @Component({
   selector: 'app-super-admin-organizations',
-  imports: [
-    MatButtonModule,
-    MatIconModule,
-    MatInputModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    ReactiveFormsModule,
-    NgxSkeletonLoaderModule,
-    CustomDatePipe
-  ],
-  providers: [OrganizationsStore],
+  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatInputModule, MatTableModule],
   templateUrl: './super-admin-organizations.component.html',
   styleUrls: ['./super-admin-organizations.component.css'],
 })
 export class SuperAdminOrganizationsComponent implements OnInit {
-  columns = ['name', 'totalCoupons', 'totalMembers', 'createdAt', 'navigate'];
-  searchControl: FormControl;
-  tempDatasource: number[] = Array.from({ length: 10 }, (_, i) => i + 1);
-  isFilterApplied = false;
-  paginationOptions = signal<PaginationOptions>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
+  private readonly adminService = inject(PlatformAdminService);
+  private readonly router = inject(Router);
 
-  sortOptions = signal<{ active: 'createdAt'; direction: 'asc' | 'desc' }>({
-    active: 'createdAt',
-    direction: 'desc',
-  });
-
-  datasource = new MatTableDataSource<OrganizationMvDto>();
-
-  organizationsStore = inject(OrganizationsStore);
-
-  organizations = this.organizationsStore.organizations;
-  count = this.organizationsStore.count;
-  isLoading = this.organizationsStore.isLoading;
-
-  constructor(private router: Router) {
-    this.searchControl = new FormControl('');
-
-    effect(() => {
-      const organizations = this.organizations() ?? [];
-      const { pageIndex, pageSize } = this.paginationOptions();
-
-      const start = pageIndex * pageSize;
-      const end = Math.min(start + pageSize, organizations.length);
-
-      this.datasource.data = organizations.slice(start, end);
-    });
-  }
+  readonly statuses = OrganizationStatus;
+  readonly restaurants = signal<PlatformRestaurantSummary[]>([]);
+  readonly isLoading = signal(true);
+  readonly error = signal<string | null>(null);
+  search = '';
+  readonly columns = ['name', 'status', 'offers', 'claims', 'redemptions', 'actions'];
 
   ngOnInit() {
-    this.organizationsStore.resetLoadedPages();
+    this.load();
+  }
 
-    this.organizationsStore.fetchOrganizations({
-      sortOptions: {
-        sortBy: this.sortOptions().active,
-        sortOrder:
-          this.sortOptions().direction == 'asc'
-            ? sortOrderEnum.ASC
-            : sortOrderEnum.DESC,
+  load() {
+    this.isLoading.set(true);
+    this.error.set(null);
+    this.adminService.list(this.search).subscribe({
+      next: (response) => {
+        this.restaurants.set(response.data ?? []);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.error.set('Unable to load restaurants. Please retry.');
+        this.isLoading.set(false);
       },
     });
-
-    this.searchControl.valueChanges
-      .pipe(debounceTime(500), distinctUntilChanged())
-      .subscribe((value: string) => {
-
-        this.isFilterApplied = true;
-
-        this.paginationOptions.set({
-          pageIndex: 0,
-          pageSize: 10,
-        });
-
-        this.organizationsStore.resetLoadedPages();
-
-        this.organizationsStore.fetchOrganizations({
-          filter: {
-            name: value.trim(),
-          },
-        });
-      });
   }
 
-  onRowClick(organization: OrganizationMvDto) {
-    this.router.navigate([`/${organization.organizationId}/home/dashboard`]);
+  inspect(restaurant: PlatformRestaurantSummary) {
+    this.router.navigate([`/${restaurant.organizationId}/home/dashboard`]);
   }
 
-  onCreateOrganization() {
+  toggleStatus(restaurant: PlatformRestaurantSummary, event: Event) {
+    event.stopPropagation();
+    const status = restaurant.status === OrganizationStatus.ACTIVE
+      ? OrganizationStatus.SUSPENDED
+      : OrganizationStatus.ACTIVE;
+    this.adminService.updateStatus(restaurant.organizationId, status).subscribe({
+      next: (response) => {
+        const updated = response.data;
+        if (!updated) return;
+        this.restaurants.update((rows) => rows.map((row) => row.organizationId === updated.organizationId ? updated : row));
+      },
+      error: () => this.error.set('Unable to update restaurant status.'),
+    });
+  }
+
+  createRestaurant() {
     this.router.navigate(['/organizations/create']);
-  }
-
-  onPageChange(event: PageEvent) {
-    this.paginationOptions.set({
-      pageIndex: event.pageIndex,
-      pageSize: event.pageSize,
-    });
-
-    this.organizationsStore.fetchOrganizations({
-      sortOptions: {
-        sortBy: this.sortOptions().active,
-        sortOrder:
-          this.sortOptions().direction == 'asc'
-            ? sortOrderEnum.ASC
-            : sortOrderEnum.DESC,
-      },
-      skip: event.pageIndex * event.pageSize,
-      take: this.paginationOptions().pageSize,
-    });
-  }
-
-  onSortChange(event: Sort) {
-    this.paginationOptions.set({
-      pageIndex: 0,
-      pageSize: 10
-    })
-
-    this.organizationsStore.resetLoadedPages();
-
-    this.organizationsStore.resetOrganizations();
-    
-    this.sortOptions.set({
-      active: 'createdAt',
-      direction: event.direction as 'asc' | 'desc'
-    });
-
-    this.organizationsStore.fetchOrganizations({
-      sortOptions: {
-        sortBy: this.sortOptions().active,
-        sortOrder:
-          this.sortOptions().direction == 'asc'
-            ? sortOrderEnum.ASC
-            : sortOrderEnum.DESC,
-      },
-      isSortOperation: true
-    });
   }
 }

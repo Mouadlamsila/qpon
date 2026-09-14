@@ -27,7 +27,7 @@ describe('RestaurantOfferService', () => {
       imageUrl: '/uploads/offers/lunch.webp',
       publicSlug: 'lunch-deal-a1b2c3d4',
       publicationStatus: offerPublicationStatusEnum.PUBLISHED,
-      organization: { name: 'Restaurant One', logoUrl: null },
+      organization: { name: 'Restaurant One', logoUrl: null, status: 'active' },
       coupon: {
         couponId: 'internal-coupon-id',
         name: 'Lunch deal',
@@ -62,7 +62,7 @@ describe('RestaurantOfferService', () => {
   it('does not expose paused offers through the public lookup', async () => {
     repository.findOne.mockResolvedValue({
       publicationStatus: offerPublicationStatusEnum.PAUSED,
-      organization: { name: 'Restaurant One', logoUrl: null },
+      organization: { name: 'Restaurant One', logoUrl: null, status: 'active' },
       coupon: { couponCodes: [{ expiresAt: new Date(Date.now() + 86_400_000) }] },
     });
 

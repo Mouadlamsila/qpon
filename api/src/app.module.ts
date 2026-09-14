@@ -27,6 +27,7 @@ import { OrganizationSubscriber } from './subscribers/organization.subscriber';
 import { JobsModule } from './modules/jobs.module';
 import { RestaurantOfferModule } from './modules/restaurant-offer.module';
 import { OfferClaimModule } from './modules/offer-claim.module';
+import { PlatformAdminModule } from './modules/platform-admin.module';
 
 @Module({
   imports: [
@@ -40,9 +41,11 @@ import { OfferClaimModule } from './modules/offer-claim.module';
         ],
       }),
     }),
+    ConfigModule.forRoot({ isGlobal: true }),
     JobsModule,
     RestaurantOfferModule,
     OfferClaimModule,
+    PlatformAdminModule,
     LoggerModule,
     ApiKeyModule,
     AuthModule,

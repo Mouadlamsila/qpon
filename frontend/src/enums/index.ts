@@ -10,3 +10,4 @@ export * from './durationType.enum';
 export * from './visibility.enum';
 export * from './campaignStatus.enum';
 export * from './offer-publication-status.enum';
+export * from './organization-status.enum';

@@ -43,7 +43,14 @@ async function bootstrap() {
     new TransformInterceptor(app.get(Reflector)),
   );
 
-  app.enableCors();
+  const corsOrigins = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  app.enableCors({
+    origin: process.env.NODE_ENV === 'production' ? corsOrigins : true,
+    credentials: true,
+  });
 
   app.setGlobalPrefix('api');
 

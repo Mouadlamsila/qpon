@@ -10,7 +10,7 @@ import {
 } from '../enums';
 
 describe('OfferClaimService', () => {
-  const organization = { organizationId: 'org-1', name: 'Test Restaurant', logoUrl: null } as any;
+  const organization = { organizationId: 'org-1', name: 'Test Restaurant', logoUrl: null, status: 'active' } as any;
   const customer = { customerId: 'customer-1', email: 'customer@example.com', organization } as any;
   const code = {
     expiresAt: new Date(Date.now() + 60 * 60 * 1000),
@@ -73,7 +73,7 @@ describe('OfferClaimService', () => {
       }),
     };
     const datasource = { transaction: jest.fn((callback) => callback(manager)) } as any;
-    service = new OfferClaimService(claimRepository, datasource);
+    service = new OfferClaimService(claimRepository, datasource, { consume: jest.fn().mockReturnValue(true) } as any);
   });
 
   it('creates a tenant-scoped customer and a private claim without exposing identity', async () => {

@@ -1,6 +1,7 @@
 import { prop, required } from '@rxweb/reactive-form-validators';
 import { Expose, Transform } from 'class-transformer';
 import { IsString, IsDate, IsOptional } from 'class-validator';
+import { OrganizationStatus } from '../enums';
 
 export class OrganizationDto {
   @Expose({ name: '@entity' })
@@ -15,6 +16,9 @@ export class OrganizationDto {
 
   @IsString()
   currency?: string;
+
+  @IsOptional()
+  status?: OrganizationStatus;
 
   @IsOptional()
   @Expose({ name: 'external_id' })
