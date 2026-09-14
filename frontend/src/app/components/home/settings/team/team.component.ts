@@ -23,6 +23,7 @@ import { NotAllowedDialogBoxComponent } from '../../../common/not-allowed-dialog
 import { AbilityServiceSignal } from '@casl/angular';
 import { UserAbility } from '../../../../permissions/ability';
 import { UserStore } from '../../../../store/user.store';
+import { TranslatePipe } from '../../../../pipe/translate.pipe';
 
 @Component({
     selector: 'app-team-users',
@@ -35,6 +36,7 @@ import { UserStore } from '../../../../store/user.store';
         MatIconModule,
         MatButtonModule,
         CustomDatePipe,
+        TranslatePipe,
     ],
     templateUrl: './team.component.html',
 })

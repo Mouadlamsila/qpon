@@ -2,10 +2,10 @@
 
     <!-- HEADER -->
     <div class="flex items-center justify-between">
-        <div class="mat-title-large text-on-surface">Team</div>
+        <div class="mat-title-large text-on-surface">{{ 'settings.teamTab' | translate }}</div>
 
         <button mat-flat-button (click)="onAddClick()" class="bg-primary rounded-full text-on-primary px-6 py-2">
-            <mat-icon>add</mat-icon> Add
+            <mat-icon>add</mat-icon> {{ 'settings.add' | translate }}
         </button>
     </div>
 
@@ -16,7 +16,7 @@
             <!-- NAME -->
             <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef class="p-4 mat-body-medium text-outline w-[30%]">
-                    Name
+                    {{ 'settings.name' | translate }}
                 </th>
                 <td mat-cell *matCellDef="let user" class="p-4 mat-body-large text-on-surface-variant w-[30%]">
                     {{ user.name }}
@@ -26,7 +26,7 @@
             <!-- EMAIL -->
             <ng-container matColumnDef="email">
                 <th mat-header-cell *matHeaderCellDef class="p-4 mat-body-medium text-outline w-[20%]">
-                    Email
+                    {{ 'settings.email' | translate }}
                 </th>
                 <td mat-cell *matCellDef="let user" class="p-4 mat-body-large text-on-surface-variant w-[20%]">
                     {{ user.email }}
@@ -35,7 +35,7 @@
 
             <!-- ROLE -->
             <ng-container matColumnDef="role">
-                <th mat-header-cell *matHeaderCellDef class="p-4 mat-body-medium text-outline w-[15%]">Role</th>
+                <th mat-header-cell *matHeaderCellDef class="p-4 mat-body-medium text-outline w-[15%]">{{ 'settings.role' | translate }}</th>
                 <td mat-cell *matCellDef="let user" class="p-4 mat-body-large text-on-surface-variant w-[15%]">
                     <span class="px-3 py-1 rounded-[4px] bg-surface-container text-sm capitalize">
                         {{ user.role }}
@@ -45,9 +45,9 @@
 
             <!-- JOINED ON -->
             <ng-container matColumnDef="joinedOn">
-                <th mat-header-cell *matHeaderCellDef class="p-4 mat-body-medium text-outline">Joined on</th>
+                <th mat-header-cell *matHeaderCellDef class="p-4 mat-body-medium text-outline">{{ 'settings.joinedOn' | translate }}</th>
                 <td mat-cell *matCellDef="let user" class="p-4 mat-body-large text-on-surface-variant">
-                    {{ user.createdAt | custom_date : "" : true }}
+                        {{ user.createdAt | custom_date : "" : true }}
                 </td>
             </ng-container>
 
@@ -64,11 +64,11 @@
                         class="w-[200px] min-w-[112px] max-w-[280px] rounded-[4px] bg-surface-container-lowest top-[208px] left-[3155px] font-sans">
                         <button mat-menu-item class="h-[56px] py-8 flex gap-[12px]" (click)="onEdit(user)">
                             <mat-icon class="material-symbols-outlined">edit</mat-icon>
-                            <span class="mat-body-large text-on-surface">Edit details</span>
+                            <span class="mat-body-large text-on-surface">{{ 'settings.editDetails' | translate }}</span>
                         </button>
                         <button mat-menu-item class="h-[56px] py-8 flex gap-[12px]" (click)="onDelete(user)">
                             <mat-icon class="material-symbols-outlined">delete</mat-icon>
-                            <span class="mat-body-large text-on-surface">Remove</span>
+                            <span class="mat-body-large text-on-surface">{{ 'settings.remove' | translate }}</span>
                         </button>
                     </mat-menu>
 
@@ -90,7 +90,7 @@
                                     <mat-icon class="material-symbols-outlined">group</mat-icon>
                                 </div>
                                 <p class="text-on-surface mat-body-large">
-                                    No team members to show
+                                    {{ 'settings.noTeamMembers' | translate }}
                                 </p>
                             </div>
                         </div>

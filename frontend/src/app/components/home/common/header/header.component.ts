@@ -20,6 +20,10 @@ export class HeaderComponent {
 
   logoPath: string = '/assets/logo-light.svg';
 
+  get displayedLogoPath() {
+    return this.organizationStore.organizaiton()?.logoUrl || this.logoPath;
+  }
+
   constructor() {
     // reactively update logo
     this.themeService.theme$.subscribe(theme => {

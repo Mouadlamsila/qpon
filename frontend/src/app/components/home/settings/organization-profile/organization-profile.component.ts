@@ -14,6 +14,7 @@ import { NotAllowedDialogBoxComponent } from '../../../common/not-allowed-dialog
 import { UserAbility } from '../../../../permissions/ability';
 import { AbilityServiceSignal } from '@casl/angular';
 import { CreateOrganizationDto, OrganizationDto } from '../../../../../dtos/organization.dto';
+import { TranslatePipe } from '../../../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-organization-profile',
@@ -23,7 +24,8 @@ import { CreateOrganizationDto, OrganizationDto } from '../../../../../dtos/orga
     MatButtonModule,
     MatDividerModule,
     MatCardModule,
-    NgxSkeletonLoaderModule
+    NgxSkeletonLoaderModule,
+    TranslatePipe
   ],
   templateUrl: './organization-profile.component.html',
   styleUrls: ['./organization-profile.component.css']
@@ -56,13 +58,14 @@ export class OrganizationProfileComponent {
     }
 
     this.dialog.open(EditOrganisationProfileDialogComponent, {
-      width: '516px',
+      width: 'min(516px, calc(100vw - 32px))',
         data: {
         name: this.organizationStore.organizaiton()?.name,
         description: this.organizationStore.organizaiton()?.description,
         logoUrl: this.organizationStore.organizaiton()?.logoUrl,
         contactEmail: this.organizationStore.organizaiton()?.contactEmail,
         contactPhone: this.organizationStore.organizaiton()?.contactPhone,
+        currency: this.organizationStore.organizaiton()?.currency,
         organizationId: this.organizationStore.organizaiton()?.organizationId,
       }
     });

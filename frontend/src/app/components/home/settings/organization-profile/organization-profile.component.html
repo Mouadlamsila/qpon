@@ -1,10 +1,10 @@
 <!-- Header -->
 <div class="mb-5">
-    <div class="mat-body-large text-on-surface">Restaurant profile</div>
+    <div class="mat-body-large text-on-surface">{{ 'settings.restaurantProfile' | translate }}</div>
 </div>
 
 <!-- Organisation Section -->
-<mat-card appearance="outlined" class="bg-surface-container-lowest w-3/6 mb-7">
+<mat-card appearance="outlined" class="bg-surface-container-lowest w-full max-w-2xl mb-7">
     <mat-card-content>
         <div class="flex flex-col">
 
@@ -14,7 +14,7 @@
 
                 <!-- Skeleton while loading -->
                 <div class="flex flex-col gap-1">
-                    <div class="mat-body-medium text-on-surface-variant">Restaurant name</div>
+                    <div class="mat-body-medium text-on-surface-variant">{{ 'settings.restaurantName' | translate }}</div>
                     <ngx-skeleton-loader [theme]="{ height: '24px', width: '250px', margin: '0', padding: '0' }">
                     </ngx-skeleton-loader>
                 </div>
@@ -23,10 +23,22 @@
 
                 <!-- Organisation Name -->
                 <div class="flex flex-col gap-1">
-                    <div class="mat-body-large text-on-surface-variant">Restaurant name</div>
+                    <div class="mat-body-large text-on-surface-variant">{{ 'settings.restaurantName' | translate }}</div>
                     <div class="mat-body-large text-on-surface">
                         {{ organizationStore.organizaiton()?.name }}
                     </div>
+                </div>
+
+                @if (organizationStore.organizaiton()?.logoUrl) {
+                    <div class="flex items-center gap-3">
+                        <img [src]="organizationStore.organizaiton()?.logoUrl" [alt]="organizationStore.organizaiton()?.name" class="h-14 w-14 rounded-full object-cover border border-outline-variant" />
+                        <div class="mat-body-medium text-on-surface-variant">{{ 'settings.logoConfigured' | translate }}</div>
+                    </div>
+                }
+
+                <div class="flex flex-col gap-1">
+                    <div class="mat-body-medium text-on-surface-variant">{{ 'settings.currency' | translate }}</div>
+                    <div class="mat-body-large text-on-surface">{{ organizationStore.organizaiton()?.currency || 'EUR' }}</div>
                 </div>
 
                 }
@@ -37,7 +49,7 @@
                 <mat-divider class="border-outline-variant"></mat-divider>
 
                 <button mat-button class="flex h-[56px] w-full justify-start rounded-none" (click)="onEditName()">
-                    Edit name
+                    {{ 'settings.editRestaurant' | translate }}
                 </button>
             </div>
 
@@ -46,16 +58,16 @@
 </mat-card>
 
 <!-- Danger Zone Section -->
-<div class="mat-body-large text-on-surface-variant mb-3">Danger Zone</div>
+<div class="mat-body-large text-on-surface-variant mb-3">{{ 'settings.dangerZone' | translate }}</div>
 
-<mat-card appearance="outlined" class="bg-surface-container-lowest w-3/6">
+<mat-card appearance="outlined" class="bg-surface-container-lowest w-full max-w-2xl">
     <mat-card-content>
         <div class="flex flex-col">
 
             <div class="flex flex-col gap-1 p-6">
-                <div class="mat-body-large text-on-surface">Delete Organisation</div>
+                <div class="mat-body-large text-on-surface">{{ 'settings.deleteOrganization' | translate }}</div>
                 <div class="mat-body-large text-on-surface-variant">
-                    Remove all associated offers and team members.
+                    {{ 'settings.deleteDescription' | translate }}
                 </div>
             </div>
 
@@ -64,7 +76,7 @@
 
                 <button mat-button class="text-error flex h-[56px] w-full justify-start rounded-none"
                     (click)="onDeleteOrganisation()">
-                    Delete restaurant
+                    {{ 'settings.deleteRestaurant' | translate }}
                 </button>
             </div>
 

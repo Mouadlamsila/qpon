@@ -10,7 +10,12 @@
     <mat-card appearance="outlined" class="claim-card overflow-hidden">
       @if (claim.offer.imageUrl) { <img [src]="claim.offer.imageUrl" [alt]="claim.offer.title" class="w-full h-56 object-cover" /> }
       <div class="p-7 md:p-10 text-center">
-        <div class="mat-label-large text-primary">{{ claim.offer.restaurant.name }}</div>
+        <div class="flex items-center justify-center gap-3">
+          @if (claim.offer.restaurant.logoUrl) {
+            <img [src]="claim.offer.restaurant.logoUrl" [alt]="claim.offer.restaurant.name" class="h-10 w-10 rounded-full object-cover border border-outline-variant" />
+          }
+          <div class="mat-label-large text-primary">{{ claim.offer.restaurant.name }}</div>
+        </div>
         <h1 class="mat-headline-large text-on-surface mt-3">{{ claim.offer.title }}</h1>
         <div class="discount-badge mat-headline-small mt-5">{{ discountLabel() }}</div>
         <div class="claim-code mt-7">

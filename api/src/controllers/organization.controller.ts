@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Get,
   Post,
@@ -7,7 +8,10 @@ import {
   Body,
   Param,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { OrganizationService } from '../services/organization.service';
 import { CreateOrganizationDto, UpdateOrganizationDto } from '../dtos';
@@ -213,6 +217,23 @@ export class OrganizationController {
 
     this.logger.info('END: updateOrganization controller');
     return { message: 'Successfully updated organization', result };
+  }
+
+  /**
+   * Upload organization logo
+   */
+  @ApiResponse({ status: 200, description: 'Successfully uploaded organization logo' })
+  @Permissions('update', Organization)
+  @Post(':organization_id/logo')
+  @UseInterceptors(FileInterceptor('image', { limits: { fileSize: 5 * 1024 * 1024 } }))
+  async uploadLogo(
+    @Param('organization_id') organizationId: string,
+    @UploadedFile() file: any,
+  ) {
+    if (!file) throw new BadRequestException('An image file is required');
+
+    const result = await this.organizationService.uploadLogo(organizationId, file);
+    return { message: 'Successfully uploaded organization logo', result };
   }
 
   /**

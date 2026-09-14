@@ -63,7 +63,17 @@ export class RestaurantOfferService {
 
   publicOffer(slug: string) {
     return this.http.get<ApiResponse<PublicRestaurantOfferDto>>(`${this.endpoint}/public/offers/${encodeURIComponent(slug)}`).pipe(
-      map((response) => ({ ...response, data: response.data ? { ...response.data, imageUrl: this.resolveImageUrl(response.data.imageUrl) } : response.data })),
+      map((response) => ({
+        ...response,
+        data: response.data ? {
+          ...response.data,
+          imageUrl: this.resolveImageUrl(response.data.imageUrl),
+          restaurant: {
+            ...response.data.restaurant,
+            logoUrl: this.resolveImageUrl(response.data.restaurant.logoUrl),
+          },
+        } : response.data,
+      })),
     );
   }
 

@@ -7,7 +7,12 @@
     <mat-card appearance="outlined" class="public-card overflow-hidden">
       @if (offer.imageUrl) { <img [src]="offer.imageUrl" [alt]="offer.title" class="w-full h-64 object-cover" /> }
       <div class="p-7 md:p-10">
-        <div class="mat-label-large text-primary">{{ offer.restaurant.name }}</div>
+        <div class="flex items-center gap-3">
+          @if (offer.restaurant.logoUrl) {
+            <img [src]="offer.restaurant.logoUrl" [alt]="offer.restaurant.name" class="h-10 w-10 rounded-full object-cover border border-outline-variant" />
+          }
+          <div class="mat-label-large text-primary">{{ offer.restaurant.name }}</div>
+        </div>
         <h1 class="mat-headline-large text-on-surface mt-3">{{ offer.title }}</h1>
         <div class="discount-badge mat-headline-small mt-5">{{ discountLabel() }}</div>
         <p class="mat-body-large text-on-surface-variant mt-6">{{ offer.description }}</p>

@@ -8,6 +8,7 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { EditProfileDialogComponent } from './edit-profile-dialog/edit-profile-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganizationStore } from '../../../../store/organization.store';
+import { TranslatePipe } from '../../../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-user-profile',
@@ -17,7 +18,8 @@ import { OrganizationStore } from '../../../../store/organization.store';
     MatButtonModule,
     MatDividerModule,
     MatCardModule,
-    NgxSkeletonLoaderModule
+    NgxSkeletonLoaderModule,
+    TranslatePipe
   ],
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.css']

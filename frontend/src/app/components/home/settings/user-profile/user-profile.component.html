@@ -1,6 +1,6 @@
 <!-- Header -->
 <div class="mb-5">
-  <div class="mat-body-large text-on-surface">Profile</div>
+  <div class="mat-body-large text-on-surface">{{ 'settings.profileTab' | translate }}</div>
 </div>
 
 <mat-card appearance="outlined" class="bg-surface-container-lowest w-3/6">
@@ -14,7 +14,7 @@
 
         <!-- Email -->
         <div class="flex flex-col gap-1">
-          <div class="mat-body-medium text-on-surface-variant">Email</div>
+          <div class="mat-body-medium text-on-surface-variant">{{ 'settings.email' | translate }}</div>
           <div class="mat-body-large text-on-surface break-all">
             {{ userStore.user()?.email }}
           </div>
@@ -22,7 +22,7 @@
 
         <!-- Name -->
         <div class="flex flex-col gap-1">
-          <div class="mat-body-medium text-on-surface-variant">Name</div>
+          <div class="mat-body-medium text-on-surface-variant">{{ 'settings.name' | translate }}</div>
           <div class="mat-body-large text-on-surface">
             {{ userStore.user()?.name }}
           </div>
@@ -32,7 +32,7 @@
 
         <!-- Email Skeleton -->
         <div class="flex flex-col gap-1">
-          <div class="mat-body-medium text-on-surface-variant">Email</div>
+          <div class="mat-body-medium text-on-surface-variant">{{ 'settings.email' | translate }}</div>
           <ngx-skeleton-loader
             [theme]="{ height: '24px', width: '250px', margin: '0', padding: '0' }">
           </ngx-skeleton-loader>
@@ -40,7 +40,7 @@
 
         <!-- Name Skeleton -->
         <div class="flex flex-col gap-1">
-          <div class="mat-body-medium text-on-surface-variant">Name</div>
+          <div class="mat-body-medium text-on-surface-variant">{{ 'settings.name' | translate }}</div>
           <ngx-skeleton-loader
             [theme]="{ height: '24px', width: '200px', margin: '0', padding: '0' }">
           </ngx-skeleton-loader>
@@ -57,7 +57,7 @@
         <button mat-button
           class="flex h-[56px] w-full justify-start rounded-none"
           (click)="onEditProfile()">
-          Edit details
+          {{ 'settings.editDetails' | translate }}
         </button>
       </div>
 

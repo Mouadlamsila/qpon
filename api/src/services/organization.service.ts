@@ -7,6 +7,9 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, ILike, Repository } from 'typeorm';
+import { randomBytes } from 'crypto';
+import { promises as fs } from 'fs';
+import { basename, join } from 'path';
 import { Organization } from '../entities/organization.entity';
 import { CreateOrganizationDto, UpdateOrganizationDto } from '../dtos';
 import { LoggerService } from './logger.service';
@@ -24,8 +27,24 @@ import { CouponCodeSummaryWorkbookConverter } from 'src/converters/coupon-codes-
 import { DayWiseRedemptionSummaryMv } from 'src/entities/day-wise-redemption-summary-mv';
 import { RedemptionSummaryWorkbookConverter } from 'src/converters/day-wise-redemption-summary';
 
+type UploadedImage = {
+  buffer?: Buffer;
+  mimetype?: string;
+  size?: number;
+};
+
+const imageMimeTypes: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+};
+
 @Injectable()
 export class OrganizationService {
+  private readonly imageDirectory = process.env.UPLOADS_DIR
+    ? join(process.env.UPLOADS_DIR, '..', 'organizations')
+    : join(__dirname, '..', '..', 'public', 'uploads', 'organizations');
+
   constructor(
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
@@ -228,6 +247,50 @@ export class OrganizationService {
         'Failed to update organization',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+  /**
+   * Upload and persist an organization logo.
+   */
+  async uploadLogo(organizationId: string, file: UploadedImage) {
+    const organization = await this.organizationRepository.findOne({
+      where: { organizationId },
+    });
+
+    if (!organization) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    if (!file?.buffer || !file.mimetype || !imageMimeTypes[file.mimetype]) {
+      throw new BadRequestException('Only JPEG, PNG, and WebP images are supported');
+    }
+
+    if ((file.size ?? file.buffer.length) > 5 * 1024 * 1024) {
+      throw new BadRequestException('Image must be 5 MB or smaller');
+    }
+
+    await fs.mkdir(this.imageDirectory, { recursive: true });
+    const fileName = `${randomBytes(16).toString('hex')}.${imageMimeTypes[file.mimetype]}`;
+    await fs.writeFile(join(this.imageDirectory, fileName), file.buffer);
+
+    const oldLogo = organization.logoUrl;
+    organization.logoUrl = `/uploads/organizations/${fileName}`;
+    await this.organizationRepository.save(organization);
+    await this.removeStoredLogo(oldLogo);
+
+    return this.organizationConverter.convert(organization);
+  }
+
+  private async removeStoredLogo(logoUrl: string | null) {
+    if (!logoUrl || !logoUrl.startsWith('/uploads/organizations/')) return;
+    const fileName = basename(logoUrl);
+    if (fileName !== logoUrl.slice('/uploads/organizations/'.length)) return;
+
+    try {
+      await fs.unlink(join(this.imageDirectory, fileName));
+    } catch (error: any) {
+      if (error?.code !== 'ENOENT') this.logger.warn('Failed to remove replaced organization logo');
     }
   }
 

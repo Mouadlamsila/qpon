@@ -29,6 +29,16 @@ export class OrganizationResolver implements Resolve<any> {
     );
   }
 
+  async uploadLogo(organizationId: string, file: File) {
+    const response = await firstValueFrom(
+      this.organizationService.uploadLogo(organizationId, file),
+    );
+
+    this.organizationStore.updateOrganization(
+      plainToInstance(OrganizationDto, response.data),
+    );
+  }
+
   async delete(organizationId: string) {
     await firstValueFrom(
       this.organizationService.deleteOrganization(organizationId)
