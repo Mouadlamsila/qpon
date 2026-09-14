@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomBytes } from 'crypto';
@@ -33,6 +34,7 @@ import {
   UpdateRestaurantOfferDto,
 } from '../dtos';
 import { LoggerService } from './logger.service';
+import { RestaurantDashboardService } from './restaurant-dashboard.service';
 
 type UploadedImage = {
   buffer?: Buffer;
@@ -55,6 +57,7 @@ export class RestaurantOfferService {
     private readonly offerRepository: Repository<RestaurantOffer>,
     private readonly datasource: DataSource,
     private readonly logger: LoggerService,
+    @Optional() private readonly dashboardService?: RestaurantDashboardService,
   ) {}
 
   async create(organizationId: string, body: CreateRestaurantOfferDto) {
@@ -121,11 +124,13 @@ export class RestaurantOfferService {
       relations: { organization: true, coupon: { couponCodes: true } },
       order: { createdAt: 'DESC' },
     });
-    return offers.map((offer) => this.toDto(offer));
+    return this.enrichOfferDtos(organizationId, offers.map((offer) => this.toDto(offer)));
   }
 
   async get(organizationId: string, offerId: string) {
-    return this.toDto(await this.loadOffer(organizationId, offerId));
+    const dto = this.toDto(await this.loadOffer(organizationId, offerId));
+    const enriched = await this.enrichOfferDtos(organizationId, [dto]);
+    return enriched[0];
   }
 
   async update(organizationId: string, offerId: string, body: UpdateRestaurantOfferDto) {
@@ -275,6 +280,18 @@ export class RestaurantOfferService {
       createdAt: offer.createdAt,
       updatedAt: offer.updatedAt,
     };
+  }
+
+  private async enrichOfferDtos(organizationId: string, offers: RestaurantOfferDto[]) {
+    if (!this.dashboardService || offers.length === 0) return offers;
+    const metrics = await this.dashboardService.getOfferMetrics(
+      organizationId,
+      offers.map((offer) => offer.offerId),
+    );
+    return offers.map((offer) => ({
+      ...offer,
+      ...(metrics.get(offer.offerId) ?? { claimCount: 0, redemptionCount: 0, redemptionRate: 0 }),
+    }));
   }
 
   private effectiveStatus(offer: RestaurantOffer) {

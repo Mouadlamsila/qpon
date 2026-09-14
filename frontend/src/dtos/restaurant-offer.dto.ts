@@ -16,6 +16,9 @@ export class RestaurantOfferDto {
   maxRedemptionPerCustomer!: number | null;
   createdAt!: string;
   updatedAt!: string;
+  claimCount?: number;
+  redemptionCount?: number;
+  redemptionRate?: number;
 }
 
 export interface CreateRestaurantOfferDto {

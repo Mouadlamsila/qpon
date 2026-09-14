@@ -32,13 +32,19 @@
               <span class="status-pill">{{ offer.publicationStatus | titlecase }}</span>
             </div>
             <p class="mat-body-medium text-on-surface-variant mt-4 line-clamp-2">{{ offer.description || 'No description' }}</p>
+            <div class="grid grid-cols-3 gap-3 mt-5 border-t border-outline-variant pt-4">
+              <div><div class="mat-label-small text-on-surface-variant">Claims</div><div class="mat-body-large">{{ metric(offer, 'claimCount') }}</div></div>
+              <div><div class="mat-label-small text-on-surface-variant">Redemptions</div><div class="mat-body-large">{{ metric(offer, 'redemptionCount') }}</div></div>
+              <div><div class="mat-label-small text-on-surface-variant">Rate</div><div class="mat-body-large">{{ metric(offer, 'redemptionRate') | number:'1.0-2' }}%</div></div>
+            </div>
             <div class="mat-body-small text-on-surface-variant mt-4">Valid until {{ offer.validUntil | date:'mediumDate' }}</div>
           </mat-card-content>
           <mat-card-actions align="end" (click)="$event.stopPropagation()">
+            <button mat-button (click)="open(offer)"><mat-icon>visibility</mat-icon> View</button>
             <button mat-button (click)="copyLink(offer)"><mat-icon>link</mat-icon> Copy link</button>
             <button mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
             <mat-menu #menu="matMenu">
-              <button mat-menu-item (click)="open(offer)"><mat-icon>edit</mat-icon> Edit</button>
+              <button mat-menu-item (click)="edit(offer)"><mat-icon>edit</mat-icon> Edit</button>
               @if (offer.publicationStatus === statuses.DRAFT || offer.publicationStatus === statuses.PAUSED) {
                 <button mat-menu-item (click)="publish(offer)"><mat-icon>publish</mat-icon> Publish</button>
               }

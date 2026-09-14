@@ -46,6 +46,8 @@ import { OfferFormComponent } from './components/home/offers/offer-form.componen
 import { PublicOfferComponent } from './components/public-offer/public-offer.component';
 import { ClaimComponent } from './components/claim/claim.component';
 import { RedeemComponent } from './components/home/redeem/redeem.component';
+import { OfferDetailComponent } from './components/home/offers/offer-detail.component';
+import { RedemptionsComponent } from './components/home/redemptions/redemptions.component';
 
 export const routes: Routes = [
   { path: 'o/:offer_slug', component: PublicOfferComponent },
@@ -105,9 +107,11 @@ export const routes: Routes = [
                 children: [
                   { path: '', component: OffersComponent },
                   { path: 'new', component: OfferFormComponent },
+                  { path: ':offer_id', component: OfferDetailComponent },
                   { path: ':offer_id/edit', component: OfferFormComponent },
                 ],
               },
+              { path: 'redemptions', component: RedemptionsComponent },
               { path: 'settings', component: SettingsComponent },
               { path: 'redeem', component: RedeemComponent },
               {

@@ -1,0 +1,22 @@
+<div class="flex flex-col gap-6">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div><a mat-button routerLink="../">← Back to offers</a><p class="mat-headline-medium text-on-surface m-0 mt-3">Offer details</p></div>
+    @if (offer) {<div class="flex flex-wrap gap-2"><button mat-button (click)="copyLink()"><mat-icon>link</mat-icon> Copy public link</button><button mat-flat-button (click)="edit()"><mat-icon>edit</mat-icon> Edit offer</button></div>}
+  </div>
+
+  @if (loading) {<mat-card appearance="outlined" class="p-10 animate-pulse h-64"></mat-card>}
+  @else if (error) {<div class="rounded-lg border border-error p-4 text-error" role="alert">{{ error }}</div>}
+  @else if (offer; as current) {
+    <div class="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-5">
+      <mat-card appearance="outlined" class="overflow-hidden">
+        @if (current.imageUrl) {<img mat-card-image [src]="current.imageUrl" [alt]="current.title" class="max-h-72 w-full object-cover" />}
+        <mat-card-content class="p-6"><div class="flex flex-wrap items-start justify-between gap-4"><div><div class="mat-headline-small">{{ current.title }}</div><div class="mat-body-large text-primary mt-2">{{ current.discountValue }}{{ current.discountType === 'percentage' ? '%' : ' ' + currency() }} off</div></div><span class="status-pill">{{ current.publicationStatus | titlecase }}</span></div><p class="mat-body-medium text-on-surface-variant mt-5">{{ current.description || 'No description' }}</p><div class="mat-body-medium text-on-surface-variant mt-4">Valid until {{ current.validUntil | date:'medium' }}</div></mat-card-content>
+        <mat-card-actions class="p-4 gap-2">@if (current.publicationStatus === statuses.DRAFT || current.publicationStatus === statuses.PAUSED) {<button mat-button (click)="changeStatus('publish')">Publish</button>} @if (current.publicationStatus === statuses.PUBLISHED) {<button mat-button (click)="changeStatus('pause')">Pause</button>} @if (current.publicationStatus !== statuses.ARCHIVED) {<button mat-button (click)="changeStatus('archive')">Archive</button>}</mat-card-actions>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="p-6"><mat-card-content><div class="mat-title-large">Performance</div><div class="grid grid-cols-3 xl:grid-cols-1 gap-5 mt-6"><div><div class="mat-body-small text-on-surface-variant">Claims</div><div class="mat-headline-small">{{ current.claimCount ?? 0 }}</div></div><div><div class="mat-body-small text-on-surface-variant">Redemptions</div><div class="mat-headline-small">{{ current.redemptionCount ?? 0 }}</div></div><div><div class="mat-body-small text-on-surface-variant">Redemption rate</div><div class="mat-headline-small">{{ current.redemptionRate ?? 0 | number:'1.0-2' }}%</div></div></div></mat-card-content></mat-card>
+    </div>
+
+    <mat-card appearance="outlined"><mat-card-header class="p-6 pb-2"><mat-card-title>Recent activity</mat-card-title><mat-card-subtitle>Claims and successful redemptions for this Offer.</mat-card-subtitle></mat-card-header><mat-card-content class="p-0">@if (activity.length === 0) {<div class="p-10 text-center text-on-surface-variant">No claims yet.</div>} @else {<div class="overflow-auto"><table class="w-full text-left"><thead><tr class="border-b border-outline-variant"><th class="p-4">Activity</th><th class="p-4">Customer</th><th class="p-4">Claim</th><th class="p-4">When</th><th class="p-4">Staff</th></tr></thead><tbody>@for (item of activity; track item.claimCode + item.claimedAt) {<tr class="border-b border-outline-variant last:border-0"><td class="p-4">{{ item.type === 'redemption' ? 'Redeemed' : 'Claimed' }}@if (item.discount !== null) {<span> · {{ item.discount | currency:currency():'symbol' }}</span>}</td><td class="p-4">{{ item.customerEmail || 'Customer' }}</td><td class="p-4 font-mono">{{ item.claimCode }}</td><td class="p-4 text-on-surface-variant">{{ (item.redeemedAt || item.claimedAt) | date:'short' }}</td><td class="p-4">{{ item.redeemedBy || '—' }}</td></tr>}</tbody></table></div>}</mat-card-content></mat-card>
+  }
+</div>

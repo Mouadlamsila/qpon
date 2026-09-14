@@ -82,6 +82,18 @@ export class RestaurantOfferDto {
   @Expose({ name: 'updated_at' })
   @IsDate()
   updatedAt: Date;
+
+  @Expose({ name: 'claim_count' })
+  @IsInt()
+  claimCount?: number;
+
+  @Expose({ name: 'redemption_count' })
+  @IsInt()
+  redemptionCount?: number;
+
+  @Expose({ name: 'redemption_rate' })
+  @IsNumber()
+  redemptionRate?: number;
 }
 
 export class CreateRestaurantOfferDto {

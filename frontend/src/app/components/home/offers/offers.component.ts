@@ -45,6 +45,10 @@ export class OffersComponent implements OnInit {
   }
 
   open(offer: RestaurantOfferDto) {
+    this.router.navigate(['/', this.organization()?.organizationId, 'home', 'offers', offer.offerId]);
+  }
+
+  edit(offer: RestaurantOfferDto) {
     this.router.navigate(['/', this.organization()?.organizationId, 'home', 'offers', offer.offerId, 'edit']);
   }
 
@@ -62,6 +66,10 @@ export class OffersComponent implements OnInit {
     return offer.discountType === discountTypeEnum.PERCENTAGE
       ? `${offer.discountValue}% off`
       : `${offer.discountValue} ${this.organization()?.currency ?? ''} off`;
+  }
+
+  metric(offer: RestaurantOfferDto, key: 'claimCount' | 'redemptionCount' | 'redemptionRate') {
+    return offer[key] ?? 0;
   }
 
   private async changeStatus(offer: RestaurantOfferDto, action: () => any, status: string) {

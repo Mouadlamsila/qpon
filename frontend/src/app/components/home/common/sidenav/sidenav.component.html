@@ -23,7 +23,7 @@
           </mat-list-item>
         </a>
 
-        <a routerLink="./dashboard/redemptions" routerLinkActive #redemptions="routerLinkActive">
+        <a routerLink="./redemptions" routerLinkActive #redemptions="routerLinkActive">
           <mat-list-item [activated]="redemptions.isActive">
             <mat-icon matListItemIcon class="material-symbols-outlined text-on-surface"> receipt_long </mat-icon>
             <div matListItemTitle class="mat-label-large" [ngClass]="{ 'font-semibold': redemptions.isActive }">

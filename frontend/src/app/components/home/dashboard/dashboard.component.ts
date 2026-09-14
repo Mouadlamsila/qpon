@@ -1,154 +1,64 @@
-import { Component, OnInit, computed, effect, inject } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
+import { CommonModule, CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { Component, effect, inject, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { TitleCasePipe, NgIf, CommonModule } from '@angular/common';
-import { DashboardSalesAnalyticsComponent } from './sales-analytics/sales-analytics.component';
-import { PopularityChartComponent } from '../../common/popularity-chart/popularity-chart.component';
-import { SalesTrendChartComponent } from './sales-chart/sales-trend-chart.component';
-
-import { UserStore } from '../../../store/user.store';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { RestaurantDashboard, RestaurantDashboardRedemption } from '../../../../dtos/restaurant-dashboard.dto';
+import { RestaurantDashboardService } from '../../../services/restaurant-dashboard.service';
 import { OrganizationStore } from '../../../store/organization.store';
-import { SalesSummaryStore } from './store/sales-summary.store';
-import { ItemSummaryStore } from './store/item-summary.store';
-import { CouponCodeSummaryStore } from './store/coupon-code-summary.store';
-import { DateRangeStore } from '../../../store/date-range.store';
-import { RedemptionListComponent } from "./recent-redemption-list/redemption-list.component";
-import { NgxSkeletonLoaderComponent } from 'ngx-skeleton-loader';
-import { RedemptionsStore } from './recent-redemption-list/store/redemptions.store';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [
-    MatIconModule,
-    MatCardModule,
-    TitleCasePipe,
-    NgIf,
-    DashboardSalesAnalyticsComponent,
-    PopularityChartComponent,
-    SalesTrendChartComponent,
-    RedemptionListComponent,
-    CommonModule,
-    NgxSkeletonLoaderComponent
-  ],
+  imports: [CommonModule, MatButtonModule, MatCardModule, MatIconModule, RouterLink, CurrencyPipe, DatePipe, DecimalPipe],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
-  providers: [
-    SalesSummaryStore,
-    ItemSummaryStore,
-    CouponCodeSummaryStore,
-    RedemptionsStore
-  ],
 })
-export class DashboardComponent implements OnInit {
-  // Inject stores
-  private userStore = inject(UserStore);
-  private organizationStore = inject(OrganizationStore);
-  private salesSummaryStore = inject(SalesSummaryStore);
-  private itemSummaryStore = inject(ItemSummaryStore);
-  private couponCodeSummaryStore = inject(CouponCodeSummaryStore);
-  public dateRangeStore = inject(DateRangeStore);
-  private redemptionsStore = inject(RedemptionsStore);
+export class DashboardComponent {
+  private readonly organizationStore = inject(OrganizationStore);
+  private readonly dashboardService = inject(RestaurantDashboardService);
 
-  // For infinite-loop prevention
-  private lastStart: string | null = null;
-  private lastEnd: string | null = null;
-
-  // Derived signals
-  user = this.userStore.user;
-  organization = this.organizationStore.organizaiton;
-  dateLabel = this.dateRangeStore.label;
-  formattedRange = this.dateRangeStore.formattedRange;
-  salesLoading = this.salesSummaryStore.isLoading;
-  itemLoading = this.itemSummaryStore.isLoading;
-  couponLoading = this.couponCodeSummaryStore.isLoading;
-  error = this.salesSummaryStore.error;
-
-  // aggregated totals
-  get stats() {
-    const items = this.salesSummaryStore.summaryItems();
-
-    const get = (key: string) =>
-      Number(items.find(i => i.key === key)?.value ?? 0);
-
-    return {
-      totalRedemptions: get('total_redemptions'),
-      grossSales: get('gross_sales_amount'),
-      discount: get('discount_amount'),
-      discountPercent: get('discount_percentage'),
-      netSales: get('net_sales_amount'),
-    };
-  }
-
-  graphData = computed(() => this.salesSummaryStore.graphData());
-  itemPopularityData = this.itemSummaryStore.popularityData;
-  couponPopularityData = this.couponCodeSummaryStore.popularityData;
+  readonly organization = this.organizationStore.organizaiton;
+  readonly dashboard = signal<RestaurantDashboard | null>(null);
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+  private loadedOrganizationId: string | null = null;
 
   constructor() {
     effect(() => {
-      const org = this.organization();
-      const orgId = org?.organizationId;
-      if (!orgId) return;
-
-      const start = this.dateRangeStore.start();
-      const end = this.dateRangeStore.end();
-
-      const startStr = start ? start.toISOString().split('T')[0] : null;
-      const endStr = end ? end.toISOString().split('T')[0] : null;
-
-      // Prevent infinite loops
-      if (
-        this.lastStart === startStr &&
-        this.lastEnd === endStr
-      ) {
-        return;
-      }
-
-      // update reference
-      this.lastStart = startStr;
-      this.lastEnd = endStr;
-
-      // run fetch
-      this.fetchAllData(orgId, start, end);
+      const organizationId = this.organization()?.organizationId;
+      if (!organizationId || organizationId === this.loadedOrganizationId) return;
+      this.loadedOrganizationId = organizationId;
+      void this.load(organizationId);
     });
   }
 
-  ngOnInit() {
-    this.dateRangeStore.reset();
+  async load(organizationId = this.organization()?.organizationId) {
+    if (!organizationId) return;
+    this.loading.set(true);
+    this.error.set(null);
+    try {
+      const response = await firstValueFrom(this.dashboardService.getDashboard(organizationId));
+      this.dashboard.set(response.data ?? null);
+    } catch {
+      this.dashboard.set(null);
+      this.error.set('We could not load the restaurant dashboard. Please try again.');
+    } finally {
+      this.loading.set(false);
+    }
   }
-  /** Fetch all dashboard data */
-  private fetchAllData(orgId: string, start: Date | null, end: Date | null) {
-    const startStr = start ? start.toISOString().split('T')[0] : undefined;
-    const endStr = end ? end.toISOString().split('T')[0] : undefined;
 
-    // sales
-    this.salesSummaryStore.setOrganizationId(orgId);
-    this.salesSummaryStore.setDateRange(startStr ?? null, endStr ?? null);
-    this.salesSummaryStore.fetchSalesSummary();
+  recentRows() {
+    return this.dashboard()?.recentRedemptions ?? [];
+  }
 
-    // item
-    this.itemSummaryStore.fetchItemSummary({
-      organizationId: orgId,
-      startDate: startStr,
-      endDate: endStr,
-      take: 5,
-    });
+  currency() {
+    return this.organization()?.currency ?? 'EUR';
+  }
 
-    // coupon
-    this.couponCodeSummaryStore.fetchCouponCodeSummary({
-      organizationId: orgId,
-      startDate: startStr,
-      endDate: endStr,
-      take: 5,
-    });
-
-    this.redemptionsStore.resetRedemptionsState();
-    this.redemptionsStore.fetchRedemptions({
-      organizationId: orgId,
-      skip: 0,
-      take: 5,
-      from: startStr,
-      to: endStr,
-    });
+  customerLabel(row: RestaurantDashboardRedemption) {
+    return row.customerEmail || 'Customer';
   }
 }

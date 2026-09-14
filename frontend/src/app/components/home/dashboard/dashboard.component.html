@@ -1,93 +1,48 @@
-<div class="p-2 space-y-8">
+<div class="flex flex-col gap-7">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <p class="mat-headline-medium text-on-surface m-0">Restaurant dashboard</p>
+      <p class="mat-body-medium text-on-surface-variant mt-2">A clear view of your Offers, customer claims, and redemptions.</p>
+    </div>
+    <a mat-flat-button class="rounded-full" routerLink="../offers/new"><mat-icon>add</mat-icon> Create offer</a>
+  </div>
 
-  <!-- Sales Analytics -->
-  <ng-container *ngIf="salesLoading(); else salesAnalyticsContent">
-    <!-- Skeleton for Sales Summary header + cards -->
-    <div class="space-y-2">
-      <ngx-skeleton-loader count="1" [theme]="{ width: '300px', height: '24px', borderRadius: '6px' }"></ngx-skeleton-loader>
+  @if (loading()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4" aria-label="Loading dashboard">
+      @for (item of [1, 2, 3, 4, 5]; track item) {
+        <mat-card appearance="outlined" class="p-5 h-32 animate-pulse bg-surface-container-lowest"></mat-card>
+      }
+    </div>
+  } @else if (error()) {
+    <div class="rounded-lg border border-error p-4 text-error" role="alert">
+      <div>{{ error() }}</div>
+      <button mat-button class="mt-2" (click)="load()">Try again</button>
+    </div>
+  } @else if (dashboard(); as data) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">local_activity</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">Active Offers</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.activeOffers | number }}</p></mat-card-content></mat-card>
+      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">confirmation_number</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">Total Claims</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.totalClaims | number }}</p></mat-card-content></mat-card>
+      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">redeem</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">Total Redemptions</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.totalRedemptions | number }}</p></mat-card-content></mat-card>
+      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">today</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">Today’s Redemptions</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.todaysRedemptions | number }}</p></mat-card-content></mat-card>
+      <mat-card appearance="outlined" class="p-5 bg-surface-container-lowest"><mat-card-content><mat-icon class="text-primary">percent</mat-icon><p class="mat-body-medium text-on-surface-variant mt-3">Redemption Rate</p><p class="mat-headline-small text-on-surface m-0">{{ data.stats.redemptionRate | number:'1.0-2' }}%</p><p class="mat-body-small text-on-surface-variant mt-1">Redeemed claims ÷ all claims</p></mat-card-content></mat-card>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-      <ngx-skeleton-loader *ngFor="let i of [1,2,3,4]"
-        [theme]="{
-          height: '110px',
-          borderRadius: '10px',
-          background: 'var(--skeleton-bg)'
-        }">
-      </ngx-skeleton-loader>
+    <div class="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-5">
+      <mat-card appearance="outlined" class="overflow-hidden">
+        <mat-card-header class="p-5 pb-2"><mat-card-title>Recent Redemptions</mat-card-title><mat-card-subtitle>Claim-backed Offer activity from your restaurant.</mat-card-subtitle></mat-card-header>
+        <mat-card-content class="p-0">
+          @if (recentRows().length === 0) {
+            <div class="p-10 text-center text-on-surface-variant"><mat-icon>receipt_long</mat-icon><p class="mat-body-large mt-3">No redemptions yet.</p><p class="mat-body-medium">Redeemed claims will appear here.</p></div>
+          } @else {
+            <div class="overflow-auto"><table class="w-full text-left"><thead><tr class="border-b border-outline-variant"><th class="p-4">Offer</th><th class="p-4">Customer</th><th class="p-4">Discount</th><th class="p-4">Redeemed</th></tr></thead><tbody>@for (row of recentRows(); track row.redemptionId) {<tr class="border-b border-outline-variant last:border-0"><td class="p-4 font-medium">{{ row.offerTitle }}</td><td class="p-4">{{ customerLabel(row) }}</td><td class="p-4">{{ row.discount | currency:currency():'symbol' }}</td><td class="p-4 text-on-surface-variant">{{ row.redeemedAt | date:'short' }}</td></tr>}</tbody></table></div>
+          }
+        </mat-card-content>
+        @if (recentRows().length > 0) { <mat-card-actions class="p-4"><a mat-button routerLink="../redemptions">View all redemptions</a></mat-card-actions> }
+      </mat-card>
+
+      <mat-card appearance="outlined" class="p-5"><mat-card-content><div class="mat-title-large">Best Performing Offer</div>@if (data.bestPerformingOffer; as best) {<div class="mt-6 flex items-start gap-3"><mat-icon class="text-primary">star</mat-icon><div><div class="mat-body-large font-medium">{{ best.title }}</div><div class="mat-body-medium text-on-surface-variant mt-1">{{ best.redemptions }} successful redemption{{ best.redemptions === 1 ? '' : 's' }}</div></div></div><a mat-button class="mt-5" [routerLink]="['../offers', best.offerId]">View offer</a>} @else {<p class="mat-body-medium text-on-surface-variant mt-6">No redeemed Offers yet.</p>}</mat-card-content></mat-card>
     </div>
-  </ng-container>
 
-  <ng-template #salesAnalyticsContent>
-    <app-dashboard-sales-analytics [userName]="user()?.name | titlecase" [stats]="stats">
-    </app-dashboard-sales-analytics>
-  </ng-template>
-
-  <!-- Item Popularity -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-
-    <!-- Left: Product popularity -->
-    <ng-container *ngIf="itemLoading(); else itemPopularityContent">
-      <div class="flex flex-col space-y-3">
-        <ngx-skeleton-loader [theme]="{ width: '60%', height: '18px', borderRadius: '4px' }"></ngx-skeleton-loader>
-        <ngx-skeleton-loader *ngFor="let i of [1,2,3,4,5]"
-          [theme]="{ width: '100%', height: '36px', borderRadius: '8px' }">
-        </ngx-skeleton-loader>
-      </div>
-    </ng-container>
-    <ng-template #itemPopularityContent>
-      <app-popularity-chart
-        [title]="'Most popular products'"
-        [labelColumn]="'Products'"
-        [valueColumn]="'Redemptions'"
-        [data]="itemPopularityData()"
-        [navigationText]="'View all products'"
-        [navigationLink]="'products'"
-        >
-      </app-popularity-chart>
-    </ng-template>
-
-    <!-- Right: Coupon popularity -->
-    <ng-container *ngIf="couponLoading(); else couponPopularityContent">
-      <div class="flex flex-col space-y-3">
-        <ngx-skeleton-loader [theme]="{ width: '60%', height: '18px', borderRadius: '4px' }"></ngx-skeleton-loader>
-        <ngx-skeleton-loader *ngFor="let i of [1,2,3,4,5]"
-          [theme]="{ width: '100%', height: '36px', borderRadius: '8px' }">
-        </ngx-skeleton-loader>
-      </div>
-    </ng-container>
-    <ng-template #couponPopularityContent>
-      <app-popularity-chart
-        [title]="'Most popular coupon codes'"
-        [labelColumn]="'Codes'"
-        [valueColumn]="'Redemptions'"
-        [data]="couponPopularityData()"
-        [navigationText]="'View all coupon codes'"
-        [navigationLink]="'coupon-codes'"
-        >
-      </app-popularity-chart>
-    </ng-template>
-
-  </div>
-
-  <!-- Sales Trend Chart -->
-  <div class="mt-6 h-[300px] mb-8">
-    <ng-container *ngIf="salesLoading(); else salesChartContent">
-      <ngx-skeleton-loader count="1" [theme]="{ height: '320px', borderRadius: '10px', background: 'var(--skeleton-bg)' }"></ngx-skeleton-loader>
-    </ng-container>
-
-    <ng-template #salesChartContent>
-      <app-sales-trend-chart
-        [graphData]="graphData()"
-        [dateRangeType]="dateRangeStore.activeRange()"
-        [startDate]="dateRangeStore.start()"
-        [endDate]="dateRangeStore.end()">
-      </app-sales-trend-chart>
-    </ng-template>
-  </div>
-
-  <!-- 💳 Redemption List -->
-  <div class="mt-6 mb-8 pt-11">
-    <app-recent-redemption-list></app-recent-redemption-list>
-  </div>
+    @if (data.offers.length === 0) {<mat-card appearance="outlined" class="p-10 text-center"><mat-icon class="text-on-surface-variant">local_offer</mat-icon><div class="mat-title-large mt-3">No offers yet.</div><div class="mat-body-medium text-on-surface-variant mt-2">Create your first offer to start collecting claims and redemptions.</div><a mat-flat-button class="rounded-full mt-5" routerLink="../offers/new">Create offer</a></mat-card>}
+  }
 </div>
