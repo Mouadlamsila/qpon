@@ -20,6 +20,7 @@ export class RedemptionsController {
    * Redeem coupon code
    */
   @ApiResponse({ status: 200, description: 'Successful response' })
+  @Permissions('create', Redemption)
   @Post('coupon-codes/redeem')
   async redeemCouponCode(
     @Param('organization_id') organizationId: string,

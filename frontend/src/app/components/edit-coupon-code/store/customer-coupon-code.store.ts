@@ -41,6 +41,7 @@ export const CustomerCouponCodeStore = signalStore(
       snackbarService = inject(SnackbarService)
     ) => ({
       fetchCustomersForCouponCode: rxMethod<{
+        organizationId: string;
         couponId: string;
         campaignId: string;
         couponCodeId: string;
@@ -51,9 +52,9 @@ export const CustomerCouponCodeStore = signalStore(
               isLoading: true,
             })
           ),
-          switchMap(({ couponId, campaignId, couponCodeId }) => {
+          switchMap(({ organizationId, couponId, campaignId, couponCodeId }) => {
             return customerCouponCodeService
-              .fetchCustomers(couponId, campaignId, couponCodeId)
+              .fetchCustomers(organizationId, couponId, campaignId, couponCodeId)
               .pipe(
                 tapResponse({
                   next: (response) => {
@@ -132,6 +133,7 @@ export const CustomerCouponCodeStore = signalStore(
                 updatedCustomerCouponCode.customers = customers;
 
                 customerOperation$ = customerCouponCodeService.updateCustomers(
+                  organizationId,
                   couponId,
                   campaignId,
                   couponCodeId,

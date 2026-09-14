@@ -17,6 +17,7 @@ import {
   itemConstraintEnum,
   sortOrderEnum,
   statusEnum,
+  discountTypeEnum,
 } from '../enums';
 import { CouponConverter } from '../converters/coupon.converter';
 import { Campaign } from '../entities/campaign.entity';
@@ -48,8 +49,17 @@ export class CouponService {
 
     return this.datasource.transaction(async (manager) => {
       try {
-        if (body.discountType && body.discountValue <= 0) {
+        if (!Number.isFinite(body.discountValue) || body.discountValue <= 0) {
           throw new BadRequestException('Discount value must be greater than 0');
+        }
+
+        if (body.discountType === discountTypeEnum.PERCENTAGE && body.discountValue > 100) {
+          throw new BadRequestException('Percentage discount cannot exceed 100');
+        }
+
+        if (body.discountUpto !== undefined &&
+            (!Number.isFinite(body.discountUpto) || body.discountUpto < 0)) {
+          throw new BadRequestException('Discount cap must be zero or greater');
         }
 
         const couponRepository = manager.getRepository(Coupon);
@@ -166,12 +176,13 @@ export class CouponService {
   /**
    * Fetch coupon
    */
-  async fetchCoupon(couponId: string) {
+  async fetchCoupon(organizationId: string, couponId: string) {
     this.logger.info('START: fetchCoupon service');
     try {
       const coupon = await this.couponRepository.findOne({
         where: {
           couponId,
+          organization: { organizationId },
           status: Not(statusEnum.ARCHIVE),
         },
         relations: {
@@ -216,7 +227,11 @@ export class CouponService {
 
         // Find the coupon
         const existingCoupon = await couponRepository.findOne({
-          where: { couponId, status: Not(statusEnum.ARCHIVE) },
+          where: {
+            couponId,
+            organization: { organizationId },
+            status: Not(statusEnum.ARCHIVE),
+          },
         });
 
         if (!existingCoupon) {
@@ -290,7 +305,7 @@ export class CouponService {
   /**
    * Delete coupon
    */
-  async deleteCoupon(couponId: string) {
+  async deleteCoupon(organizationId: string, couponId: string) {
     this.logger.info('START: deleteCoupon service');
     return this.datasource.transaction(async (manager) => {
       try {
@@ -302,6 +317,7 @@ export class CouponService {
           },
           where: {
             couponId,
+            organization: { organizationId },
             status: Not(statusEnum.ARCHIVE),
           },
         });
@@ -354,7 +370,7 @@ export class CouponService {
   /**
    * Deactivate coupon
    */
-  async deactivateCoupon(couponId: string) {
+  async deactivateCoupon(organizationId: string, couponId: string) {
     this.logger.info('START: deactivateCoupon service');
     return this.datasource.transaction(async (manager) => {
       try {
@@ -363,6 +379,7 @@ export class CouponService {
         const coupon = await couponRepository.findOne({
           where: {
             couponId,
+            organization: { organizationId },
             status: Not(statusEnum.ARCHIVE),
           },
         });
@@ -407,12 +424,13 @@ export class CouponService {
   /**
    * Reactivate coupon
    */
-  async reactivateCoupon(couponId: string) {
+  async reactivateCoupon(organizationId: string, couponId: string) {
     this.logger.info('START: reactivateCoupon service');
     try {
       const coupon = await this.couponRepository.findOne({
         where: {
           couponId,
+          organization: { organizationId },
           status: Not(statusEnum.ARCHIVE),
         },
       });
@@ -524,12 +542,13 @@ export class CouponService {
   /**
    * Fetch coupon
    */
-  async fetchCouponForValidation(couponId: string) {
+  async fetchCouponForValidation(organizationId: string, couponId: string) {
     this.logger.info('START: fetchCoupon service');
     try {
       const coupon = await this.couponRepository.findOne({
         where: {
           couponId,
+          organization: { organizationId },
         },
         relations: {
           couponItems: true,

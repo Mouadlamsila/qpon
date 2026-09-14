@@ -1,0 +1,21 @@
+<main class="min-h-screen bg-surface p-5 md:p-10 flex justify-center items-start">
+  @if (notFound) {
+    <mat-card appearance="outlined" class="public-card p-8 text-center mt-12"><h1 class="mat-headline-small">Offer unavailable</h1><p class="mat-body-large text-on-surface-variant">This offer is no longer published or could not be found.</p></mat-card>
+  } @else if (!offer) {
+    <div class="mat-body-large text-on-surface-variant mt-12">Loading offer…</div>
+  } @else {
+    <mat-card appearance="outlined" class="public-card overflow-hidden">
+      @if (offer.imageUrl) { <img [src]="offer.imageUrl" [alt]="offer.title" class="w-full h-64 object-cover" /> }
+      <div class="p-7 md:p-10">
+        <div class="mat-label-large text-primary">{{ offer.restaurant.name }}</div>
+        <h1 class="mat-headline-large text-on-surface mt-3">{{ offer.title }}</h1>
+        <div class="discount-badge mat-headline-small mt-5">{{ discountLabel() }}</div>
+        <p class="mat-body-large text-on-surface-variant mt-6">{{ offer.description }}</p>
+        <div class="mat-body-medium text-on-surface mt-6">Valid until {{ offer.validUntil | date:'longDate' }}</div>
+        @if (offer.minimumAmount) { <div class="mat-body-medium text-on-surface-variant mt-2">Minimum order: {{ offer.minimumAmount }}</div> }
+        <div class="border-t border-outline-variant mt-8 pt-6"><div class="mat-title-medium">Terms</div><ul class="mat-body-medium text-on-surface-variant mt-3 list-disc pl-5">@for (term of offer.terms; track term) { <li>{{ term }}</li> }</ul></div>
+        <button mat-flat-button disabled class="w-full mt-8">Get offer (coming soon)</button>
+      </div>
+    </mat-card>
+  }
+</main>

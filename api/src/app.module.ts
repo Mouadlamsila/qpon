@@ -25,6 +25,7 @@ import { typeOrmConfig } from './config/typeorm.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OrganizationSubscriber } from './subscribers/organization.subscriber';
 import { JobsModule } from './modules/jobs.module';
+import { RestaurantOfferModule } from './modules/restaurant-offer.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { JobsModule } from './modules/jobs.module';
       }),
     }),
     JobsModule,
+    RestaurantOfferModule,
     LoggerModule,
     ApiKeyModule,
     AuthModule,

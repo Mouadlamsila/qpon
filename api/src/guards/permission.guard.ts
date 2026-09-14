@@ -19,6 +19,7 @@ import { CHECK_PERMISSIONS_KEY } from '../decorators/permission.decorator';
 import { UserService } from '../services/user.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { LoggerService } from '../services/logger.service';
+import { roleEnum } from '../enums';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -48,13 +49,12 @@ export class PermissionGuard implements CanActivate {
       context.getHandler(),
     );
 
-    if (!permissionParams) {
-      return true;
-    }
-
     let ability: AppAbility;
 
     if (apiKeyId) {
+      if (request.params.organization_id && organizationId !== request.params.organization_id) {
+        throw new ForbiddenException('API key is not valid for this organization');
+      }
       ability = this.authorizationService.getApiUserAbility(organizationId);
     } else {
       const userId = request.headers.userId;
@@ -64,7 +64,22 @@ export class PermissionGuard implements CanActivate {
       if (!user) {
         throw new ForbiddenException('User not authenticated');
       }
+      const routeOrganizationId = request.params.organization_id as string;
+      const isGlobalSuperAdmin = user.role === roleEnum.SUPER_ADMIN;
+      const belongsToRouteOrganization = user.organizationUser?.some(
+        (membership) => membership.organizationId === routeOrganizationId,
+      );
+
+      if (routeOrganizationId && !isGlobalSuperAdmin && !belongsToRouteOrganization) {
+        throw new ForbiddenException('User does not belong to this organization');
+      }
       ability = this.authorizationService.getUserAbility(user);
+    }
+
+    // Even endpoints without a CASL decorator must not bypass organization
+    // membership/API-key scoping when they are under an organization route.
+    if (!permissionParams) {
+      return true;
     }
 
     try {
@@ -75,8 +90,6 @@ export class PermissionGuard implements CanActivate {
 
       for (let i = 0; i < permissionParams.length; i++) {
         const action = permissionParams[i].action;
-
-        console.log('\n\n', action, subjectObjects[i], '\n\n');
 
         ForbiddenError.from(ability).throwUnlessCan(action, subjectObjects[i]);
       }

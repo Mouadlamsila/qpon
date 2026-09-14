@@ -562,6 +562,7 @@ export const CouponCodeStore = signalStore(
                         // return new observable into the stream
                         return customerCouponCodeService
                           .addCustomers(
+                            organizationId,
                             couponId,
                             campaignId,
                             createdCouponCode.couponCodeId!,

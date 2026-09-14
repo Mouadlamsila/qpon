@@ -50,6 +50,7 @@ export class ItemsService {
       const existingItem = await this.itemsRepository.findOne({
         where: {
           name: ILike(body.name),
+          organization: { organizationId },
           status: statusEnum.ACTIVE,
         },
       });
@@ -144,12 +145,13 @@ export class ItemsService {
   /**
    * Fetch item
    */
-  async fetchItem(itemId: string) {
+  async fetchItem(organizationId: string, itemId: string) {
     this.logger.info('START: fetchItem service');
     try {
       const item = await this.itemsRepository.findOne({
         where: {
           itemId,
+          organization: { organizationId },
           status: statusEnum.ACTIVE,
         },
       });
@@ -178,7 +180,7 @@ export class ItemsService {
   /**
    * Fetch item for validation
    */
-  async fetchItemForValidation(itemId: string) {
+  async fetchItemForValidation(organizationId: string, itemId: string) {
     this.logger.info('START: fetchItemForValidation service');
     try {
       const item = await this.itemsRepository.findOne({
@@ -187,6 +189,7 @@ export class ItemsService {
         },
         where: {
           itemId,
+          organization: { organizationId },
           status: statusEnum.ACTIVE,
         },
       });
@@ -218,12 +221,13 @@ export class ItemsService {
   /**
    * Update item
    */
-  async updateItem(itemId: string, body: UpdateItemDto) {
+  async updateItem(organizationId: string, itemId: string, body: UpdateItemDto) {
     this.logger.info('START: updateItem service');
     try {
       const item = await this.itemsRepository.findOne({
         where: {
           itemId,
+          organization: { organizationId },
           status: statusEnum.ACTIVE,
         },
       });
@@ -236,9 +240,10 @@ export class ItemsService {
       if (body.name) {
         const existingItem = await this.itemsRepository
           .createQueryBuilder('item')
-          .where(`LOWER(item.name) = LOWER(:name) AND status = 'active' AND item_id != :itemId`, {
+          .where(`LOWER(item.name) = LOWER(:name) AND item.status = 'active' AND item.item_id != :itemId AND item.organization_id = :organizationId`, {
             name: body.name,
             itemId,
+            organizationId,
           })
           .getOne();
 
@@ -279,13 +284,14 @@ export class ItemsService {
   /**
    * Delete item
    */
-  async deleteItem(itemId: string) {
+  async deleteItem(organizationId: string, itemId: string) {
     this.logger.info('START: deleteItem service');
     return this.datasource.transaction(async (manager) => {
       try {
         const item = await manager.findOne(Item, {
           where: {
             itemId,
+            organization: { organizationId },
             status: statusEnum.ACTIVE,
           },
         });
@@ -339,13 +345,21 @@ export class ItemsService {
     });
   }
 
-  async validateItemsExist(items: string[], manager: EntityManager) {
+  async validateItemsExist(
+    organizationId: string,
+    items: string[],
+    manager: EntityManager,
+  ) {
     this.logger.info('START: validateItemsExist service');
     try {
       const itemsRepository = manager.getRepository(Item);
 
       const existingItems = await itemsRepository.find({
-        where: { itemId: In(items), status: statusEnum.ACTIVE },
+        where: {
+          itemId: In(items),
+          organization: { organizationId },
+          status: statusEnum.ACTIVE,
+        },
       });
 
       const existingItemIds = existingItems.map((item) => item.itemId);

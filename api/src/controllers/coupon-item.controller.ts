@@ -30,12 +30,13 @@ export class CouponItemController {
   @Permissions('create', CouponItem)
   @Post()
   async addItems(
+    @Param('organization_id') organizationId: string,
     @Param('coupon_id') couponId: string,
     @Body() body: CreateCouponItemDto,
   ) {
     this.logger.info('START: addItemsToCoupon constroller');
 
-    const result = await this.couponItemService.addItems(couponId, body);
+    const result = await this.couponItemService.addItems(organizationId, couponId, body);
 
     this.logger.info('END: addItemsToCoupon controller');
     return { message: 'Successfully added items to coupon', result };
@@ -48,6 +49,7 @@ export class CouponItemController {
   @Permissions('read', CouponItem)
   @Get()
   async fetchItems(
+    @Param('organization_id') organizationId: string,
     @Param('coupon_id') couponId: string,
     @Query('name') name?: string,
     @Query('skip') skip?: number,
@@ -56,6 +58,7 @@ export class CouponItemController {
     this.logger.info('START: fetchItemOfCoupon controller');
 
     const result = await this.couponItemService.fetchItems(
+      organizationId,
       couponId,
       skip,
       take,
@@ -75,12 +78,13 @@ export class CouponItemController {
   @Permissions('update', CouponItem)
   @Patch()
   async updateItems(
+    @Param('organization_id') organizationId: string,
     @Param('coupon_id') couponId: string,
     @Body() body: UpdateCouponItemDto,
   ) {
     this.logger.info('START: updateItems controller');
 
-    const result = await this.couponItemService.updateItems(couponId, body);
+    const result = await this.couponItemService.updateItems(organizationId, couponId, body);
 
     this.logger.info('END: updateItems controller');
     return { message: 'Successfully updated items for coupon', result };
@@ -93,12 +97,13 @@ export class CouponItemController {
   @Permissions('delete', CouponItem)
   @Delete(':item_id')
   async removeItem(
+    @Param('organization_id') organizationId: string,
     @Param('coupon_id') couponId: string,
     @Param('item_id') itemId: string,
   ) {
     this.logger.info('START: removeItem controller');
 
-    const result = await this.couponItemService.removeItem(couponId, itemId);
+    const result = await this.couponItemService.removeItem(organizationId, couponId, itemId);
 
     this.logger.info('END: removeItem controller');
     return { message: 'Successfully removed item from coupon', result };

@@ -56,6 +56,7 @@ export class CampaignController {
   @Permissions('read_all', Campaign)
   @Get()
   async fetchCampaigns(
+    @Param('organization_id') organizationId: string,
     @Param('coupon_id') couponId: string,
     @Query('status') status?: campaignStatusEnum,
     @Query('budgeted') budgeted?: boolean,
@@ -65,6 +66,7 @@ export class CampaignController {
     this.logger.info('START: fetchCampaigns controller');
 
     const result = await this.campaignService.fetchCampaigns(
+      organizationId,
       couponId,
       status,
       budgeted,
@@ -83,12 +85,14 @@ export class CampaignController {
   @Permissions('read', CampaignSummaryMv)
   @Get(':campaign_id/summary')
   async fetchCampaignSummary(
+    @Param('organization_id') organizationId: string,
     @Param('coupon_id') couponId: string,
     @Param('campaign_id') campaignId: string,
   ) {
     this.logger.info('START: fetchCampaignSummary controller');
 
     const result = await this.campaignService.fetchCampaignSummary(
+      organizationId,
       couponId,
       campaignId,
     );
@@ -104,6 +108,7 @@ export class CampaignController {
   @Permissions('read', CampaignSummaryMv)
   @Get('summary')
   async fetchCampaignsSummary(
+    @Param('organization_id') organizationId: string,
     @Param('coupon_id') couponId: string,
     @Query('name') name?: string,
     @Query('status') status?: statusEnum,
@@ -115,6 +120,7 @@ export class CampaignController {
     this.logger.info('START: fetchCampaignsSummary controller');
 
     const result = await this.campaignService.fetchCampaignsSummary(
+      organizationId,
       couponId,
       { status: Not(campaignStatusEnum.ARCHIVE), name },
       sortBy,
@@ -133,10 +139,13 @@ export class CampaignController {
   @ApiResponse({ status: 200, description: 'Successful response' })
   @Permissions('read', Campaign)
   @Get(':campaign_id')
-  async fetchCampaign(@Param('campaign_id') campaignId: string) {
+  async fetchCampaign(
+    @Param('organization_id') organizationId: string,
+    @Param('campaign_id') campaignId: string,
+  ) {
     this.logger.info('START: fetchCampaign controller');
 
-    const result = await this.campaignService.fetchCampaign(campaignId);
+    const result = await this.campaignService.fetchCampaign(organizationId, campaignId);
 
     this.logger.info('END: fetchCampaign controller');
     return { message: 'Successfully fetched a campaign', result };
@@ -149,12 +158,13 @@ export class CampaignController {
   @Permissions('update', Campaign)
   @Patch(':campaign_id')
   async updateCampaign(
+    @Param('organization_id') organizationId: string,
     @Param('campaign_id') campaignId: string,
     @Body() body: UpdateCampaignDto,
   ) {
     this.logger.info('START: updateCampaign controller');
 
-    const result = await this.campaignService.updateCampaign(campaignId, body);
+    const result = await this.campaignService.updateCampaign(organizationId, campaignId, body);
 
     this.logger.info('END: updateCampaign controller');
     return { message: 'Successfully updated campaign', result };
@@ -167,12 +177,13 @@ export class CampaignController {
   @Permissions('update', Campaign)
   @Post(':campaign_id/deactivate')
   async deactivateCampaign(
+    @Param('organization_id') organizationId: string,
     @Param('coupon_id') couponId: string,
     @Param('campaign_id') campaignId: string,
   ) {
     this.logger.info('START: deactivateCampaign controller');
 
-    await this.campaignService.deactivateCampaign(campaignId);
+    await this.campaignService.deactivateCampaign(organizationId, campaignId);
 
     this.logger.info('END: deactivateCampaign controller');
     return { message: 'Successfully deactivated the campaign' };
@@ -184,10 +195,13 @@ export class CampaignController {
   @ApiResponse({ status: 200, description: 'Successful response' })
   @Permissions('update', Campaign)
   @Post(':campaign_id/reactivate')
-  async reactivateCampaign(@Param('campaign_id') campaignId: string) {
+  async reactivateCampaign(
+    @Param('organization_id') organizationId: string,
+    @Param('campaign_id') campaignId: string,
+  ) {
     this.logger.info('START: reactivateCampaign controller');
 
-    await this.campaignService.reactivateCampaign(campaignId);
+    await this.campaignService.reactivateCampaign(organizationId, campaignId);
 
     this.logger.info('END: reactivateCampaign controller');
     return { message: 'Successfully reactivated campaign' };
@@ -200,12 +214,13 @@ export class CampaignController {
   @Permissions('delete', Campaign)
   @Delete(':campaign_id')
   async deleteCampaign(
+    @Param('organization_id') organizationId: string,
     @Param('coupon_id') couponId: string,
     @Param('campaign_id') campaignId: string,
   ) {
     this.logger.info('START: deleteCampaign controller');
 
-    await this.campaignService.deleteCampaign(couponId, campaignId);
+    await this.campaignService.deleteCampaign(organizationId, couponId, campaignId);
 
     this.logger.info('END: deleteCampaign controller');
     return { message: 'Successfully deleted campaign' };

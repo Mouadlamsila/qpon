@@ -120,6 +120,7 @@ export class CouponCodeComponent implements OnInit {
     });
 
     this.customerCouponCodeStore.fetchCustomersForCouponCode({
+      organizationId: this.organization()?.organizationId!,
       couponId: this.couponId,
       campaignId: this.campaignId,
       couponCodeId: this.couponCodeId,

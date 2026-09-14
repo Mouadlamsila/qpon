@@ -22,6 +22,25 @@ export class OrganizationDto {
   @IsString()
   externalId?: string;
 
+  @IsOptional()
+  @Expose({ name: 'logo_url' })
+  @IsString()
+  logoUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @Expose({ name: 'contact_email' })
+  @IsString()
+  contactEmail?: string;
+
+  @IsOptional()
+  @Expose({ name: 'contact_phone' })
+  @IsString()
+  contactPhone?: string;
+
   @Expose({ name: 'created_at' })
   @Transform(({ value }) => value, { toClassOnly: true })
   @IsDate()
@@ -53,6 +72,25 @@ export class CreateOrganizationDto {
   @Transform(({ value }) => value, { toClassOnly: true })
   @IsString()
   externalId?: string;
+
+  @IsOptional()
+  @Expose({ name: 'logo_url' })
+  @IsString()
+  logoUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @Expose({ name: 'contact_email' })
+  @IsString()
+  contactEmail?: string;
+
+  @IsOptional()
+  @Expose({ name: 'contact_phone' })
+  @IsString()
+  contactPhone?: string;
 }
 
 export class UpdateOrganizationDto {
@@ -72,4 +110,23 @@ export class UpdateOrganizationDto {
   @Transform(({ value }) => value, { toClassOnly: true })
   @IsString()
   externalId?: string;
+
+  @IsOptional()
+  @Expose({ name: 'logo_url' })
+  @IsString()
+  logoUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @Expose({ name: 'contact_email' })
+  @IsString()
+  contactEmail?: string;
+
+  @IsOptional()
+  @Expose({ name: 'contact_phone' })
+  @IsString()
+  contactPhone?: string;
 }

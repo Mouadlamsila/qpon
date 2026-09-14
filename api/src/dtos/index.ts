@@ -9,3 +9,4 @@ export * from './auth.dto';
 export * from './coupon-item.dto';
 export * from './organization-user.dto';
 export * from './organizationsMv.dto';
+export * from './restaurant-offer.dto';

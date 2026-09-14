@@ -99,6 +99,7 @@ export class EditCouponCodeComponent implements OnInit {
 
     if(!this.customerCouponCode()) {
       this.customerCouponCodeStore.fetchCustomersForCouponCode({
+        organizationId: this.organization()?.organizationId!,
         couponId: this.couponId,
         campaignId: this.campaignId,
         couponCodeId: this.couponCodeId

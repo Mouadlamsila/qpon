@@ -303,12 +303,20 @@ export class CustomersService {
     });
   }
 
-  async validateCustomersExist(customers: string[], manager: EntityManager) {
+  async validateCustomersExist(
+    organizationId: string,
+    customers: string[],
+    manager: EntityManager,
+  ) {
     this.logger.info('START: validateCustomersExist service');
     try {
       const customersRepository = manager.getRepository(Customer);
       const existingCustomers = await customersRepository.find({
-        where: { customerId: In(customers), status: statusEnum.ACTIVE },
+        where: {
+          customerId: In(customers),
+          organization: { organizationId },
+          status: statusEnum.ACTIVE,
+        },
       });
 
       const existingCustomerIds = existingCustomers.map(

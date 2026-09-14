@@ -20,7 +20,7 @@ import { CustomerCouponCode } from '../entities/customer-coupon-code.entity';
 
 @ApiTags('Customer coupon code')
 @Controller(
-  '/coupons/:coupon_id/campaigns/:campaign_id/coupon-codes/:coupon_code_id/customers',
+  '/organizations/:organization_id/coupons/:coupon_id/campaigns/:campaign_id/coupon-codes/:coupon_code_id/customers',
 )
 export class CustomerCouponCodeController {
   constructor(
@@ -35,6 +35,7 @@ export class CustomerCouponCodeController {
   @Permissions('create', CustomerCouponCode)
   @Post()
   async addCustomers(
+    @Param('organization_id') organizationId: string,
     @Param('coupon_id') couponId: string,
     @Param('campaign_id') campaignId: string,
     @Param('coupon_code_id') couponCodeId: string,
@@ -43,6 +44,7 @@ export class CustomerCouponCodeController {
     this.logger.info('START: addCustomers constroller');
 
     const result = await this.customerCouponCodeService.addCustomers(
+      organizationId,
       couponId,
       campaignId,
       couponCodeId,
@@ -60,6 +62,7 @@ export class CustomerCouponCodeController {
   @Permissions('read', CustomerCouponCode)
   @Get()
   async fetchCustomers(
+    @Param('organization_id') organizationId: string,
     @Param('coupon_id') couponId: string,
     @Param('campaign_id') campaignId: string,
     @Param('coupon_code_id') couponCodeId: string,
@@ -69,6 +72,7 @@ export class CustomerCouponCodeController {
     this.logger.info('START: fetchCustomers controller');
 
     const result = await this.customerCouponCodeService.fetchCustomers(
+      organizationId,
       couponId,
       campaignId,
       couponCodeId,
@@ -87,9 +91,10 @@ export class CustomerCouponCodeController {
    * Update customers
    */
   @ApiResponse({ status: 200, description: 'Successful response' })
-  // @Permissions('update', CouponCode)
+  @Permissions('update', CustomerCouponCode)
   @Patch()
   async updateCustomers(
+    @Param('organization_id') organizationId: string,
     @Param('coupon_id') couponId: string,
     @Param('campaign_id') campaignId: string,
     @Param('coupon_code_id') couponCodeId: string,
@@ -98,6 +103,7 @@ export class CustomerCouponCodeController {
     this.logger.info('START: updateCustomers controller');
 
     const result = await this.customerCouponCodeService.updateCustomers(
+      organizationId,
       couponId,
       campaignId,
       couponCodeId,
@@ -118,6 +124,7 @@ export class CustomerCouponCodeController {
   @Permissions('delete', CustomerCouponCode)
   @Delete(':customer_id')
   async removeCustomer(
+    @Param('organization_id') organizationId: string,
     @Param('coupon_id') couponId: string,
     @Param('campaign_id') campaignId: string,
     @Param('coupon_code_id') couponCodeId: string,
@@ -126,6 +133,7 @@ export class CustomerCouponCodeController {
     this.logger.info('START: removeCustomer controller');
 
     const result = await this.customerCouponCodeService.removeCustomer(
+      organizationId,
       couponId,
       campaignId,
       couponCodeId,

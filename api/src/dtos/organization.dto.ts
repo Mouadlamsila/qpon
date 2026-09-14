@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { Expose } from 'class-transformer';
-import { Equals, IsString, IsDate, IsOptional } from 'class-validator';
+import { Equals, IsString, IsDate, IsOptional, IsEmail, MaxLength } from 'class-validator';
 
 export class OrganizationDto {
   @Expose({ name: '@entity' })
@@ -20,6 +20,26 @@ export class OrganizationDto {
   @Expose({ name: 'external_id' })
   @IsString()
   externalId: string;
+
+  @IsOptional()
+  @Expose({ name: 'logo_url' })
+  @IsString()
+  logoUrl: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  description: string | null;
+
+  @IsOptional()
+  @Expose({ name: 'contact_email' })
+  @IsEmail()
+  contactEmail: string | null;
+
+  @IsOptional()
+  @Expose({ name: 'contact_phone' })
+  @IsString()
+  contactPhone: string | null;
 
   @Expose({ name: 'created_at' })
   @IsDate()
@@ -45,6 +65,26 @@ export class CreateOrganizationDto {
   @Expose({ name: 'external_id' })
   @IsString()
   externalId: string;
+
+  @IsOptional()
+  @Expose({ name: 'logo_url' })
+  @IsString()
+  logoUrl: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  description: string;
+
+  @IsOptional()
+  @Expose({ name: 'contact_email' })
+  @IsEmail()
+  contactEmail: string;
+
+  @IsOptional()
+  @Expose({ name: 'contact_phone' })
+  @IsString()
+  contactPhone: string;
 }
 
 export class UpdateOrganizationDto extends PartialType(CreateOrganizationDto) {}

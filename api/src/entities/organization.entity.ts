@@ -13,6 +13,7 @@ import { Customer } from './customer.entity';
 import { Redemption } from './redemption.entity';
 import { CouponCode } from './coupon-code.entity';
 import { Campaign } from './campaign.entity';
+import { RestaurantOffer } from './restaurant-offer.entity';
 
 @Entity()
 export class Organization {
@@ -27,6 +28,18 @@ export class Organization {
 
   @Column({ name: 'external_id', nullable: true })
   externalId: string;
+
+  @Column({ name: 'logo_url', type: 'varchar', nullable: true })
+  logoUrl: string | null;
+
+  @Column('text', { nullable: true })
+  description: string | null;
+
+  @Column({ name: 'contact_email', type: 'varchar', nullable: true })
+  contactEmail: string | null;
+
+  @Column({ name: 'contact_phone', type: 'varchar', nullable: true })
+  contactPhone: string | null;
 
   @CreateDateColumn({
     type: 'timestamp with time zone',
@@ -65,4 +78,7 @@ export class Organization {
 
   @OneToMany(() => Redemption, (redemption) => redemption.organization)
   redemptions: Redemption[];
+
+  @OneToMany(() => RestaurantOffer, (offer) => offer.organization)
+  restaurantOffers: RestaurantOffer[];
 }

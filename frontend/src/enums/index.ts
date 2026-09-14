@@ -9,3 +9,4 @@ export * from './couponCodeStatus.enum';
 export * from './durationType.enum';
 export * from './visibility.enum';
 export * from './campaignStatus.enum';
+export * from './offer-publication-status.enum';

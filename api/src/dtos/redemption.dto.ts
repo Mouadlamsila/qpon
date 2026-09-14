@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { IsNumber, IsOptional, IsString, Equals } from 'class-validator';
+import { IsNumber, IsOptional, IsString, Equals, IsPositive, Min } from 'class-validator';
 
 export class CreateRedemptionDto {
   @Expose({ name: '@entity' })
@@ -10,11 +10,14 @@ export class CreateRedemptionDto {
   code: string;
 
   @Expose({ name: 'base_order_value' })
-  @IsNumber()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
+  @IsPositive()
   baseOrderValue: number;
 
-  @IsNumber()
-  discount: number;
+  @IsOptional()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
+  @Min(0)
+  discount?: number;
 
   @Expose({ name: 'external_customer_id' })
   @IsString()

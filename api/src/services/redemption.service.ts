@@ -14,7 +14,6 @@ import {
   EntityManager,
   FindOptionsWhere,
   ILike,
-  Not,
   Repository,
 } from 'typeorm';
 import { stringify } from 'csv-stringify';
@@ -29,6 +28,8 @@ import {
   durationTypeEnum,
   itemConstraintEnum,
   sortOrderEnum,
+  discountTypeEnum,
+  statusEnum,
 } from '../enums';
 import { Customer } from '../entities/customer.entity';
 import { CustomerCouponCode } from '../entities/customer-coupon-code.entity';
@@ -36,7 +37,6 @@ import { Coupon } from '../entities/coupon.entity';
 import { Item } from '../entities/item.entity';
 import { CouponItem } from '../entities/coupon-item.entity';
 import { Campaign } from '../entities/campaign.entity';
-import { CampaignSummaryMv } from '../entities/campaign-summary.view';
 import { RedemptionWorkbookConverter } from '../converters/redemption';
 import { PassThrough } from 'stream';
 import { formatDateReport } from 'src/utils/date.utils';
@@ -46,12 +46,6 @@ export class RedemptionsService {
   constructor(
     @InjectRepository(Redemption)
     private readonly redemptionsRepository: Repository<Redemption>,
-    @InjectRepository(CouponCode)
-    private readonly couponCodeRepository: Repository<CouponCode>,
-    @InjectRepository(CampaignSummaryMv)
-    private readonly campaignSummaryRepository: Repository<CampaignSummaryMv>,
-    @InjectRepository(Campaign)
-    private readonly campaignRepository: Repository<Campaign>,
     private redemptionWorkbookConverter: RedemptionWorkbookConverter,
     private logger: LoggerService,
     private datasource: DataSource,
@@ -62,15 +56,22 @@ export class RedemptionsService {
    */
   async redeemCouponCode(organizationId: string, body: CreateRedemptionDto) {
     this.logger.info('START: redeemCouponCode service');
-    let couponCodeId: string | undefined;
-    let campaignId: string | undefined;
     try {
       const result = await this.datasource.transaction(async (manager) => {
-        const couponCode = await manager.findOne(CouponCode, {
-          relations: {
-            coupon: true,
-            campaign: true,
-          },
+        if (body.externalId) {
+          const existingRedemption = await manager.findOne(Redemption, {
+            where: {
+              externalId: body.externalId,
+              organization: { organizationId },
+            },
+          });
+
+          if (existingRedemption) {
+            return existingRedemption;
+          }
+        }
+
+        const lockedCouponCode = await manager.findOne(CouponCode, {
           where: {
             code: body.code,
             status: couponCodeStatusEnum.ACTIVE,
@@ -78,36 +79,49 @@ export class RedemptionsService {
               organizationId,
             },
           },
+          lock: { mode: 'pessimistic_write' },
         });
 
-        campaignId = couponCode?.campaign.campaignId;
+        if (!lockedCouponCode) {
+          this.logger.warn('Coupon code not found', { code: body.code });
+          throw new NotFoundException('Coupon code not found');
+        }
+
+        const couponCode = await manager.findOne(CouponCode, {
+          relations: {
+            coupon: true,
+            campaign: true,
+            organization: true,
+          },
+          where: { couponCodeId: lockedCouponCode.couponCodeId },
+        });
 
         if (!couponCode) {
-          this.logger.warn('Coupon code not found', { code: body.code });
           throw new NotFoundException('Coupon code not found');
         }
 
         this.validateCouponCode(couponCode);
 
+        if (!couponCode.coupon || couponCode.coupon.status !== statusEnum.ACTIVE) {
+          throw new ConflictException('Coupon is inactive');
+        }
+
+        if (!couponCode.campaign || couponCode.campaign.status !== campaignStatusEnum.ACTIVE) {
+          throw new ConflictException('Campaign is inactive');
+        }
+
         const customerId = await this.validateCustomer(
           manager,
           body.externalCustomerId,
           couponCode,
+          organizationId,
         );
 
         const itemId = await this.validateItem(
           manager,
           body.externalItemId,
           couponCode.coupon,
-        );
-
-        await this.validateCampaignBudget(manager, couponCode.campaign);
-
-        await manager.increment(
-          CouponCode,
-          { couponCodeId: couponCode.couponCodeId },
-          'redemptionCount',
-          1,
+          organizationId,
         );
 
         await this.checkCouponCodeRedemptions(
@@ -117,7 +131,49 @@ export class RedemptionsService {
           body.baseOrderValue,
         );
 
-        couponCodeId = couponCode.couponCodeId;
+        const discount = this.calculateDiscount(
+          couponCode.coupon,
+          body.baseOrderValue,
+        );
+
+        const campaign = await manager.findOne(Campaign, {
+          where: {
+            campaignId: couponCode.campaign.campaignId,
+            organization: { organizationId },
+          },
+          lock: { mode: 'pessimistic_write' },
+        });
+
+        if (!campaign || campaign.status !== campaignStatusEnum.ACTIVE) {
+          throw new ConflictException('Campaign is inactive');
+        }
+
+        if (campaign.budget !== null && campaign.budget !== undefined) {
+          const budgetResult = await manager
+            .createQueryBuilder(Redemption, 'redemption')
+            .select('COALESCE(SUM(redemption.discount), 0)', 'total')
+            .where('redemption.campaign_id = :campaignId', {
+              campaignId: campaign.campaignId,
+            })
+            .andWhere('redemption.organization_id = :organizationId', {
+              organizationId,
+            })
+            .getRawOne<{ total: string }>();
+
+          const totalRedemptionAmount = Number(budgetResult?.total ?? 0);
+          if (!Number.isFinite(totalRedemptionAmount) ||
+              totalRedemptionAmount + discount > Number(campaign.budget)) {
+            throw new ConflictException('Campaign budget exceeded');
+          }
+        }
+
+        await manager.increment(
+          CouponCode,
+          { couponCodeId: couponCode.couponCodeId },
+          'redemptionCount',
+          1,
+        );
+        couponCode.redemptionCount = Number(couponCode.redemptionCount || 0) + 1;
 
         const savedRedemption = await this.saveRedemption(
           manager,
@@ -126,52 +182,67 @@ export class RedemptionsService {
           customerId,
           itemId,
           body.baseOrderValue,
-          body.discount,
+          discount,
           body.externalId,
         );
 
-        return savedRedemption;
-      });
-
-      if (couponCodeId) {
-        const updatedCouponCode = await this.couponCodeRepository.findOne({
-          where: { couponCodeId },
-        });
         if (
-          updatedCouponCode &&
-          updatedCouponCode.maxRedemptions &&
-          updatedCouponCode.redemptionCount >=
-          updatedCouponCode.maxRedemptions &&
-          updatedCouponCode.status !== couponCodeStatusEnum.REDEEMED
+          couponCode.maxRedemptions &&
+          couponCode.redemptionCount >= couponCode.maxRedemptions
         ) {
-          await this.couponCodeRepository.update(couponCodeId, {
+          await manager.update(CouponCode, couponCode.couponCodeId, {
             status: couponCodeStatusEnum.REDEEMED,
           });
         }
-      }
 
-      if (campaignId) {
-        const campaign_summary = await this.campaignSummaryRepository.findOne({
-          where: {
-            campaignId
-          },
-        });
+        if (campaign.budget !== null && campaign.budget !== undefined) {
+          const totalAfterRedemption = await manager
+            .createQueryBuilder(Redemption, 'redemption')
+            .select('COALESCE(SUM(redemption.discount), 0)', 'total')
+            .where('redemption.campaign_id = :campaignId', {
+              campaignId: campaign.campaignId,
+            })
+            .andWhere('redemption.organization_id = :organizationId', {
+              organizationId,
+            })
+            .getRawOne<{ total: string }>();
 
-        if (
-          campaign_summary?.budget &&
-          campaign_summary?.totalRedemptionAmount >= campaign_summary?.budget
-        ) {
-          await this.campaignRepository.update(campaignId, {
-            status: campaignStatusEnum.EXHAUSTED,
-          });
-
-          await this.couponCodeRepository.update({ campaign: { campaignId }, status: couponCodeStatusEnum.ACTIVE }, { status: couponCodeStatusEnum.INACTIVE });
+          if (Number(totalAfterRedemption?.total ?? 0) >= Number(campaign.budget)) {
+            await manager.update(Campaign, campaign.campaignId, {
+              status: campaignStatusEnum.EXHAUSTED,
+            });
+            await manager
+              .createQueryBuilder()
+              .update(CouponCode)
+              .set({ status: couponCodeStatusEnum.INACTIVE })
+              .where('campaign_id = :campaignId', { campaignId: campaign.campaignId })
+              .andWhere('organization_id = :organizationId', { organizationId })
+              .andWhere('status = :status', { status: couponCodeStatusEnum.ACTIVE })
+              .execute();
+          }
         }
-      }
+
+        return savedRedemption;
+      });
       this.logger.info('END: redeemCouponCode service');
       return result;
     } catch (error) {
       this.logger.error(`Error in redeemCouponCode:`, error);
+
+      // The unique redemption external-ID index is the final arbiter when
+      // two identical retries arrive concurrently. Return the committed row
+      // from outside the failed transaction instead of surfacing a 500.
+      if ((error as any)?.code === '23505' && body.externalId) {
+        const existingRedemption = await this.redemptionsRepository.findOne({
+          where: {
+            externalId: body.externalId,
+            organization: { organizationId },
+          },
+        });
+        if (existingRedemption) {
+          return existingRedemption;
+        }
+      }
 
       if (
         error instanceof NotFoundException ||
@@ -283,7 +354,7 @@ export class RedemptionsService {
   private validateCouponCode(couponCode: CouponCode) {
     if (
       couponCode.durationType == durationTypeEnum.LIMITED &&
-      couponCode.expiresAt < new Date()
+      (!couponCode.expiresAt || couponCode.expiresAt < new Date())
     ) {
       this.logger.warn('Coupon code is expired', { code: couponCode.code });
       throw new GoneException('Coupon code is expired');
@@ -294,9 +365,14 @@ export class RedemptionsService {
     manager: EntityManager,
     externalCustomerId: string,
     couponCode: CouponCode,
+    organizationId: string,
   ) {
     const customer = await manager.findOne(Customer, {
-      where: { externalId: externalCustomerId },
+      where: {
+        externalId: externalCustomerId,
+        organization: { organizationId },
+        status: statusEnum.ACTIVE,
+      },
     });
 
     if (!customer) {
@@ -327,10 +403,13 @@ export class RedemptionsService {
     manager: EntityManager,
     externalItemId: string,
     coupon: Coupon,
+    organizationId: string,
   ) {
     const item = await manager.findOne(Item, {
       where: {
         externalId: externalItemId,
+        organization: { organizationId },
+        status: statusEnum.ACTIVE,
       },
     });
 
@@ -366,37 +445,32 @@ export class RedemptionsService {
     customerId: string,
     baseOrderValue: number,
   ) {
-    const updatedCouponCode = await manager.findOne(CouponCode, {
-      relations: { coupon: true, campaign: true },
-      where: { couponCodeId: couponCode.couponCodeId },
-    });
-
     if (
-      updatedCouponCode?.minimumAmount &&
-      baseOrderValue < updatedCouponCode.minimumAmount
+      couponCode.minimumAmount &&
+      baseOrderValue < couponCode.minimumAmount
     ) {
       this.logger.warn(
-        `Coupon code eligible for amount greater than ${updatedCouponCode?.minimumAmount}`,
+        `Coupon code eligible for amount greater than ${couponCode.minimumAmount}`,
       );
       throw new BadRequestException(
-        `Coupon code eligible for amount greater than ${updatedCouponCode?.minimumAmount}`,
+        `Coupon code eligible for amount greater than ${couponCode.minimumAmount}`,
       );
     }
 
     if (
-      updatedCouponCode?.maxRedemptions &&
-      updatedCouponCode.maxRedemptions < updatedCouponCode.redemptionCount
+      couponCode.maxRedemptions &&
+      couponCode.redemptionCount >= couponCode.maxRedemptions
     ) {
       this.logger.warn('Coupon code is fully redeemed', {
-        code: updatedCouponCode.code,
+        code: couponCode.code,
       });
       throw new ConflictException(
         'Coupon code is fully redeemed',
-        updatedCouponCode.couponCodeId,
+        couponCode.couponCodeId,
       );
     }
 
-    if (updatedCouponCode?.maxRedemptionPerCustomer) {
+    if (couponCode.maxRedemptionPerCustomer) {
       const customerRedemptions = await manager.find(Redemption, {
         where: {
           couponCode: {
@@ -409,7 +483,7 @@ export class RedemptionsService {
       });
 
       if (
-        customerRedemptions.length >= updatedCouponCode.maxRedemptionPerCustomer
+        customerRedemptions.length >= couponCode.maxRedemptionPerCustomer
       ) {
         this.logger.warn('Customer has already redeemed this coupon code');
         throw new ConflictException(
@@ -419,26 +493,37 @@ export class RedemptionsService {
     }
   }
 
-  private async validateCampaignBudget(
-    manager: EntityManager,
-    campaign: Campaign,
-  ) {
-    const campaign_summary = await manager.findOne(CampaignSummaryMv, {
-      where: {
-        campaignId: campaign.campaignId,
-      },
-    });
-
-    if (
-      campaign.budget &&
-      campaign_summary &&
-      campaign_summary.totalRedemptionAmount > campaign.budget
-    ) {
-      this.logger.warn('Campaign budget exceeded', {
-        campaignId: campaign.campaignId,
-      });
-      throw new ConflictException('Campaign budget exceeded');
+  private calculateDiscount(coupon: Coupon, baseOrderValue: number): number {
+    if (!Number.isFinite(baseOrderValue) || baseOrderValue <= 0) {
+      throw new BadRequestException('Base order value must be greater than zero');
     }
+
+    const discountValue = Number(coupon.discountValue);
+    const discountUpto = coupon.discountUpto == null ? undefined : Number(coupon.discountUpto);
+    if (!Number.isFinite(discountValue) || discountValue <= 0) {
+      throw new ConflictException('Coupon has an invalid discount value');
+    }
+    if (discountUpto !== undefined && (!Number.isFinite(discountUpto) || discountUpto < 0)) {
+      throw new ConflictException('Coupon has an invalid discount cap');
+    }
+
+    if (coupon.discountType === discountTypeEnum.PERCENTAGE && discountValue > 100) {
+      throw new ConflictException('Coupon percentage discount cannot exceed 100');
+    }
+
+    let discount = coupon.discountType === discountTypeEnum.PERCENTAGE
+      ? baseOrderValue * discountValue / 100
+      : discountValue;
+
+    if (discountUpto !== undefined && discountUpto > 0) {
+      discount = Math.min(discount, discountUpto);
+    }
+
+    discount = Math.min(discount, baseOrderValue);
+    if (!Number.isFinite(discount) || discount < 0) {
+      throw new ConflictException('Coupon discount calculation failed');
+    }
+    return Number(discount.toFixed(2));
   }
 
   private async saveRedemption(

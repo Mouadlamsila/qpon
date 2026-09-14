@@ -61,6 +61,7 @@ export class CampaignService {
             coupon: {
               couponId,
             },
+            organization: { organizationId },
           },
         });
 
@@ -104,6 +105,7 @@ export class CampaignService {
    * Fetch campaigns
    */
   async fetchCampaigns(
+    organizationId: string,
     couponId: string,
     status?: campaignStatusEnum,
     budgeted?: boolean,
@@ -130,6 +132,7 @@ export class CampaignService {
         where: {
           coupon: {
             couponId,
+            organization: { organizationId },
           },
           ...whereOptions,
         },
@@ -162,12 +165,13 @@ export class CampaignService {
   /**
    * Fetch campaign
    */
-  async fetchCampaign(campaignId: string) {
+  async fetchCampaign(organizationId: string, campaignId: string) {
     this.logger.info('START: fetchCampaign service');
     try {
       const campaign = await this.campaignRepository.findOne({
         where: {
           campaignId,
+          organization: { organizationId },
           status: Not(campaignStatusEnum.ARCHIVE),
         },
       });
@@ -196,7 +200,7 @@ export class CampaignService {
   /**
    * Fetch campaign for validation
    */
-  async fetchCampaignForValidation(campaignId: string) {
+  async fetchCampaignForValidation(organizationId: string, campaignId: string) {
     this.logger.info('START: fetchCampaignForValidation service');
     try {
       const campaign = await this.campaignRepository.findOne({
@@ -205,6 +209,7 @@ export class CampaignService {
         },
         where: {
           campaignId,
+          organization: { organizationId },
         },
       });
 
@@ -235,12 +240,17 @@ export class CampaignService {
   /**
    * Update campaign
    */
-  async updateCampaign(campaignId: string, body: UpdateCampaignDto) {
+  async updateCampaign(
+    organizationId: string,
+    campaignId: string,
+    body: UpdateCampaignDto,
+  ) {
     this.logger.info('START: updateCampaign service');
     try {
       const campaign = await this.campaignRepository.findOne({
         where: {
           campaignId,
+          organization: { organizationId },
           status: Not(campaignStatusEnum.ARCHIVE),
         },
       });
@@ -258,6 +268,7 @@ export class CampaignService {
             }),
             status: Not(campaignStatusEnum.ARCHIVE),
             campaignId: Not(campaignId),
+            organization: { organizationId },
           },
         });
 
@@ -273,6 +284,7 @@ export class CampaignService {
       const updatedCampaign = await this.campaignRepository.findOne({
         where: {
           campaignId,
+          organization: { organizationId },
         },
       });
 
@@ -298,12 +310,16 @@ export class CampaignService {
   /**
    * Deactivate campaign
    */
-  async deactivateCampaign(campaignId: string) {
+  async deactivateCampaign(organizationId: string, campaignId: string) {
     this.logger.info('START: deactivateCampaign service');
     return this.datasource.transaction(async (manager) => {
       try {
         const campaign = await manager.findOne(Campaign, {
-          where: { campaignId, status: Not(campaignStatusEnum.ARCHIVE) },
+          where: {
+            campaignId,
+            organization: { organizationId },
+            status: Not(campaignStatusEnum.ARCHIVE),
+          },
         });
 
         if (!campaign) {
@@ -313,7 +329,11 @@ export class CampaignService {
 
         await manager.update(
           CouponCode,
-          { campaign: { campaignId }, status: Not(couponCodeStatusEnum.ARCHIVE) },
+          {
+            campaign: { campaignId },
+            organization: { organizationId },
+            status: Not(couponCodeStatusEnum.ARCHIVE),
+          },
           { status: couponCodeStatusEnum.INACTIVE },
         );
 
@@ -343,12 +363,13 @@ export class CampaignService {
   /**
    * Reactivate campaign
    */
-  async reactivateCampaign(campaignId: string) {
+  async reactivateCampaign(organizationId: string, campaignId: string) {
     this.logger.info('START: reactivateCampaign service');
     try {
       const campaign = await this.campaignRepository.findOne({
         where: {
           campaignId,
+          organization: { organizationId },
           status: Not(campaignStatusEnum.ARCHIVE),
         },
       });
@@ -381,6 +402,7 @@ export class CampaignService {
    * Fetch campaign summaries for a coupon
    */
   async fetchCampaignsSummary(
+    organizationId: string,
     couponId: string,
     whereOptions: FindOptionsWhere<CampaignSummaryMv> = {},
     sortBy?: string,
@@ -401,6 +423,7 @@ export class CampaignService {
         await this.campaignSummaryMvRepository.findAndCount({
           where: {
             couponId,
+            organizationId,
             ...whereOptions,
             ...(nameFilter && { name: ILike(`%${nameFilter}%`) }),
           },
@@ -441,13 +464,18 @@ export class CampaignService {
   /**
    * Fetch campaign summary
    */
-  async fetchCampaignSummary(couponId: string, campaignId: string) {
+  async fetchCampaignSummary(
+    organizationId: string,
+    couponId: string,
+    campaignId: string,
+  ) {
     this.logger.info('START: fetchCampaignSummary service');
     try {
       const campaignSummaryMv = await this.campaignSummaryMvRepository.find({
         where: {
           couponId,
           campaignId,
+          organizationId,
           status: Not(campaignStatusEnum.ARCHIVE),
         },
       });
@@ -479,7 +507,11 @@ export class CampaignService {
   /**
    * Delete campaign
    */
-  async deleteCampaign(couponId: string, campaignId: string) {
+  async deleteCampaign(
+    organizationId: string,
+    couponId: string,
+    campaignId: string,
+  ) {
     this.logger.info('STAART: deleteCampaign service');
     return this.datasource.transaction(async (manager) => {
       try {
@@ -489,6 +521,7 @@ export class CampaignService {
           {
             coupon: { couponId },
             campaign: { campaignId },
+            organization: { organizationId },
           },
           { status: couponCodeStatusEnum.ARCHIVE },
         );
@@ -498,6 +531,7 @@ export class CampaignService {
           Campaign,
           {
             campaignId,
+            organization: { organizationId },
           },
           { status: campaignStatusEnum.ARCHIVE },
         );

@@ -23,6 +23,7 @@ import { OrganizationUser } from 'src/entities/organization-user.entity';
 import { Organization } from 'src/entities/organization.entity';
 import { Redemption } from 'src/entities/redemption.entity';
 import { User } from 'src/entities/user.entity';
+import { RestaurantOffer } from 'src/entities/restaurant-offer.entity';
 import { roleEnum } from 'src/enums';
 import { LoggerService } from './logger.service';
 import { UserService } from './user.service';
@@ -76,6 +77,7 @@ export type subjectsType =
     | typeof Offer
     | typeof Redemption
     | typeof User
+    | typeof RestaurantOffer
   >
   | 'all';
 
@@ -136,7 +138,7 @@ export class AuthorizationService {
 
           allow(
             'manage',
-            [Coupon, Campaign, CouponCode, Customer, Item, Redemption, ApiKey],
+            [Coupon, Campaign, CouponCode, Customer, Item, Redemption, ApiKey, RestaurantOffer],
             ['organization.organizationId'],
           );
 
@@ -170,7 +172,7 @@ export class AuthorizationService {
 
           allow(
             'manage',
-            [Coupon, Campaign, CouponCode, Customer, Item, Redemption],
+            [Coupon, Campaign, CouponCode, Customer, Item, Redemption, RestaurantOffer],
             ['organization.organizationId'],
           );
 
@@ -184,7 +186,9 @@ export class AuthorizationService {
 
           allow('read', ApiKey, ['organization.organizationId']);
 
-          allow('manage', CustomerCouponCode);
+          allow('manage', CustomerCouponCode, [
+            'couponCode.organization.organizationId',
+          ]);
 
           allow('manage', CouponItem, ['coupon.organization.organizationId']);
 
@@ -202,7 +206,7 @@ export class AuthorizationService {
 
           allow(
             ['read', 'read_all'],
-            [Coupon, Campaign, CouponCode, Customer, Item, Redemption, ApiKey],
+            [Coupon, Campaign, CouponCode, Customer, Item, Redemption, ApiKey, RestaurantOffer],
             ['organization.organizationId'],
           );
 
@@ -250,7 +254,7 @@ export class AuthorizationService {
 
     allow(
       'manage',
-      [Coupon, Campaign, CouponCode, Customer, Item, Redemption, ApiKey],
+      [Coupon, Campaign, CouponCode, Customer, Item, Redemption, ApiKey, RestaurantOffer],
       ['organization.organizationId'],
     );
 
@@ -350,7 +354,19 @@ export class AuthorizationService {
               `Error. Must provide an Coupon ID for performing action on Coupon`,
             );
           }
-          return this.couponService.fetchCouponForValidation(subjectCouponId);
+          return this.couponService.fetchCouponForValidation(
+            subjectOrganizationId,
+            subjectCouponId,
+          );
+        } else if (subject === RestaurantOffer) {
+          if (!subjectOrganizationId) {
+            throw new BadRequestException(
+              `Error. Must provide an Organization ID for performing action on RestaurantOffer`,
+            );
+          }
+          return Object.assign(new RestaurantOffer(), {
+            organization: { organizationId: subjectOrganizationId },
+          });
         } else if (subject === Campaign) {
           if (action === 'read' || action === 'create' || action == 'read_all')
             return subject;
@@ -361,6 +377,7 @@ export class AuthorizationService {
             );
           }
           return this.campaignService.fetchCampaignForValidation(
+            subjectOrganizationId,
             subjectCampaignId,
           );
         } else if (subject === CouponCode) {
@@ -405,7 +422,10 @@ export class AuthorizationService {
               `Error. Must provide an Item ID for performing action on Item`,
             );
           }
-          return this.itemService.fetchItemForValidation(subjectItemId);
+          return this.itemService.fetchItemForValidation(
+            subjectOrganizationId,
+            subjectItemId,
+          );
         } else if (subject === Redemption) {
           return subject;
         } else if (subject === ApiKey) {
@@ -431,18 +451,19 @@ export class AuthorizationService {
             );
           }
         } else if (subject === CustomerCouponCode) {
-          if (action === 'read' || action === 'create') return subject;
-
-          if (!subjectCouponCodeId || !subjectCouponId || !subjectCampaignId) {
+          if (!subjectOrganizationId || !subjectCouponCodeId || !subjectCouponId || !subjectCampaignId) {
             throw new BadRequestException(
-              `Error. Must provide an Coupon Code ID, Coupon Code ID and Campaign ID for performing action on CustomerCouponCode`,
+              `Error. Must provide an Organization ID, Coupon Code ID, Coupon ID and Campaign ID for performing action on CustomerCouponCode`,
             );
           }
-          return this.customerCouponCodeService.fetchCustomerForValidation(
-            subjectCouponId,
-            subjectCampaignId,
-            subjectCouponCodeId,
-          );
+          // CustomerCouponCode is a join resource and may not exist yet for
+          // create. Build a correctly typed subject from the tenant route so
+          // CASL still evaluates the organization condition.
+          return Object.assign(new CustomerCouponCode(), {
+            couponCode: {
+              organization: { organizationId: subjectOrganizationId },
+            },
+          });
         } else {
           return subject;
         }

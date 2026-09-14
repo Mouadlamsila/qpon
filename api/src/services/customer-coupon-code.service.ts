@@ -28,6 +28,7 @@ export class CustomerCouponCodeService {
   ) {}
 
   async addCustomers(
+    organizationId: string,
     couponId: string,
     campaignId: string,
     couponCodeId: string,
@@ -38,6 +39,7 @@ export class CustomerCouponCodeService {
       try {
         const couponCode = await manager.findOne(CouponCode, {
           where: {
+            organization: { organizationId },
             couponCodeId,
             campaign: {
               campaignId,
@@ -55,6 +57,7 @@ export class CustomerCouponCodeService {
 
         const existingCustomers =
           await this.customersService.validateCustomersExist(
+            organizationId,
             body.customers,
             manager,
           );
@@ -91,6 +94,7 @@ export class CustomerCouponCodeService {
   }
 
   async fetchCustomers(
+    organizationId: string,
     couponId: string,
     campaignId: string,
     couponCodeId: string,
@@ -106,6 +110,7 @@ export class CustomerCouponCodeService {
         },
         where: {
           couponCode: {
+            organization: { organizationId },
             couponCodeId,
             campaign: {
               campaignId,
@@ -152,6 +157,7 @@ export class CustomerCouponCodeService {
   }
 
   async fetchCustomerForValidation(
+    organizationId: string,
     couponId: string,
     campaignId: string,
     couponCodeId: string,
@@ -167,6 +173,7 @@ export class CustomerCouponCodeService {
         },
         where: {
           couponCode: {
+            organization: { organizationId },
             couponCodeId,
             campaign: {
               campaignId,
@@ -202,6 +209,7 @@ export class CustomerCouponCodeService {
   }
 
   async updateCustomers(
+    organizationId: string,
     couponId: string,
     campaignId: string,
     couponCodeId: string,
@@ -212,6 +220,7 @@ export class CustomerCouponCodeService {
       try {
         const couponCode = await manager.findOne(CouponCode, {
           where: {
+            organization: { organizationId },
             couponCodeId,
             campaign: {
               campaignId,
@@ -228,6 +237,7 @@ export class CustomerCouponCodeService {
         }
 
         const customers = await this.customersService.validateCustomersExist(
+          organizationId,
           body.customers!,
           manager,
         );
@@ -263,6 +273,7 @@ export class CustomerCouponCodeService {
   }
 
   async removeCustomer(
+    organizationId: string,
     couponId: string,
     campaignId: string,
     couponCodeId: string,
@@ -277,6 +288,7 @@ export class CustomerCouponCodeService {
         },
         where: {
           couponCode: {
+            organization: { organizationId },
             couponCodeId,
             campaign: {
               campaignId,
@@ -304,6 +316,7 @@ export class CustomerCouponCodeService {
       await this.customerCouponCodeRepository.delete({
         couponCode: {
           couponCodeId,
+          organization: { organizationId },
         },
         customer: {
           customerId,

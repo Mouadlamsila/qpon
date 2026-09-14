@@ -41,8 +41,12 @@ import { RedemptionListComponent } from './components/home/dashboard/redemption-
 import { SettingsComponent } from './components/home/settings/settings.component';
 import { PopularProductsListComponent } from './components/home/dashboard/popular-products-list/popular-products-list.component';
 import { CouponCodesListComponent } from './components/home/dashboard/coupon-codes-list/coupon-codes-list.component';
+import { OffersComponent } from './components/home/offers/offers.component';
+import { OfferFormComponent } from './components/home/offers/offer-form.component';
+import { PublicOfferComponent } from './components/public-offer/public-offer.component';
 
 export const routes: Routes = [
+  { path: 'o/:offer_slug', component: PublicOfferComponent },
   { path: 'setup', component: SuperAdminSetupComponent },
   { path: 'login', component: LoginComponent },
   {
@@ -93,6 +97,14 @@ export const routes: Routes = [
                 ]
               },
               { path: 'customers', component: CustomersComponent },
+              {
+                path: 'offers',
+                children: [
+                  { path: '', component: OffersComponent },
+                  { path: 'new', component: OfferFormComponent },
+                  { path: ':offer_id/edit', component: OfferFormComponent },
+                ],
+              },
               { path: 'settings', component: SettingsComponent },
               {
                 path: 'items',

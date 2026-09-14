@@ -3,20 +3,40 @@
   [onSubmit]="save"
   [dialogRefParent]="dialogRef"
   [icon]="'edit'"
-  [headerText]="'Edit Organisation Profile'"
+  [headerText]="'Edit Restaurant Profile'"
   [cancelBtnText]="'Cancel'"
   [submitBtnText]="'Save'"
   width="w-[516px]"
-  height="h-auto max-h-[300px']">
+  height="h-auto max-h-[600px]">
 
   <!-- Name -->
   <mat-form-field appearance="outline" class="w-full mt-3">
-    <mat-label>Organisation Name</mat-label>
+    <mat-label>Restaurant Name</mat-label>
     <input matInput formControlName="name" />
 
     <mat-error *ngIf="form.get('name')?.hasError('required')">
-      Organisation name is required
+      Restaurant name is required
     </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Short description</mat-label>
+    <textarea matInput rows="3" formControlName="description"></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Logo URL</mat-label>
+    <input matInput formControlName="logoUrl" placeholder="https://..." />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Contact email</mat-label>
+    <input matInput type="email" formControlName="contactEmail" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Contact phone</mat-label>
+    <input matInput type="tel" formControlName="contactPhone" />
   </mat-form-field>
 
 </app-form-dialog-box>

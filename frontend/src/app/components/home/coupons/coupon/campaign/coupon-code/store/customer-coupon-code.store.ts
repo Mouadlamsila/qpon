@@ -35,6 +35,7 @@ export const CustomerCouponCodeStore = signalStore(
       couponCodeService = inject(CouponCodeService)
     ) => ({
       fetchCustomersForCouponCode: rxMethod<{
+        organizationId: string;
         couponId: string;
         campaignId: string;
         couponCodeId: string;
@@ -45,9 +46,9 @@ export const CustomerCouponCodeStore = signalStore(
               isLoading: true,
             })
           ),
-          switchMap(({ couponId, campaignId, couponCodeId }) => {
+          switchMap(({ organizationId, couponId, campaignId, couponCodeId }) => {
             return customerCouponCodeService
-              .fetchCustomers(couponId, campaignId, couponCodeId)
+              .fetchCustomers(organizationId, couponId, campaignId, couponCodeId)
               .pipe(
                 tapResponse({
                   next: (response) => {

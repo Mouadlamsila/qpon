@@ -1,0 +1,4 @@
+.offer-card { cursor: pointer; transition: box-shadow 120ms ease; }
+.offer-card:hover { box-shadow: 0 3px 14px rgba(0, 0, 0, .12); }
+.status-pill { border-radius: 999px; background: var(--mat-sys-surface-container); padding: 5px 10px; white-space: nowrap; font-size: 12px; }
+.empty-icon { width: 48px; height: 48px; font-size: 48px; color: var(--mat-sys-on-surface-variant); }

@@ -23,7 +23,7 @@ export class RequestInterceptor implements HttpInterceptor {
           authorization: `Bearer ${this.auth.getToken()}`,
         },
       });
-    } else {
+    } else if (!request.url.includes('/public/offers/')) {
       this.router.navigate(['/login']);
     }
     return next.handle(request);

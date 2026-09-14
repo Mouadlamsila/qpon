@@ -49,6 +49,7 @@ import { actionsType } from '../types/actions';
 import { roleEnum } from '../../enums';
 import { CreateUserDto, UpdateUserRoleDto, UserDto } from '../../dtos/user.dto';
 import { ApiKeyDto } from '../../dtos/api-key.dto';
+import { RestaurantOfferDto } from '../../dtos/restaurant-offer.dto';
 
 
 export type subjectsType =
@@ -82,6 +83,7 @@ export type subjectsType =
       | typeof CreateCustomerCouponCodeDto
       | typeof RedemptionRow
       | typeof ApiKeyDto
+      | typeof RestaurantOfferDto
     >
   | 'all';
 
@@ -114,7 +116,8 @@ export function defineUserAbilities(role: roleEnum): UserAbility {
         CouponCodeDto,
         RedemptionRow,
         UserDto,
-        ApiKeyDto
+        ApiKeyDto,
+        RestaurantOfferDto
       ]
     );
 
@@ -199,7 +202,8 @@ export function defineUserAbilities(role: roleEnum): UserAbility {
         OrganizationDto,
         OrganizationUserDto,
         UpdateUserRoleDto,
-        ApiKeyDto
+        ApiKeyDto,
+        RestaurantOfferDto
       ])
     } else if(role === roleEnum.EDITOR) {
       allow('manage', [

@@ -1,0 +1,30 @@
+<div class="max-w-3xl flex flex-col gap-7">
+  <div>
+    <a mat-button routerLink="../"><span>←</span> Back to offers</a>
+    <p class="mat-headline-medium text-on-surface m-0 mt-4">{{ offerId ? 'Edit offer' : 'Create offer' }}</p>
+    <p class="mat-body-medium text-on-surface-variant mt-2">Keep the customer-facing offer simple. Campaigns and codes are managed internally.</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-5">
+    <mat-form-field appearance="outline"><mat-label>Offer title</mat-label><input matInput formControlName="title" /><mat-error>Title is required</mat-error></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Description</mat-label><textarea matInput rows="4" formControlName="description"></textarea></mat-form-field>
+
+    <div class="mat-body-large text-on-surface">Discount</div>
+    <mat-radio-group formControlName="discountType" class="flex gap-4">
+      <mat-radio-button [value]="discountTypes.PERCENTAGE">Percentage</mat-radio-button>
+      <mat-radio-button [value]="discountTypes.FIXED">Fixed amount</mat-radio-button>
+    </mat-radio-group>
+    <mat-form-field appearance="outline"><mat-label>Discount value</mat-label><input matInput type="number" formControlName="discountValue" /><mat-error>Enter a value greater than zero</mat-error></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Discount cap (optional)</mat-label><input matInput type="number" formControlName="discountUpto" /></mat-form-field>
+
+    <mat-form-field appearance="outline"><mat-label>Minimum order amount (optional)</mat-label><input matInput type="number" formControlName="minimumAmount" /></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Valid until</mat-label><input matInput type="datetime-local" formControlName="validUntil" /><mat-error>Choose a future date</mat-error></mat-form-field>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <mat-form-field appearance="outline"><mat-label>Maximum redemptions (optional)</mat-label><input matInput type="number" min="0" formControlName="maxRedemptions" /></mat-form-field>
+      <mat-form-field appearance="outline"><mat-label>Per customer (optional)</mat-label><input matInput type="number" min="0" formControlName="maxRedemptionPerCustomer" /></mat-form-field>
+    </div>
+
+    <div class="flex flex-col gap-2"><div class="mat-body-large">Offer image</div><input type="file" accept="image/jpeg,image/png,image/webp" (change)="chooseFile($event)" /><div class="mat-body-small text-on-surface-variant">JPEG, PNG, or WebP up to 5 MB.</div></div>
+    <div class="flex gap-3 justify-end"><a mat-button routerLink="../">Cancel</a><button mat-flat-button type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save draft' }}</button></div>
+  </form>
+</div>

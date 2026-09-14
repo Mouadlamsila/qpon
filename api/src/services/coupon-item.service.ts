@@ -27,7 +27,11 @@ export class CouponItemService {
     private datasource: DataSource,
   ) {}
 
-  async addItems(couponId: string, body: CreateCouponItemDto) {
+  async addItems(
+    organizationId: string,
+    couponId: string,
+    body: CreateCouponItemDto,
+  ) {
     this.logger.info('START: addItems service');
     try {
       return this.datasource.transaction(async (manager) => {
@@ -36,6 +40,7 @@ export class CouponItemService {
         const coupon = await couponRepository.findOne({
           where: {
             couponId,
+            organization: { organizationId },
           },
         });
 
@@ -45,6 +50,7 @@ export class CouponItemService {
         }
 
         const existingItems = await this.itemService.validateItemsExist(
+          organizationId,
           body.items,
           manager,
         );
@@ -73,6 +79,7 @@ export class CouponItemService {
   }
 
   async fetchItems(
+    organizationId: string,
     couponId: string,
     skip: number = 0,
     take: number = 10,
@@ -90,6 +97,7 @@ export class CouponItemService {
       const coupon = await this.couponRepository.findOne({
         where: {
           couponId,
+          organization: { organizationId },
         },
       });
 
@@ -106,6 +114,7 @@ export class CouponItemService {
           where: {
             coupon: {
               couponId,
+              organization: { organizationId },
             },
             item: {
               ...(nameFilter && { name: ILike(`%${nameFilter}%`) }),
@@ -150,7 +159,7 @@ export class CouponItemService {
     }
   }
 
-  async fetchItemForValidation(couponId: string) {
+  async fetchItemForValidation(organizationId: string, couponId: string) {
     this.logger.info('START: fetchItemForValidation service');
     try {
       const couponItems = await this.couponItemRepository.findOne({
@@ -162,6 +171,7 @@ export class CouponItemService {
         where: {
           coupon: {
             couponId,
+            organization: { organizationId },
           },
         },
       });
@@ -189,11 +199,17 @@ export class CouponItemService {
     }
   }
 
-  async updateItems(couponId: string, body: UpdateCouponItemDto) {
+  async updateItems(
+    organizationId: string,
+    couponId: string,
+    body: UpdateCouponItemDto,
+  ) {
     this.logger.info('START: updateItems service');
     return this.datasource.transaction(async (manager) => {
       try {
-        const coupon = await manager.findOne(Coupon, { where: { couponId } });
+        const coupon = await manager.findOne(Coupon, {
+          where: { couponId, organization: { organizationId } },
+        });
 
         if (!coupon) {
           this.logger.warn('Coupon not found', couponId);
@@ -201,6 +217,7 @@ export class CouponItemService {
         }
 
         const existingItems = await this.itemService.validateItemsExist(
+          organizationId,
           body.items!,
           manager,
         );
@@ -233,7 +250,7 @@ export class CouponItemService {
     });
   }
 
-  async removeItem(couponId: string, itemId: string) {
+  async removeItem(organizationId: string, couponId: string, itemId: string) {
     this.logger.info('START: removeItem service');
     try {
       const couponItem = await this.couponItemRepository.find({
@@ -243,9 +260,11 @@ export class CouponItemService {
         where: {
           coupon: {
             couponId,
+            organization: { organizationId },
           },
           item: {
             itemId,
+            organization: { organizationId },
           },
         },
       });

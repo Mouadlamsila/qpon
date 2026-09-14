@@ -30,7 +30,11 @@ export class EditOrganisationProfileDialogComponent {
     organizationResolver = inject(OrganizationResolver);
 
     form = this.fb.group({
-        name: ['', Validators.required]
+        name: ['', Validators.required],
+        description: [''],
+        logoUrl: [''],
+        contactEmail: ['', Validators.email],
+        contactPhone: [''],
     });
 
     constructor(
@@ -39,6 +43,10 @@ export class EditOrganisationProfileDialogComponent {
     ) {
         this.form.patchValue({
             name: data.name
+            ,description: data.description ?? ''
+            ,logoUrl: data.logoUrl ?? ''
+            ,contactEmail: data.contactEmail ?? ''
+            ,contactPhone: data.contactPhone ?? ''
         });
     }
 
@@ -47,6 +55,10 @@ export class EditOrganisationProfileDialogComponent {
 
         const updateOrganization = new UpdateOrganizationDto();
         updateOrganization.name = this.form.value.name!;
+        updateOrganization.description = this.form.value.description || undefined;
+        updateOrganization.logoUrl = this.form.value.logoUrl || undefined;
+        updateOrganization.contactEmail = this.form.value.contactEmail || undefined;
+        updateOrganization.contactPhone = this.form.value.contactPhone || undefined;
 
         try {
             await this.organizationResolver.update(this.data.organizationId, instanceToPlain(updateOrganization));

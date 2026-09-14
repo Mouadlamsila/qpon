@@ -14,18 +14,18 @@ export class CustomerCouponCodeService {
 
   constructor(private httpClient: HttpClient) {}
 
-  addCustomers(couponId: string, campaignId: string, couponCodeId: string, body: CreateCustomerCouponCodeDto) {
-    const url = this.endpoint + "/coupons/" + couponId + "/campaigns/" + campaignId + "/coupon-codes/" + couponCodeId + "/customers";
+  addCustomers(organizationId: string, couponId: string, campaignId: string, couponCodeId: string, body: CreateCustomerCouponCodeDto) {
+    const url = this.endpoint + "/organizations/" + organizationId + "/coupons/" + couponId + "/campaigns/" + campaignId + "/coupon-codes/" + couponCodeId + "/customers";
     return this.httpClient.post<ApiResponse<CustomerCouponCodeDto>>(url, body);
   }
   
-  fetchCustomers(couponId: string, campaignId: string, couponCodeId: string) {
-    const url = this.endpoint + "/coupons/" + couponId + "/campaigns/" + campaignId + "/coupon-codes/" + couponCodeId + "/customers";
+  fetchCustomers(organizationId: string, couponId: string, campaignId: string, couponCodeId: string) {
+    const url = this.endpoint + "/organizations/" + organizationId + "/coupons/" + couponId + "/campaigns/" + campaignId + "/coupon-codes/" + couponCodeId + "/customers";
     return this.httpClient.get<ApiResponse<PaginatedList<CustomerDto>>>(url);
   }
 
-  updateCustomers(couponId: string, campaignId: string, couponCodeId: string, body: UpdateCustomerCouponCodeDto) {
-    const url = this.endpoint + "/coupons/" + couponId + "/campaigns/" + campaignId + "/coupon-codes/" + couponCodeId + "/customers";
+  updateCustomers(organizationId: string, couponId: string, campaignId: string, couponCodeId: string, body: UpdateCustomerCouponCodeDto) {
+    const url = this.endpoint + "/organizations/" + organizationId + "/coupons/" + couponId + "/campaigns/" + campaignId + "/coupon-codes/" + couponCodeId + "/customers";
     return this.httpClient.patch<ApiResponse<PaginatedList<CustomerDto>>>(url, body);
   }
 }

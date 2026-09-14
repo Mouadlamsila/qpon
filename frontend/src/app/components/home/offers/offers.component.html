@@ -1,0 +1,57 @@
+<div class="flex flex-col gap-7">
+  <div class="flex items-center justify-between">
+    <div>
+      <p class="mat-headline-medium text-on-surface m-0">Offers</p>
+      <p class="mat-body-medium text-on-surface-variant mt-2">Create and publish offers customers can view online.</p>
+    </div>
+    <a mat-flat-button class="rounded-full" routerLink="new">
+      <mat-icon>add</mat-icon>
+      Create offer
+    </a>
+  </div>
+
+  @if (loading) {
+    <div class="mat-body-large text-on-surface-variant">Loading offers…</div>
+  } @else if (offers.length === 0) {
+    <mat-card appearance="outlined" class="p-10 text-center">
+      <mat-icon class="empty-icon">local_offer</mat-icon>
+      <div class="mat-title-large mt-3">No offers yet</div>
+      <div class="mat-body-medium text-on-surface-variant mt-2">Create your first restaurant offer and publish its public link.</div>
+    </mat-card>
+  } @else {
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+      @for (offer of offers; track offer.offerId) {
+        <mat-card appearance="outlined" class="overflow-hidden offer-card" (click)="open(offer)">
+          @if (offer.imageUrl) { <img mat-card-image [src]="offer.imageUrl" [alt]="offer.title" class="h-40 object-cover" /> }
+          <mat-card-content class="p-5">
+            <div class="flex justify-between gap-4">
+              <div class="min-w-0">
+                <div class="mat-title-large truncate">{{ offer.title }}</div>
+                <div class="mat-body-large text-primary mt-2">{{ discountLabel(offer) }}</div>
+              </div>
+              <span class="status-pill">{{ offer.publicationStatus | titlecase }}</span>
+            </div>
+            <p class="mat-body-medium text-on-surface-variant mt-4 line-clamp-2">{{ offer.description || 'No description' }}</p>
+            <div class="mat-body-small text-on-surface-variant mt-4">Valid until {{ offer.validUntil | date:'mediumDate' }}</div>
+          </mat-card-content>
+          <mat-card-actions align="end" (click)="$event.stopPropagation()">
+            <button mat-button (click)="copyLink(offer)"><mat-icon>link</mat-icon> Copy link</button>
+            <button mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="open(offer)"><mat-icon>edit</mat-icon> Edit</button>
+              @if (offer.publicationStatus === statuses.DRAFT || offer.publicationStatus === statuses.PAUSED) {
+                <button mat-menu-item (click)="publish(offer)"><mat-icon>publish</mat-icon> Publish</button>
+              }
+              @if (offer.publicationStatus === statuses.PUBLISHED) {
+                <button mat-menu-item (click)="pause(offer)"><mat-icon>pause</mat-icon> Pause</button>
+              }
+              @if (offer.publicationStatus !== statuses.ARCHIVED) {
+                <button mat-menu-item (click)="archive(offer)"><mat-icon>archive</mat-icon> Archive</button>
+              }
+            </mat-menu>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

@@ -145,10 +145,13 @@ export class CouponController {
   @ApiResponse({ status: 200, description: 'Successful response' })
   @Permissions('read', Coupon)
   @Get(':coupon_id')
-  async fetchCoupon(@Param('coupon_id') couponId: string) {
+  async fetchCoupon(
+    @Param('organization_id') organizationId: string,
+    @Param('coupon_id') couponId: string,
+  ) {
     this.logger.info('START: fetchCoupon controller');
 
-    const result = await this.couponService.fetchCoupon(couponId);
+    const result = await this.couponService.fetchCoupon(organizationId, couponId);
 
     this.logger.info('END: fetchCoupon controller');
     return { message: 'Successfully fetched coupon', result };
@@ -183,10 +186,13 @@ export class CouponController {
   @ApiResponse({ status: 200, description: 'Successful response' })
   @Permissions('delete', Coupon)
   @Delete(':coupon_id')
-  async deleteCoupon(@Param('coupon_id') couponId: string) {
+  async deleteCoupon(
+    @Param('organization_id') organizationId: string,
+    @Param('coupon_id') couponId: string,
+  ) {
     this.logger.info('START: deleteCoupon controller');
 
-    await this.couponService.deleteCoupon(couponId);
+    await this.couponService.deleteCoupon(organizationId, couponId);
 
     this.logger.info('END: deleteCoupon controller');
     return { message: 'Successfully deleted coupon' };
@@ -199,10 +205,13 @@ export class CouponController {
   @ApiResponse({ status: 200, description: 'Successful response' })
   @Permissions('update', Coupon)
   @Post(':coupon_id/deactivate')
-  async deactivateCoupon(@Param('coupon_id') couponId: string) {
+  async deactivateCoupon(
+    @Param('organization_id') organizationId: string,
+    @Param('coupon_id') couponId: string,
+  ) {
     this.logger.info('START: deactivateCoupon controller');
 
-    await this.couponService.deactivateCoupon(couponId);
+    await this.couponService.deactivateCoupon(organizationId, couponId);
 
     this.logger.info('END: deactivateCoupon controller');
     return { message: 'Successfully deactivated coupon' };
@@ -221,7 +230,7 @@ export class CouponController {
   ) {
     this.logger.info('START: reactivateCoupon controller');
 
-    await this.couponService.reactivateCoupon(couponId);
+    await this.couponService.reactivateCoupon(organizationId, couponId);
 
     this.logger.info('END: reactivateCoupon controller');
     return { message: 'Successfully reactivated coupon' };

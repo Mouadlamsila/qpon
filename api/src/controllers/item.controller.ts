@@ -126,10 +126,13 @@ export class ItemsController {
   @ApiResponse({ status: 200, description: 'Successful response' })
   @Permissions('read', Item)
   @Get(':item_id')
-  async fetchItem(@Param('item_id') itemId: string) {
+  async fetchItem(
+    @Param('organization_id') organizationId: string,
+    @Param('item_id') itemId: string,
+  ) {
     this.logger.info('START: fetchItem controller');
 
-    const result = await this.itemsService.fetchItem(itemId);
+    const result = await this.itemsService.fetchItem(organizationId, itemId);
 
     this.logger.info('END: fetchItem controller');
     return { message: 'Successfully fetched item', result };
@@ -142,12 +145,13 @@ export class ItemsController {
   @Permissions('update', Item)
   @Patch(':item_id')
   async updateItem(
+    @Param('organization_id') organizationId: string,
     @Param('item_id') itemId: string,
     @Body() body: UpdateItemDto,
   ) {
     this.logger.info('START: updateItem controller');
 
-    const result = await this.itemsService.updateItem(itemId, body);
+    const result = await this.itemsService.updateItem(organizationId, itemId, body);
 
     this.logger.info('END: updateItem controller');
     return { message: 'Successfully updated item', result };
@@ -159,10 +163,13 @@ export class ItemsController {
   @ApiResponse({ status: 200, description: 'Successful response' })
   @Permissions('delete', Item)
   @Delete(':item_id')
-  async deleteItem(@Param('item_id') itemId: string) {
+  async deleteItem(
+    @Param('organization_id') organizationId: string,
+    @Param('item_id') itemId: string,
+  ) {
     this.logger.info('START: deleteItem controller');
 
-    const result = await this.itemsService.deleteItem(itemId);
+    const result = await this.itemsService.deleteItem(organizationId, itemId);
 
     this.logger.info('END: deleteItem controller');
     return { message: 'Successfully deleted item', result };

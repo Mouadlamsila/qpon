@@ -9,3 +9,4 @@ export * from './role.enum';
 export * from './customerConstraint.enum';
 export * from './sortOrder.enum';
 export * from './timePeriod.enum';
+export * from './offerPublicationStatus.enum';

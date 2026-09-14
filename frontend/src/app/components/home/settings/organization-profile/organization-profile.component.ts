@@ -51,14 +51,18 @@ export class OrganizationProfileComponent {
     const hasPermission = this.can('update', OrganizationDto);
 
     if (!hasPermission) {
-      this.openNotAllowedDialogBox('You do not have permission to edit organisation details.');
+      this.openNotAllowedDialogBox('You do not have permission to edit restaurant details.');
       return;
     }
 
     this.dialog.open(EditOrganisationProfileDialogComponent, {
       width: '516px',
-      data: {
+        data: {
         name: this.organizationStore.organizaiton()?.name,
+        description: this.organizationStore.organizaiton()?.description,
+        logoUrl: this.organizationStore.organizaiton()?.logoUrl,
+        contactEmail: this.organizationStore.organizaiton()?.contactEmail,
+        contactPhone: this.organizationStore.organizaiton()?.contactPhone,
         organizationId: this.organizationStore.organizaiton()?.organizationId,
       }
     });
@@ -77,8 +81,8 @@ export class OrganizationProfileComponent {
     this.dialog.open(DeleteDialogComponent, {
       width: '448px',
       data: {
-        title: 'Delete organisation?',
-        description: `Are you sure you want to delete organisation “${org?.name}”? You will lose all the associated data.`,
+        title: 'Delete restaurant?',
+        description: `Are you sure you want to delete restaurant “${org?.name}”? You will lose all the associated data.`,
         onDelete: async () => {
           try {
             await this.organizationResolver.delete(org!.organizationId as string);

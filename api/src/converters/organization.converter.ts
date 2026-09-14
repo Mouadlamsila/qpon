@@ -11,6 +11,10 @@ export class OrganizationConverter {
     organizationDto.name = organization.name;
     organizationDto.currency = organization.currency;
     organizationDto.externalId = organization.externalId;
+    organizationDto.logoUrl = organization.logoUrl;
+    organizationDto.description = organization.description;
+    organizationDto.contactEmail = organization.contactEmail;
+    organizationDto.contactPhone = organization.contactPhone;
     organizationDto.createdAt = organization.createdAt;
     organizationDto.updatedAt = organization.updatedAt;
 
