@@ -1,5 +1,8 @@
 services:
   app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: labsatquicko/qpon:latest
     container_name: qpon_app
     ports:
@@ -7,6 +10,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    volumes:
+      - qpon_app_uploads:/app/public/uploads
     environment:
       - PORT=3000
       - DB_PORT=5432
@@ -48,3 +53,4 @@ networks:
 
 volumes:
   postgres_data:
+  qpon_app_uploads:

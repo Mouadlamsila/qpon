@@ -23,11 +23,17 @@ export class RestaurantOfferService {
   }
 
   create(organizationId: string, body: CreateRestaurantOfferDto) {
-    return this.http.post<ApiResponse<RestaurantOfferDto>>(`${this.endpoint}/organizations/${organizationId}/offers`, body);
+    return this.http.post<ApiResponse<RestaurantOfferDto>>(
+      `${this.endpoint}/organizations/${organizationId}/offers`,
+      this.toApiPayload(body),
+    );
   }
 
   update(organizationId: string, offerId: string, body: Partial<CreateRestaurantOfferDto>) {
-    return this.http.patch<ApiResponse<RestaurantOfferDto>>(`${this.endpoint}/organizations/${organizationId}/offers/${offerId}`, body);
+    return this.http.patch<ApiResponse<RestaurantOfferDto>>(
+      `${this.endpoint}/organizations/${organizationId}/offers/${offerId}`,
+      this.toApiPayload(body),
+    );
   }
 
   publish(organizationId: string, offerId: string) {
@@ -50,5 +56,20 @@ export class RestaurantOfferService {
 
   publicOffer(slug: string) {
     return this.http.get<ApiResponse<PublicRestaurantOfferDto>>(`${this.endpoint}/public/offers/${encodeURIComponent(slug)}`);
+  }
+
+  private toApiPayload(body: Partial<CreateRestaurantOfferDto>) {
+    return {
+      '@entity': 'org.quicko.qpon.restaurant_offer',
+      title: body.title,
+      description: body.description,
+      discount_type: body.discountType,
+      discount_value: body.discountValue,
+      discount_upto: body.discountUpto,
+      minimum_amount: body.minimumAmount,
+      valid_until: body.validUntil,
+      max_redemptions: body.maxRedemptions,
+      max_redemption_per_customer: body.maxRedemptionPerCustomer,
+    };
   }
 }
