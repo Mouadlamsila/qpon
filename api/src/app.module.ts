@@ -26,6 +26,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OrganizationSubscriber } from './subscribers/organization.subscriber';
 import { JobsModule } from './modules/jobs.module';
 import { RestaurantOfferModule } from './modules/restaurant-offer.module';
+import { OfferClaimModule } from './modules/offer-claim.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { RestaurantOfferModule } from './modules/restaurant-offer.module';
     }),
     JobsModule,
     RestaurantOfferModule,
+    OfferClaimModule,
     LoggerModule,
     ApiKeyModule,
     AuthModule,

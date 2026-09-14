@@ -44,9 +44,11 @@ import { CouponCodesListComponent } from './components/home/dashboard/coupon-cod
 import { OffersComponent } from './components/home/offers/offers.component';
 import { OfferFormComponent } from './components/home/offers/offer-form.component';
 import { PublicOfferComponent } from './components/public-offer/public-offer.component';
+import { ClaimComponent } from './components/claim/claim.component';
 
 export const routes: Routes = [
   { path: 'o/:offer_slug', component: PublicOfferComponent },
+  { path: 'claim/:claim_token', component: ClaimComponent },
   { path: 'setup', component: SuperAdminSetupComponent },
   { path: 'login', component: LoginComponent },
   {

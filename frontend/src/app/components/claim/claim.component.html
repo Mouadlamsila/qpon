@@ -1,0 +1,28 @@
+<main class="min-h-screen bg-surface p-5 md:p-10 flex justify-center items-start">
+  @if (notFound) {
+    <mat-card appearance="outlined" class="claim-card p-8 text-center mt-12">
+      <h1 class="mat-headline-small">Claim unavailable</h1>
+      <p class="mat-body-large text-on-surface-variant mt-3">{{ errorMessage || 'This claim link is invalid or no longer available.' }}</p>
+    </mat-card>
+  } @else if (!claim) {
+    <div class="mat-body-large text-on-surface-variant mt-12">Loading your claim…</div>
+  } @else {
+    <mat-card appearance="outlined" class="claim-card overflow-hidden">
+      @if (claim.offer.imageUrl) { <img [src]="claim.offer.imageUrl" [alt]="claim.offer.title" class="w-full h-56 object-cover" /> }
+      <div class="p-7 md:p-10 text-center">
+        <div class="mat-label-large text-primary">{{ claim.offer.restaurant.name }}</div>
+        <h1 class="mat-headline-large text-on-surface mt-3">{{ claim.offer.title }}</h1>
+        <div class="discount-badge mat-headline-small mt-5">{{ discountLabel() }}</div>
+        <div class="claim-code mt-7">
+          <div class="mat-label-large text-on-surface-variant">Your offer code</div>
+          <div class="mat-headline-medium tracking-[0.2em] mt-2">{{ claim.displayCode }}</div>
+        </div>
+        @if (qrDataUrl) { <img [src]="qrDataUrl" alt="Secure offer claim QR code" class="qr-code mx-auto mt-7" /> }
+        <div class="mat-body-medium text-on-surface mt-6">Valid until {{ claim.expiresAt | date:'longDate' }}</div>
+        @if (claim.status !== 'claimed') { <div class="mat-body-medium text-error mt-2">Status: {{ claim.status }}</div> }
+        <p class="mat-body-medium text-on-surface-variant mt-5">Show this code or QR code to the restaurant before ordering.</p>
+        <button mat-stroked-button class="mt-6" (click)="copyLink()"><mat-icon>content_copy</mat-icon>{{ copied ? 'Link copied' : 'Copy secure link' }}</button>
+      </div>
+    </mat-card>
+  }
+</main>

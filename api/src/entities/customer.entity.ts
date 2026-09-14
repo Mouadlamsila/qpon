@@ -19,7 +19,7 @@ export class Customer {
   @PrimaryGeneratedColumn('uuid', { name: 'customer_id' })
   customerId: string;
 
-  @Column()
+  @Column({ nullable: true })
   name: string;
 
   @Index()

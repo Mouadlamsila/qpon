@@ -14,7 +14,26 @@
         <div class="mat-body-medium text-on-surface mt-6">Valid until {{ offer.validUntil | date:'longDate' }}</div>
         @if (offer.minimumAmount) { <div class="mat-body-medium text-on-surface-variant mt-2">Minimum order: {{ offer.minimumAmount }}</div> }
         <div class="border-t border-outline-variant mt-8 pt-6"><div class="mat-title-medium">Terms</div><ul class="mat-body-medium text-on-surface-variant mt-3 list-disc pl-5">@for (term of offer.terms; track term) { <li>{{ term }}</li> }</ul></div>
-        <button mat-flat-button disabled class="w-full mt-8">Get offer (coming soon)</button>
+        @if (!claimMode) {
+          <button mat-flat-button class="w-full mt-8" (click)="showClaimForm()">Get this offer</button>
+        } @else {
+          <div class="border border-outline-variant rounded-xl mt-8 p-5">
+            <div class="mat-title-medium">Get your offer code</div>
+            <p class="mat-body-medium text-on-surface-variant mt-2">Enter your email to receive a private claim link. No account is required.</p>
+            <form [formGroup]="claimForm" (ngSubmit)="claimOffer()" class="mt-4">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Email address</mat-label>
+                <input matInput type="email" formControlName="email" autocomplete="email" />
+                @if (claimForm.controls.email.hasError('required')) { <mat-error>Email is required.</mat-error> }
+                @if (claimForm.controls.email.hasError('email')) { <mat-error>Enter a valid email address.</mat-error> }
+              </mat-form-field>
+              @if (claimError) { <p class="mat-body-medium text-error mb-3">{{ claimError }}</p> }
+              <button mat-flat-button type="submit" class="w-full" [disabled]="claiming">
+                {{ claiming ? 'Getting your code…' : 'Get my code' }}
+              </button>
+            </form>
+          </div>
+        }
       </div>
     </mat-card>
   }
