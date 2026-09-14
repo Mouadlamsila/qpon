@@ -5,6 +5,7 @@ import {
   UpdateDateColumn,
   Column,
   ManyToOne,
+  OneToOne,
   JoinColumn,
   Index,
 } from 'typeorm';
@@ -14,6 +15,8 @@ import { Coupon } from './coupon.entity';
 import { Organization } from './organization.entity';
 import { Customer } from './customer.entity';
 import { Item } from './item.entity';
+import { OfferClaim } from './offer-claim.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class Redemption {
@@ -28,6 +31,9 @@ export class Redemption {
 
   @Column({ name: 'external_id', nullable: true })
   externalId: string;
+
+  @Column({ name: 'redeemed_at', type: 'timestamp with time zone', nullable: true })
+  redeemedAt: Date | null;
 
   @Index('idx_redemption_date')
   @Column({
@@ -93,4 +99,12 @@ export class Redemption {
     referencedColumnName: 'organizationId',
   })
   organization: Organization;
+
+  @OneToOne(() => OfferClaim, (offerClaim) => offerClaim.redemption, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'offer_claim_id', referencedColumnName: 'claimId' })
+  offerClaim: OfferClaim | null;
+
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'redeemed_by_user_id', referencedColumnName: 'userId' })
+  redeemedBy: User | null;
 }

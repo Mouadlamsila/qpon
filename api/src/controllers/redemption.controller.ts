@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, Param, StreamableFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Param, StreamableFile, Req } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { RedemptionsService } from '../services/redemption.service';
 import { LoggerService } from '../services/logger.service';
@@ -7,14 +7,59 @@ import { sortOrderEnum } from '../enums';
 import { SkipTransform } from '../decorators/skipTransform.decorator';
 import { Permissions } from 'src/decorators/permission.decorator';
 import { Redemption } from 'src/entities/redemption.entity';
+import { OfferClaimRedemptionService } from '../services/offer-claim-redemption.service';
+import { RedeemOfferClaimDto, ValidateOfferClaimDto } from '../dtos';
 
 @ApiTags('Redemptions')
 @Controller('organizations/:organization_id')
 export class RedemptionsController {
   constructor(
     private readonly redemptionsService: RedemptionsService,
+    private readonly offerClaimRedemptionService: OfferClaimRedemptionService,
     private logger: LoggerService,
   ) { }
+
+  @Permissions('create', Redemption)
+  @Post('offer-claims/validate')
+  async validateOfferClaim(
+    @Param('organization_id') organizationId: string,
+    @Body() body: ValidateOfferClaimDto,
+  ) {
+    return {
+      message: 'Successfully validated offer claim',
+      result: await this.offerClaimRedemptionService.validate(organizationId, body),
+    };
+  }
+
+  @Permissions('create', Redemption)
+  @Post('offer-claims/redeem')
+  async redeemOfferClaim(
+    @Param('organization_id') organizationId: string,
+    @Body() body: RedeemOfferClaimDto,
+    @Req() request: any,
+  ) {
+    return {
+      message: 'Successfully redeemed offer claim',
+      result: await this.offerClaimRedemptionService.redeem(
+        organizationId,
+        body,
+        request.headers.userId as string,
+      ),
+    };
+  }
+
+  @Permissions('read', Redemption)
+  @Get('offer-redemptions')
+  async listOfferRedemptions(
+    @Param('organization_id') organizationId: string,
+    @Query('skip') skip?: number,
+    @Query('take') take?: number,
+  ) {
+    return {
+      message: 'Successfully fetched offer redemptions',
+      result: await this.offerClaimRedemptionService.list(organizationId, skip, take),
+    };
+  }
 
   /**
    * Redeem coupon code

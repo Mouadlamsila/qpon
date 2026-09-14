@@ -5,6 +5,7 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -12,6 +13,7 @@ import { Customer } from './customer.entity';
 import { Organization } from './organization.entity';
 import { RestaurantOffer } from './restaurant-offer.entity';
 import { offerClaimStatusEnum } from '../enums';
+import { Redemption } from './redemption.entity';
 
 @Entity({ name: 'offer_claim' })
 @Index('idx_offer_claim_organization_offer', ['organization', 'restaurantOffer'])
@@ -78,4 +80,7 @@ export class OfferClaim {
   @ManyToOne(() => Customer, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'customer_id', referencedColumnName: 'customerId' })
   customer: Customer;
+
+  @OneToOne(() => Redemption, (redemption) => redemption.offerClaim)
+  redemption: Redemption | null;
 }

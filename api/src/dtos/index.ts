@@ -11,3 +11,4 @@ export * from './organization-user.dto';
 export * from './organizationsMv.dto';
 export * from './restaurant-offer.dto';
 export * from './offer-claim.dto';
+export * from './offer-claim-redemption.dto';

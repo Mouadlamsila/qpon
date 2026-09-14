@@ -32,6 +32,15 @@
           </mat-list-item>
         </a>
 
+        <a routerLink="./redeem" routerLinkActive #redeem="routerLinkActive">
+          <mat-list-item [activated]="redeem.isActive">
+            <mat-icon matListItemIcon class="material-symbols-outlined text-on-surface">qr_code_scanner</mat-icon>
+            <div matListItemTitle class="mat-label-large" [ngClass]="{ 'font-semibold': redeem.isActive }">
+              Redeem offer
+            </div>
+          </mat-list-item>
+        </a>
+
         <a routerLink="./settings" routerLinkActive #settings="routerLinkActive">
           <mat-list-item [activated]="settings.isActive">
             <mat-icon matListItemIcon class="material-symbols-outlined text-on-surface">settings</mat-icon>

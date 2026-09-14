@@ -8,6 +8,10 @@ import { RedemptionReportWorkbookConverter } from '../converters/redemption-repo
 import { CouponCode } from '../entities/coupon-code.entity';
 import { CampaignSummaryMv } from '../entities/campaign-summary.view';
 import { Campaign } from '../entities/campaign.entity';
+import { OfferClaim } from '../entities/offer-claim.entity';
+import { OfferClaimRedemptionService } from '../services/offer-claim-redemption.service';
+import { User } from '../entities/user.entity';
+import { RestaurantOffer } from '../entities/restaurant-offer.entity';
 
 @Module({
   imports: [
@@ -16,6 +20,9 @@ import { Campaign } from '../entities/campaign.entity';
       CouponCode,
       CampaignSummaryMv,
       Campaign,
+      OfferClaim,
+      User,
+      RestaurantOffer,
     ]),
   ],
   controllers: [RedemptionsController],
@@ -23,6 +30,7 @@ import { Campaign } from '../entities/campaign.entity';
     RedemptionsService,
     RedemptionWorkbookConverter,
     RedemptionReportWorkbookConverter,
+    OfferClaimRedemptionService,
   ],
 })
 export class RedemptionsModule {}

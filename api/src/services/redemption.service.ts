@@ -493,7 +493,7 @@ export class RedemptionsService {
     }
   }
 
-  private calculateDiscount(coupon: Coupon, baseOrderValue: number): number {
+  public calculateDiscount(coupon: Coupon, baseOrderValue: number): number {
     if (!Number.isFinite(baseOrderValue) || baseOrderValue <= 0) {
       throw new BadRequestException('Base order value must be greater than zero');
     }

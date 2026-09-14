@@ -1,0 +1,76 @@
+<div class="flex flex-col gap-6">
+  <div>
+    <div class="mat-headline-medium text-on-surface">Redeem offer claim</div>
+    <p class="text-on-surface-variant">Enter the customer’s claim code to validate it before applying the offer.</p>
+  </div>
+
+  <mat-card class="p-4">
+    <div class="flex flex-col gap-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Claim code</mat-label>
+        <input matInput [formControl]="claimCode" placeholder="QP-XXXXXXXXXXXXXXX" autocomplete="off" (keyup.enter)="validateClaim()" />
+        @if (claimCode.hasError('required')) { <mat-error>Claim code is required</mat-error> }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Order amount</mat-label>
+        <input matInput type="number" min="0.01" [formControl]="orderAmount" placeholder="Only needed to calculate the discount" />
+        <span matTextSuffix>{{ organizationStore.organizaiton()?.currency }}</span>
+        @if (orderAmount.hasError('min')) { <mat-error>Order amount must be greater than zero</mat-error> }
+      </mat-form-field>
+
+      <div class="flex gap-3">
+        <button mat-flat-button type="button" (click)="validateClaim()" [disabled]="isValidating || claimCode.invalid">
+          {{ isValidating ? 'Checking…' : 'Validate code' }}
+        </button>
+        <button mat-button type="button" (click)="reset()">Clear</button>
+      </div>
+    </div>
+  </mat-card>
+
+  @if (error) {
+    <div class="rounded-lg border border-error p-4 text-error" role="alert">{{ error }}</div>
+  }
+  @if (success && redeemed) {
+    <mat-card class="p-4 border-success">
+      <div class="flex items-center gap-2 text-success"><mat-icon>check_circle</mat-icon><span>{{ success }}</span></div>
+      <p>{{ redeemed.offerTitle }} · {{ redeemed.discount | currency : organizationStore.organizaiton()?.currency : 'symbol' }} discount</p>
+    </mat-card>
+  }
+
+  @if (validation?.valid) {
+    <mat-card class="p-4">
+      <div class="flex flex-col gap-2">
+        <div class="text-lg font-semibold">{{ validation?.claim?.offerTitle }}</div>
+        <div>Customer: {{ validation?.claim?.customerEmail }}</div>
+        <div>Code: <span class="font-mono">{{ validation?.claim?.displayCode }}</span></div>
+        <div>Valid until: {{ validation?.claim?.expiresAt | date : 'medium' }}</div>
+        @if (validation?.orderAmountRequired) { <div class="text-on-surface-variant">Enter the order amount to calculate the server-side discount.</div> }
+        @if (validation?.discount !== null && validation?.discount !== undefined) {
+          <div>Calculated discount: {{ validation?.discount | currency : organizationStore.organizaiton()?.currency : 'symbol' }}</div>
+        }
+        <button mat-flat-button color="primary" type="button" (click)="redeemClaim()" [disabled]="isRedeeming || orderAmount.invalid || orderAmount.value == null">
+          {{ isRedeeming ? 'Redeeming…' : 'Confirm redemption' }}
+        </button>
+      </div>
+    </mat-card>
+  }
+
+  <mat-card class="p-4">
+    <div class="text-lg font-semibold mb-3">Recent offer redemptions</div>
+    @if (history.length === 0) {
+      <p class="text-on-surface-variant">No offer claims have been redeemed yet.</p>
+    } @else {
+      <div class="overflow-auto">
+        <table class="w-full text-left">
+          <thead><tr><th class="p-2">Offer</th><th class="p-2">Claim</th><th class="p-2">Customer</th><th class="p-2">Discount</th><th class="p-2">Redeemed</th><th class="p-2">By</th></tr></thead>
+          <tbody>
+            @for (row of history; track row.redemptionId) {
+              <tr class="border-t border-outline-variant"><td class="p-2">{{ row.offerTitle }}</td><td class="p-2 font-mono">{{ row.claimCode }}</td><td class="p-2">{{ row.customerEmail }}</td><td class="p-2">{{ row.discount | currency : organizationStore.organizaiton()?.currency : 'symbol' }}</td><td class="p-2">{{ row.redeemedAt | date : 'short' }}</td><td class="p-2">{{ row.redeemedBy }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </mat-card>
+</div>
