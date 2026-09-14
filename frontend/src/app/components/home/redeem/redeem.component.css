@@ -1,1 +1,15 @@
 :host { display: block; }
+
+.qr-scanner-viewport {
+  min-height: 224px;
+  background: #111318;
+}
+
+.qr-scanner-frame {
+  position: absolute;
+  inset: 18% 18%;
+  border: 2px solid #fff;
+  border-radius: 16px;
+  box-shadow: 0 0 0 999px rgba(0, 0, 0, .22);
+  pointer-events: none;
+}
