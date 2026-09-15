@@ -1,7 +1,11 @@
-<div class="hover:cursor-pointer">
-  <ngx-avatars size="40" [round]="true" [name]="user()?.name" bgColor="var(--sys-primary-fixed)"
-    fgColor="var(--sys-on-primary-fixed-variant)" [mat-menu-trigger-for]="options">
-  </ngx-avatars>
+<div class="h-10 w-10 overflow-hidden rounded-full hover:cursor-pointer" [mat-menu-trigger-for]="options">
+  @if (organizationStore.organizaiton()?.logoUrl) {
+    <img [src]="organizationStore.organizaiton()?.logoUrl" [alt]="organizationStore.organizaiton()?.name || 'Restaurant logo'" class="h-full w-full object-cover" />
+  } @else {
+    <ngx-avatars size="40" [round]="true" [name]="user()?.name" bgColor="var(--sys-primary-fixed)"
+      fgColor="var(--sys-on-primary-fixed-variant)">
+    </ngx-avatars>
+  }
 </div>
 <mat-menu class="w-[300px] mt-[22px] rounded-[5px]" #options="matMenu" yPosition="below" xPosition="before">
   <ng-template matMenuContent>

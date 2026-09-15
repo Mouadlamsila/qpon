@@ -5,11 +5,11 @@
     <div class="mat-body-large text-on-surface-variant mt-12">Loading offer…</div>
   } @else {
     <mat-card appearance="outlined" class="public-card overflow-hidden">
-      @if (offer.imageUrl) { <img [src]="offer.imageUrl" [alt]="offer.title" class="w-full h-64 object-cover" /> }
-      <div class="p-7 md:p-10">
+      @if (offer.imageUrl) { <img [src]="offer.imageUrl" [alt]="offer.title" class="w-full h-56 object-cover sm:h-72 md:h-80" /> }
+      <div class="p-6 sm:p-8 md:p-12">
         <div class="flex items-center gap-3">
           @if (offer.restaurant.logoUrl) {
-            <img [src]="offer.restaurant.logoUrl" [alt]="offer.restaurant.name" class="h-10 w-10 rounded-full object-cover border border-outline-variant" />
+            <img [src]="offer.restaurant.logoUrl" [alt]="offer.restaurant.name" class="h-12 w-12 rounded-full object-cover border border-outline-variant" />
           }
           <div class="mat-label-large text-primary">{{ offer.restaurant.name }}</div>
         </div>

@@ -1,2 +1,2 @@
-.public-card { width: min(100%, 640px); }
+.public-card { width: min(100%, 800px); }
 .discount-badge { color: var(--mat-sys-primary); }
