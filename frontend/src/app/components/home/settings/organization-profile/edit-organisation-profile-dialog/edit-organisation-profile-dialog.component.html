@@ -24,25 +24,49 @@
     <textarea matInput rows="3" formControlName="description"></textarea>
   </mat-form-field>
 
-  <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
-    <mat-form-field appearance="outline" class="w-full min-w-0 sm:flex-1">
-      <mat-label>{{ 'settings.logoUrl' | translate }}</mat-label>
-      <input matInput formControlName="logoUrl" placeholder="https://..." />
-      @if (form.controls.logoUrl.hasError('pattern')) {
-        <mat-error>{{ 'settings.logoUrlError' | translate }}</mat-error>
-      }
-    </mat-form-field>
-
-    <div class="flex min-w-0 w-full flex-1 flex-col gap-2 sm:pt-1">
-      <label class="mat-body-medium text-on-surface" for="restaurant-logo-file">{{ 'settings.logoFile' | translate }}</label>
-      <label for="restaurant-logo-file" class="flex min-h-[56px] w-full min-w-0 cursor-pointer items-center gap-3 rounded border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm text-on-surface">
-        <span class="shrink-0 rounded-full bg-primary px-3 py-2 text-on-primary">{{ 'settings.chooseFile' | translate }}</span>
-        <span class="min-w-0 truncate">{{ selectedLogoFile?.name || ('settings.noFileChosen' | translate) }}</span>
-      </label>
-      <input id="restaurant-logo-file" type="file" accept="image/jpeg,image/png,image/webp" (change)="onLogoFileSelected($event)" class="sr-only" />
-      <span class="mat-body-small text-on-surface-variant">{{ 'settings.logoHelp' | translate }}</span>
+  @if (!showLogoInputs && (existingLogoUrl || logoPreviewUrl)) {
+    <div class="flex items-center gap-4 rounded border border-outline-variant bg-surface-container-lowest p-3">
+      <img [src]="logoPreviewUrl || existingLogoUrl" [alt]="'settings.logoPreviewAlt' | translate" class="h-16 w-16 shrink-0 rounded-full border border-outline-variant object-cover" />
+      <div class="min-w-0 flex-1">
+        <div class="mat-body-medium text-on-surface">{{ 'settings.logoConfigured' | translate }}</div>
+        <div class="mat-body-small text-on-surface-variant">{{ 'settings.changeLogoHint' | translate }}</div>
+      </div>
+      <button mat-stroked-button type="button" class="shrink-0 rounded-full" (click)="startLogoChange()">
+        {{ 'settings.changeLogo' | translate }}
+      </button>
     </div>
-  </div>
+  } @else {
+    <div class="flex min-w-0 flex-col gap-3 rounded border border-outline-variant p-3">
+      <div class="flex items-center justify-between gap-3">
+        <div class="mat-body-medium text-on-surface">{{ 'settings.changeLogo' | translate }}</div>
+        @if (existingLogoUrl) {
+          <button mat-icon-button type="button" [attr.aria-label]="'settings.cancelLogoChange' | translate" (click)="cancelLogoChange()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
+        <mat-form-field appearance="outline" class="w-full min-w-0 sm:flex-1">
+          <mat-label>{{ 'settings.logoUrl' | translate }}</mat-label>
+          <input matInput formControlName="logoUrl" placeholder="https://..." />
+          @if (form.controls.logoUrl.hasError('pattern')) {
+            <mat-error>{{ 'settings.logoUrlError' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="flex min-w-0 w-full flex-1 flex-col gap-2 sm:pt-1">
+          <label class="mat-body-medium text-on-surface" for="restaurant-logo-file">{{ 'settings.logoFile' | translate }}</label>
+          <label for="restaurant-logo-file" class="flex min-h-[56px] w-full min-w-0 cursor-pointer items-center gap-3 rounded border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm text-on-surface">
+            <span class="shrink-0 rounded-full bg-primary px-3 py-2 text-on-primary">{{ 'settings.chooseFile' | translate }}</span>
+            <span class="min-w-0 truncate">{{ selectedLogoFile?.name || ('settings.noFileChosen' | translate) }}</span>
+          </label>
+          <input id="restaurant-logo-file" type="file" accept="image/jpeg,image/png,image/webp" (change)="onLogoFileSelected($event)" class="sr-only" />
+          <span class="mat-body-small text-on-surface-variant">{{ 'settings.logoHelp' | translate }}</span>
+        </div>
+      </div>
+    </div>
+  }
 
   <mat-form-field appearance="outline" class="w-full">
     <mat-label>{{ 'settings.currency' | translate }}</mat-label>

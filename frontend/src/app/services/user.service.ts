@@ -5,6 +5,7 @@ import { environment } from '../../environments/environment';
 import { OrganizationUserDto } from '../../dtos/organization-user.dto';
 import { CreateUserDto, UpdateUserDto, UpdateUserRoleDto, UserDto } from '../../dtos/user.dto';
 import { PaginatedList } from '../../dtos/paginated-list.dto';
+import { map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +25,20 @@ export class UserService {
 
   fetchOrganizationsForUser(userId: string) {
     let url = this.endpoint + '/users/' + userId + '/organizations';
-    return this.httpClient.get<ApiResponse<OrganizationUserDto[]>>(url);
+    return this.httpClient.get<ApiResponse<OrganizationUserDto[]>>(url).pipe(
+      map((response) => ({
+        ...response,
+        data: response.data?.map((organization) => {
+          const rawOrganization = organization as OrganizationUserDto & { logo_url?: string | null };
+          const logoUrl = rawOrganization.logoUrl ?? rawOrganization.logo_url;
+
+          return {
+            ...organization,
+            logoUrl: this.resolveLogoUrl(logoUrl ?? undefined),
+          };
+        }),
+      })),
+    );
   }
 
   fetchUser(userId: string) {
@@ -86,6 +100,12 @@ export class UserService {
   deleteUser(organizationId: string, userId: string) {
     const url = `${this.endpoint}/organizations/${organizationId}/users/${userId}`;
     return this.httpClient.delete<ApiResponse<null>>(url);
+  }
+
+  private resolveLogoUrl(logoUrl?: string): string | undefined {
+    if (!logoUrl || logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) return logoUrl;
+    if (environment.production) return logoUrl;
+    return `${this.endpoint.replace(/\/api\/?$/, '')}${logoUrl}`;
   }
 
   updateUserRole(

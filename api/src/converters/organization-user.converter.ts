@@ -10,6 +10,7 @@ export class OrganizationUserConverter {
     organizationUserDto.organizationId =
       organizationUser.organization.organizationId;
     organizationUserDto.name = organizationUser.organization.name;
+    organizationUserDto.logoUrl = organizationUser.organization.logoUrl;
     organizationUserDto.role = organizationUser.role;
     organizationUserDto.createdAt = organizationUser.createdAt;
     organizationUserDto.updatedAt = organizationUser.updatedAt;

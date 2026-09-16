@@ -15,7 +15,14 @@
       </div>
     <div class="mat-body-small text-on-surface-variant">{{ 'organizations.youAre' | translate }} {{ currentOrganization()?.role?.replace('_', ' ') }}</div>
   </div>
-  <div class="py-2.5 px-2">
+  <div class="flex items-center gap-2 py-2.5 px-2">
+    @if (organization()?.logoUrl || currentOrganization()?.logoUrl) {
+      <img
+        [src]="organization()?.logoUrl || currentOrganization()?.logoUrl"
+        [alt]="currentOrganization()?.name || 'Restaurant logo'"
+        class="h-8 w-8 rounded-full border border-outline-variant object-cover"
+      />
+    }
     <mat-icon class="text-on-surface-variant">unfold_more</mat-icon>
   </div>
 </div>
@@ -39,11 +46,9 @@
               <div class="flex justify-between w-[220px]">
                 <div class="flex gap-[12px]">
                   <div class="flex flex-col justify-center items-center font-sans">
-                    <ng-container>
-                      <ngx-avatars size="30" [round]="true" [name]="option?.name">
-                      </ngx-avatars>
-                    </ng-container>
-                    <ng-template #avatarProfile>
+                    @if (option?.logoUrl) {
+                      <img [src]="option.logoUrl" [alt]="option.name || 'Restaurant logo'" class="h-[30px] w-[30px] rounded-full border border-outline-variant object-cover" />
+                    } @else {
                       <ngx-avatars
                         size="30"
                         [textSizeRatio]="2.5"
@@ -54,7 +59,7 @@
                         fgColor="var(--sys-on-primary-fixed-variant)"
                       >
                       </ngx-avatars>
-                    </ng-template>
+                    }
                   </div>
                   <div class="flex flex-col">
                     <div
@@ -102,11 +107,9 @@
               <div class="flex justify-between w-[220px]">
                 <div class="flex gap-[12px]">
                   <div class="flex flex-col justify-center items-center font-sans">
-                    <ng-container>
-                      <ngx-avatars size="30" [round]="true" [name]="option?.name">
-                      </ngx-avatars>
-                    </ng-container>
-                    <ng-template #avatarProfile>
+                    @if (option?.logoUrl) {
+                      <img [src]="option.logoUrl" [alt]="option.name || 'Restaurant logo'" class="h-[30px] w-[30px] rounded-full border border-outline-variant object-cover" />
+                    } @else {
                       <ngx-avatars
                         size="30"
                         [textSizeRatio]="2.5"
@@ -117,7 +120,7 @@
                         fgColor="var(--sys-on-primary-fixed-variant)"
                       >
                       </ngx-avatars>
-                    </ng-template>
+                    }
                   </div>
                   <div class="flex flex-col">
                     <div

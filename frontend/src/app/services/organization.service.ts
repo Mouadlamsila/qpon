@@ -76,7 +76,10 @@ export class OrganizationService {
   }
 
   private withResolvedLogo(organization: OrganizationDto): OrganizationDto {
-    return { ...organization, logoUrl: this.resolveLogoUrl(organization.logoUrl) };
+    const rawOrganization = organization as OrganizationDto & { logo_url?: string | null };
+    const logoUrl = rawOrganization.logoUrl ?? rawOrganization.logo_url;
+
+    return { ...organization, logoUrl: this.resolveLogoUrl(logoUrl ?? undefined) };
   }
 
   private resolveLogoUrl(logoUrl?: string): string | undefined {

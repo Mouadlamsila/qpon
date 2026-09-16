@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { Equals, IsDate, IsString } from 'class-validator';
+import { Equals, IsDate, IsOptional, IsString } from 'class-validator';
 import { roleEnum } from '../enums';
 
 export class OrganizationUserDto {
@@ -12,6 +12,11 @@ export class OrganizationUserDto {
 
   @IsString()
   name: string;
+
+  @Expose({ name: 'logo_url' })
+  @IsOptional()
+  @IsString()
+  logoUrl: string | null;
 
   @IsString()
   role: roleEnum;

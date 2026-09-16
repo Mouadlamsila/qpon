@@ -6,6 +6,8 @@ import { FormDialogBoxComponent } from '../../../common/form-dialog-box/form-dia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { SnackbarService } from '../../../../../services/snackbar.service';
 import { OrganizationStore } from '../../../../../store/organization.store';
 import { OrganizationResolver } from '../../../../../resolvers/organization.resolver';
@@ -24,6 +26,8 @@ import { environment } from '../../../../../../environments/environment';
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
+        MatButtonModule,
+        MatIconModule,
         TranslatePipe,
         FormDialogBoxComponent
     ],
@@ -38,6 +42,8 @@ export class EditOrganisationProfileDialogComponent implements OnDestroy {
 
     selectedLogoFile: File | null = null;
     logoPreviewUrl: string | null = null;
+    showLogoInputs = false;
+    readonly existingLogoUrl: string | null;
     readonly currencies = ['EUR', 'MAD', 'USD', 'GBP'];
 
     form = this.fb.group({
@@ -53,6 +59,7 @@ export class EditOrganisationProfileDialogComponent implements OnDestroy {
         @Inject(MAT_DIALOG_DATA) public data: any,
         public dialogRef: MatDialogRef<EditOrganisationProfileDialogComponent>
     ) {
+        this.existingLogoUrl = data.logoUrl ?? null;
         this.form.patchValue({
             name: data.name
             ,description: data.description ?? ''
@@ -84,6 +91,26 @@ export class EditOrganisationProfileDialogComponent implements OnDestroy {
         if (this.logoPreviewUrl) URL.revokeObjectURL(this.logoPreviewUrl);
         this.selectedLogoFile = file;
         this.logoPreviewUrl = URL.createObjectURL(file);
+        this.showLogoInputs = true;
+    }
+
+    startLogoChange() {
+        this.showLogoInputs = true;
+        this.form.patchValue({ logoUrl: '' });
+    }
+
+    cancelLogoChange() {
+        if (this.logoPreviewUrl) {
+            URL.revokeObjectURL(this.logoPreviewUrl);
+            this.logoPreviewUrl = null;
+        }
+
+        this.selectedLogoFile = null;
+        this.showLogoInputs = false;
+        this.form.patchValue({ logoUrl: this.existingLogoUrl ?? '' });
+
+        const input = document.getElementById('restaurant-logo-file') as HTMLInputElement | null;
+        if (input) input.value = '';
     }
 
     save = async () => {

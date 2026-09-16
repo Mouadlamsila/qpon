@@ -8,7 +8,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { take } from 'rxjs';
 import { OrganizationUserStore } from '../../../../../store/organization-user.store';
-import { OrganizationDto } from '../../../../../../dtos/organization.dto';
 import { OrganizationUserDto } from '../../../../../../dtos/organization-user.dto';
 import { OrganizationStore } from '../../../../../store/organization.store';
 import { PermissionsService } from '../../../../../services/permission.service';
@@ -66,7 +65,7 @@ export class ChooseOrganizationComponent implements OnInit {
     })
   }
 
-  changeOrganization(organization: OrganizationDto) {
+  changeOrganization(organization: OrganizationUserDto) {
     window.location.href = `${window.location.origin}/` + organization.organizationId + "/home/dashboard";
   }
 
