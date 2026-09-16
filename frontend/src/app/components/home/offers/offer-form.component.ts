@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { discountTypeEnum } from '../../../../enums';
@@ -13,11 +14,12 @@ import { RestaurantOfferService } from '../../../services/restaurant-offer.servi
 import { OrganizationStore } from '../../../store/organization.store';
 import { SnackbarService } from '../../../services/snackbar.service';
 import { RestaurantOfferDto } from '../../../../dtos/restaurant-offer.dto';
+import { TranslatePipe } from '../../../pipe/translate.pipe';
 
 @Component({
   selector: 'app-offer-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatRadioModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatRadioModule, MatCheckboxModule, RouterLink, TranslatePipe],
   templateUrl: './offer-form.component.html',
   styleUrl: './offer-form.component.css',
 })
@@ -40,6 +42,8 @@ export class OfferFormComponent implements OnInit, OnDestroy {
     validUntil: ['', Validators.required],
     maxRedemptions: [0],
     maxRedemptionPerCustomer: [0],
+    deliveryAvailable: [false],
+    deliveryZones: [''],
   });
   offerId?: string;
   existing?: RestaurantOfferDto;
@@ -66,6 +70,8 @@ export class OfferFormComponent implements OnInit, OnDestroy {
           validUntil: this.existing.validUntil.slice(0, 16),
           maxRedemptions: this.existing.maxRedemptions ?? 0,
           maxRedemptionPerCustomer: this.existing.maxRedemptionPerCustomer ?? 0,
+          deliveryAvailable: this.existing.deliveryAvailable ?? false,
+          deliveryZones: (this.existing.deliveryZones ?? []).join(', '),
         });
       }
     }
@@ -118,6 +124,14 @@ export class OfferFormComponent implements OnInit, OnDestroy {
     }
     this.saving = true;
     const value = this.form.getRawValue();
+    const deliveryZones = this.parseDeliveryZones(value.deliveryZones);
+    if (value.deliveryAvailable && deliveryZones.length === 0) {
+      this.form.controls.deliveryZones.setErrors({ required: true });
+      this.form.controls.deliveryZones.markAsTouched();
+      this.snackbar.openSnackBar('Add at least one delivery zone or turn delivery off', undefined);
+      this.saving = false;
+      return;
+    }
     const body = {
       title: value.title,
       description: value.description || undefined,
@@ -128,6 +142,8 @@ export class OfferFormComponent implements OnInit, OnDestroy {
       validUntil: new Date(value.validUntil).toISOString(),
       maxRedemptions: value.maxRedemptions > 0 ? value.maxRedemptions : undefined,
       maxRedemptionPerCustomer: value.maxRedemptionPerCustomer > 0 ? value.maxRedemptionPerCustomer : undefined,
+      deliveryAvailable: value.deliveryAvailable,
+      deliveryZones: value.deliveryAvailable ? deliveryZones : [],
     };
     try {
       const organizationId = this.organization()!.organizationId!;
@@ -143,5 +159,9 @@ export class OfferFormComponent implements OnInit, OnDestroy {
     } finally {
       this.saving = false;
     }
+  }
+
+  private parseDeliveryZones(value: string) {
+    return [...new Set(value.split(/[\n,]+/).map((zone) => zone.trim()).filter(Boolean))];
   }
 }

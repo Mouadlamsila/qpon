@@ -38,6 +38,12 @@ export class RestaurantOffer {
   })
   publicationStatus: offerPublicationStatusEnum;
 
+  @Column({ name: 'delivery_available', type: 'boolean', default: false })
+  deliveryAvailable: boolean;
+
+  @Column({ name: 'delivery_zones', type: 'text', array: true, default: () => "'{}'" })
+  deliveryZones: string[];
+
   @CreateDateColumn({
     type: 'timestamp with time zone',
     default: () => 'now()',

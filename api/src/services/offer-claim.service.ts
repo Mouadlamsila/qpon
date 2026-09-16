@@ -206,6 +206,8 @@ export class OfferClaimService {
           'Show this claim to the restaurant before ordering.',
           'This claim is for one customer and cannot be transferred.',
         ],
+        deliveryAvailable: offer.deliveryAvailable,
+        deliveryZones: offer.deliveryZones,
       },
       displayCode: claim.displayCode,
       status: claim.status,

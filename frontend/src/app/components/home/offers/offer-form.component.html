@@ -24,6 +24,22 @@
       <mat-form-field appearance="outline"><mat-label>Per customer (optional)</mat-label><input matInput type="number" min="0" formControlName="maxRedemptionPerCustomer" /></mat-form-field>
     </div>
 
+    <section class="flex flex-col gap-3 rounded-xl border border-outline-variant p-5" aria-labelledby="delivery-options-label">
+      <div id="delivery-options-label" class="mat-title-medium text-on-surface">{{ 'offers.deliveryTitle' | translate }}</div>
+      <mat-checkbox formControlName="deliveryAvailable">{{ 'offers.deliveryAvailable' | translate }}</mat-checkbox>
+      <div class="mat-body-small text-on-surface-variant">{{ 'offers.deliveryAvailableHint' | translate }}</div>
+      @if (form.controls.deliveryAvailable.value) {
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'offers.deliveryZones' | translate }}</mat-label>
+          <textarea matInput rows="2" formControlName="deliveryZones" [placeholder]="'offers.deliveryZonesPlaceholder' | translate"></textarea>
+          <mat-hint>{{ 'offers.deliveryZonesHint' | translate }}</mat-hint>
+          @if (form.controls.deliveryZones.hasError('required')) {
+            <mat-error>{{ 'offers.deliveryZonesRequired' | translate }}</mat-error>
+          }
+        </mat-form-field>
+      }
+    </section>
+
     <section class="media-field flex flex-col gap-3" aria-labelledby="offer-image-label">
       <div id="offer-image-label" class="mat-title-medium text-on-surface">Offer image</div>
       <label

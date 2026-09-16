@@ -18,6 +18,12 @@
         <p class="mat-body-large text-on-surface-variant mt-6">{{ offer.description }}</p>
         <div class="mat-body-medium text-on-surface mt-6">Valid until {{ offer.validUntil | date:'longDate' }}</div>
         @if (offer.minimumAmount) { <div class="mat-body-medium text-on-surface-variant mt-2">Minimum order: {{ offer.minimumAmount }}</div> }
+        @if (offer.deliveryAvailable) {
+          <div class="mt-5 rounded-xl border border-outline-variant p-4">
+            <div class="mat-title-small text-on-surface">Delivery available</div>
+            <div class="mat-body-medium text-on-surface-variant mt-1">{{ offer.deliveryZones.join(', ') }}</div>
+          </div>
+        }
         <div class="border-t border-outline-variant mt-8 pt-6"><div class="mat-title-medium">Terms</div><ul class="mat-body-medium text-on-surface-variant mt-3 list-disc pl-5">@for (term of offer.terms; track term) { <li>{{ term }}</li> }</ul></div>
         @if (!claimMode) {
           <button mat-flat-button class="w-full mt-8" (click)="showClaimForm()">Get this offer</button>

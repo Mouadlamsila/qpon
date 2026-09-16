@@ -25,13 +25,15 @@
   </mat-form-field>
 
   @if (!showLogoInputs && (existingLogoUrl || logoPreviewUrl)) {
-    <div class="flex items-center gap-4 rounded border border-outline-variant bg-surface-container-lowest p-3">
-      <img [src]="logoPreviewUrl || existingLogoUrl" [alt]="'settings.logoPreviewAlt' | translate" class="h-16 w-16 shrink-0 rounded-full border border-outline-variant object-cover" />
-      <div class="min-w-0 flex-1">
-        <div class="mat-body-medium text-on-surface">{{ 'settings.logoConfigured' | translate }}</div>
-        <div class="mat-body-small text-on-surface-variant">{{ 'settings.changeLogoHint' | translate }}</div>
+    <div class="flex flex-col gap-4 rounded border border-outline-variant bg-surface-container-lowest p-4 sm:flex-row sm:items-center">
+      <div class="flex min-w-0 flex-1 items-center gap-4">
+        <img [src]="logoPreviewUrl || existingLogoUrl" [alt]="'settings.logoPreviewAlt' | translate" class="h-16 w-16 shrink-0 rounded-full border border-outline-variant object-cover" />
+        <div class="min-w-0">
+          <div class="mat-body-medium text-on-surface">{{ 'settings.logoConfigured' | translate }}</div>
+          <div class="mat-body-small text-on-surface-variant">{{ 'settings.changeLogoHint' | translate }}</div>
+        </div>
       </div>
-      <button mat-stroked-button type="button" class="shrink-0 rounded-full" (click)="startLogoChange()">
+      <button mat-stroked-button type="button" class="w-full shrink-0 rounded-full sm:w-auto" (click)="startLogoChange()">
         {{ 'settings.changeLogo' | translate }}
       </button>
     </div>

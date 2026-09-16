@@ -7,6 +7,8 @@ export class RestaurantOfferDto {
   imageUrl!: string | null;
   publicSlug!: string;
   publicationStatus!: offerPublicationStatusEnum;
+  deliveryAvailable!: boolean;
+  deliveryZones!: string[];
   discountType!: discountTypeEnum;
   discountValue!: number;
   discountUpto!: number | null;
@@ -31,6 +33,8 @@ export interface CreateRestaurantOfferDto {
   validUntil: string;
   maxRedemptions?: number;
   maxRedemptionPerCustomer?: number;
+  deliveryAvailable?: boolean;
+  deliveryZones?: string[];
 }
 
 export interface PublicRestaurantOfferDto {
@@ -45,4 +49,6 @@ export interface PublicRestaurantOfferDto {
   validUntil: string;
   status: offerPublicationStatusEnum;
   terms: string[];
+  deliveryAvailable: boolean;
+  deliveryZones: string[];
 }

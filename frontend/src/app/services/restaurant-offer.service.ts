@@ -99,6 +99,8 @@ export class RestaurantOfferService {
       valid_until: body.validUntil,
       max_redemptions: body.maxRedemptions,
       max_redemption_per_customer: body.maxRedemptionPerCustomer,
+      delivery_available: body.deliveryAvailable,
+      delivery_zones: body.deliveryZones,
     };
   }
 }

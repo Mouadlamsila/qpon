@@ -3,7 +3,9 @@ import {
   Equals,
   IsDate,
   IsDateString,
+  IsBoolean,
   IsEnum,
+  IsArray,
   IsInt,
   IsNumber,
   IsOptional,
@@ -42,6 +44,15 @@ export class RestaurantOfferDto {
   @Expose({ name: 'publication_status' })
   @IsEnum(offerPublicationStatusEnum)
   publicationStatus: offerPublicationStatusEnum;
+
+  @Expose({ name: 'delivery_available' })
+  @IsBoolean()
+  deliveryAvailable: boolean;
+
+  @Expose({ name: 'delivery_zones' })
+  @IsArray()
+  @IsString({ each: true })
+  deliveryZones: string[];
 
   @Expose({ name: 'discount_type' })
   @IsEnum(discountTypeEnum)
@@ -146,6 +157,18 @@ export class CreateRestaurantOfferDto {
   @IsInt()
   @Min(1)
   maxRedemptionPerCustomer?: number;
+
+  @Expose({ name: 'delivery_available' })
+  @IsOptional()
+  @IsBoolean()
+  deliveryAvailable?: boolean;
+
+  @Expose({ name: 'delivery_zones' })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(120, { each: true })
+  deliveryZones?: string[];
 }
 
 export class UpdateRestaurantOfferDto {
@@ -202,6 +225,18 @@ export class UpdateRestaurantOfferDto {
   @IsInt()
   @Min(1)
   maxRedemptionPerCustomer?: number;
+
+  @Expose({ name: 'delivery_available' })
+  @IsOptional()
+  @IsBoolean()
+  deliveryAvailable?: boolean;
+
+  @Expose({ name: 'delivery_zones' })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(120, { each: true })
+  deliveryZones?: string[];
 }
 
 export class PublicRestaurantOfferDto {
@@ -219,4 +254,6 @@ export class PublicRestaurantOfferDto {
   validUntil: Date;
   status: offerPublicationStatusEnum;
   terms: string[];
+  deliveryAvailable: boolean;
+  deliveryZones: string[];
 }

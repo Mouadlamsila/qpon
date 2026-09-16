@@ -65,6 +65,7 @@ export class RestaurantOfferService {
   async create(organizationId: string, body: CreateRestaurantOfferDto) {
     this.validateDiscount(body.discountType, body.discountValue, body.discountUpto);
     const validUntil = this.parseFutureDate(body.validUntil);
+    const delivery = this.normalizeDelivery(body.deliveryAvailable, body.deliveryZones);
 
     return this.datasource.transaction(async (manager) => {
       try {
@@ -109,6 +110,8 @@ export class RestaurantOfferService {
           imageUrl: null,
           publicSlug: this.generatePublicSlug(body.title),
           publicationStatus: offerPublicationStatusEnum.DRAFT,
+          deliveryAvailable: delivery.available,
+          deliveryZones: delivery.zones,
           coupon: { couponId: savedCoupon.couponId },
           organization: { organizationId },
         });
@@ -141,6 +144,10 @@ export class RestaurantOfferService {
     const discountType = body.discountType ?? offer.coupon.discountType;
     const discountValue = body.discountValue ?? offer.coupon.discountValue;
     this.validateDiscount(discountType, discountValue, body.discountUpto ?? offer.coupon.discountUpto);
+    const delivery = this.normalizeDelivery(
+      body.deliveryAvailable ?? offer.deliveryAvailable,
+      body.deliveryZones ?? offer.deliveryZones,
+    );
 
     if (body.validUntil !== undefined) {
       const validUntil = this.parseFutureDate(body.validUntil);
@@ -159,6 +166,8 @@ export class RestaurantOfferService {
     if (body.maxRedemptionPerCustomer !== undefined) {
       couponCode.maxRedemptionPerCustomer = body.maxRedemptionPerCustomer;
     }
+    offer.deliveryAvailable = delivery.available;
+    offer.deliveryZones = delivery.zones;
 
     await this.datasource.transaction(async (manager) => {
       await manager.save(Coupon, offer.coupon);
@@ -243,6 +252,8 @@ export class RestaurantOfferService {
       validUntil: code.expiresAt,
       status: offerPublicationStatusEnum.PUBLISHED,
       terms: ['Offer is subject to restaurant availability.', 'Show this offer to the restaurant before ordering.'],
+      deliveryAvailable: offer.deliveryAvailable,
+      deliveryZones: offer.deliveryZones,
     };
   }
 
@@ -279,6 +290,8 @@ export class RestaurantOfferService {
       validUntil: code.expiresAt,
       maxRedemptions: code.maxRedemptions,
       maxRedemptionPerCustomer: code.maxRedemptionPerCustomer,
+      deliveryAvailable: offer.deliveryAvailable,
+      deliveryZones: offer.deliveryZones,
       createdAt: offer.createdAt,
       updatedAt: offer.updatedAt,
     };
@@ -312,6 +325,20 @@ export class RestaurantOfferService {
     if (!Number.isFinite(value) || value <= 0) throw new BadRequestException('Discount value must be greater than 0');
     if (type === discountTypeEnum.PERCENTAGE && value > 100) throw new BadRequestException('Percentage discount cannot exceed 100');
     if (upto != null && (!Number.isFinite(upto) || upto < 0)) throw new BadRequestException('Discount cap must be zero or greater');
+  }
+
+  private normalizeDelivery(available?: boolean, zones?: string[]) {
+    const deliveryAvailable = available ?? false;
+    const deliveryZones = [...new Set((zones ?? []).map((zone) => zone.trim()).filter(Boolean))];
+
+    if (deliveryAvailable && deliveryZones.length === 0) {
+      throw new BadRequestException('At least one delivery zone is required when delivery is enabled');
+    }
+
+    return {
+      available: deliveryAvailable,
+      zones: deliveryAvailable ? deliveryZones : [],
+    };
   }
 
   private parseFutureDate(value: string) {
