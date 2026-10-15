@@ -20,7 +20,12 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_HOST=${DB_HOST}
       - JWT_SECRET=${JWT_SECRET}
+      - CLAIM_TOKEN_SECRET=${CLAIM_TOKEN_SECRET}
       - SALT_ROUNDS=${SALT_ROUNDS}
+      - APP_URL=${APP_URL}
+      - PUBLIC_BASE_URL=${PUBLIC_BASE_URL}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      - UPLOADS_DIR=/app/public/uploads/offers
       - NODE_ENV=production
     depends_on:
       - db
@@ -37,7 +42,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:5432:5432"  # To connect to Postgres externally, change this to 0.0.0.0
+      - "127.0.0.1:5433:5432"  # To connect to Postgres externally, change this to 0.0.0.0
     restart: unless-stopped
     networks:
       - qpon
