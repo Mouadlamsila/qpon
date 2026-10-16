@@ -1,4 +1,4 @@
-<div class="w-[448px] p-6">
+<div class="w-full max-w-[448px] p-4 sm:p-6">
   <div class="flex flex-col gap-6">
     <div class="flex flex-col gap-2">
       <div class="mat-title-medium text-on-surface break-all">
@@ -8,11 +8,11 @@
         {{ data.description }}
       </div>
     </div>
-    <div class="flex gap-2 justify-end">
-      <button mat-button mat-dialog-close>Cancel</button>
+    <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+      <button mat-button mat-dialog-close class="w-full sm:w-auto">Cancel</button>
       <button
         mat-flat-button
-        class="rounded-full bg-error"
+        class="rounded-full bg-error w-full sm:w-auto"
         (click)="
           data.onDelete()
         "

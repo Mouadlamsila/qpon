@@ -1,6 +1,6 @@
 <mat-dialog-content
-  class="rounded-[5px] p-6 bg-surface-container-lowest info-dialog-shadow flex flex-col"
-  [ngClass]="`${width ?? 'w-[516px]'} ${height ?? 'h-auto max-h-[640px]'}`"
+  class="rounded-[5px] p-4 sm:p-6 bg-surface-container-lowest info-dialog-shadow flex flex-col"
+  [ngClass]="`${width ?? 'w-full max-w-[516px]'} ${height ?? 'h-auto max-h-[640px]'}`"
 >
   <form [formGroup]="formGroup" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 flex-1 min-h-0">
 

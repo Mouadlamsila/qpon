@@ -101,7 +101,8 @@ export class ApiKeysComponent implements OnInit {
         }
 
         this.dialog.open(DeleteDialogComponent, {
-            width: '448px',
+            width: 'calc(100vw - 2rem)',
+            maxWidth: '448px',
             data: {
                 title: 'Regenerate API Key?',
                 description: 'Are you sure you want to regenerate your API key? This will invalidate your current key and any applications using it will stop working until you update them with the new key.',

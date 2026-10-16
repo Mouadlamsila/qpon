@@ -131,7 +131,8 @@ export class TeamUsersComponent implements OnInit {
         }
 
         this.dialog.open(DeleteDialogComponent, {
-            width: '448px',
+            width: 'calc(100vw - 2rem)',
+            maxWidth: '448px',
             data: {
                 title: `Remove ${user?.name} from ${org?.name}?`,
                 description: `Are you sure you want to remove ${user?.name} from ${org?.name}? They will lose all access.`,

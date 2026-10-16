@@ -80,7 +80,8 @@ export class OrganizationProfileComponent {
     }
 
     this.dialog.open(DeleteDialogComponent, {
-      width: '448px',
+      width: 'calc(100vw - 2rem)',
+      maxWidth: '448px',
       data: {
         title: 'Delete restaurant?',
         description: `Are you sure you want to delete restaurant “${org?.name}”? You will lose all the associated data.`,
