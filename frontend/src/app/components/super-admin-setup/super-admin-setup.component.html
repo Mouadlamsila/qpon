@@ -1,7 +1,8 @@
-<div class="grid grid-cols-2 w-full h-full">
-  <div class="bg-primary">
+<div class="flex flex-col lg:grid lg:grid-cols-2 w-full min-h-screen">
+  <!-- Brand panel — hidden on mobile, visible on large screens -->
+  <div class="hidden lg:flex bg-primary flex-col justify-between min-h-screen">
     <div
-      class="flex flex-col justify-center pt-[120px] px-[64px] pb-[48px] h-[838px]"
+      class="flex flex-col justify-center pt-[120px] px-[64px] pb-[48px] flex-1"
     >
       <p class="mat-display-medium text-surface">Grow with discounts</p>
       <p
@@ -16,8 +17,16 @@
       </p>
     </div>
   </div>
-  <div class="flex flex-col items-center justify-center min-h-screen">
-    <div class="w-[400px] flex flex-col gap-[72px]">
+
+  <!-- Form panel -->
+  <div class="flex flex-col items-center justify-center min-h-screen px-6 py-12 sm:px-10">
+    <!-- Mobile brand accent -->
+    <div class="lg:hidden mb-10 text-center">
+      <p class="mat-headline-small text-primary font-semibold m-0">Qpon</p>
+      <p class="mat-body-medium text-on-surface-variant mt-1">Grow with discounts</p>
+    </div>
+
+    <div class="w-full max-w-[400px] flex flex-col gap-[48px] sm:gap-[72px]">
         <div class="flex flex-col gap-2">
             <div class="mat-headline-medium text-on-surface text-center m-0">
               Create a super admin account
@@ -26,8 +35,8 @@
                 Please choose a username and password for your Super Admin account.
             </div>
         </div>
-      <div class="flex flex-col gap-[48px]">
-        <form [formGroup]="createSuperAdminForm" (ngSubmit)="onCreateSuperAdmin()" class="flex flex-col gap-[32px]">
+      <div class="flex flex-col gap-[32px] sm:gap-[48px]">
+        <form [formGroup]="createSuperAdminForm" (ngSubmit)="onCreateSuperAdmin()" class="flex flex-col gap-[24px] sm:gap-[32px]">
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Name</mat-label>
             <input
@@ -52,7 +61,7 @@
               <mat-error>Invalid email</mat-error>
             }
           </mat-form-field>
-          <mat-form-field appearance="outline" class="h-[56px] rounded-[4px]" subscriptSizing="dynamic">
+          <mat-form-field appearance="outline" class="rounded-[4px]" subscriptSizing="dynamic">
             <mat-label>Password</mat-label>
             <input
               matInput
@@ -76,7 +85,7 @@
           <button
             type="submit"
             mat-flat-button
-            class="text-on-primary mat-large-font rounded-full"
+            class="text-on-primary mat-large-font rounded-full w-full"
           >
             Sign up
           </button>

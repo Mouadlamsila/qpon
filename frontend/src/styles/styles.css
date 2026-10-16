@@ -111,4 +111,24 @@ input[type=number] {
 }
 .fullscreen-dialog .mdc-dialog__surface {
   border-radius: 0 !important;
+}
+
+/* ===== Dialog scrollbars: thin + theme-aware (no white native scrollbar on dark dialogs) ===== */
+.mat-mdc-dialog-container ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.mat-mdc-dialog-container ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.mat-mdc-dialog-container ::-webkit-scrollbar-thumb {
+  background: var(--sys-outline-variant, rgba(128, 128, 128, 0.45));
+  border-radius: 8px;
+}
+.mat-mdc-dialog-container ::-webkit-scrollbar-thumb:hover {
+  background: var(--sys-outline, rgba(128, 128, 128, 0.7));
+}
+.mat-mdc-dialog-container * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sys-outline-variant, rgba(128, 128, 128, 0.45)) transparent;
 }
