@@ -1,14 +1,14 @@
-<div class="flex flex-col gap-6">
+<div class="flex flex-col gap-4 sm:gap-6">
   <div>
-    <div class="mat-headline-medium text-on-surface">{{ 'redeem.title' | translate }}</div>
-    <p class="text-on-surface-variant">{{ 'redeem.subtitle' | translate }}</p>
+    <div class="mat-headline-medium text-on-surface m-0">{{ 'redeem.title' | translate }}</div>
+    <p class="mat-body-medium text-on-surface-variant mt-2">{{ 'redeem.subtitle' | translate }}</p>
   </div>
 
-  <mat-card class="p-4">
+  <mat-card class="p-3 sm:p-4">
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
         <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
-          <mat-form-field appearance="outline" class="min-w-0 flex-1">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="min-w-0 flex-1">
             <mat-label>{{ 'redeem.claimCode' | translate }}</mat-label>
             <input matInput [formControl]="claimCode" placeholder="QP-XXXXXXXXXXXXXXX" autocomplete="off" (keyup.enter)="validateClaim()" />
             @if (claimCode.hasError('required')) { <mat-error>{{ 'redeem.claimCodeRequired' | translate }}</mat-error> }
@@ -38,7 +38,7 @@
         }
       </div>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>{{ 'redeem.orderAmount' | translate }}</mat-label>
         <input matInput type="number" min="0.01" [formControl]="orderAmount" [placeholder]="'redeem.orderAmountHelp' | translate" />
         <span matTextSuffix>{{ organizationStore.organizaiton()?.currency }}</span>
@@ -82,7 +82,7 @@
     </mat-card>
   }
 
-  <mat-card class="p-4">
+  <mat-card class="p-2 sm:p-4">
     <div class="text-lg font-semibold mb-3">{{ 'redeem.recent' | translate }}</div>
     @if (history.length === 0) {
       <p class="text-on-surface-variant">{{ 'redeem.noRecent' | translate }}</p>
