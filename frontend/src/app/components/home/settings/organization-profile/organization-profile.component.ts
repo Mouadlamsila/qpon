@@ -8,6 +8,7 @@ import { OrganizationStore } from '../../../../store/organization.store';
 import { EditOrganisationProfileDialogComponent } from './edit-organisation-profile-dialog/edit-organisation-profile-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDialogComponent } from '../../common/delete-dialog/delete-dialog.component';
+import { mobileAwareDialogConfig } from '../../../../utils/mobile-dialog.util';
 import { SnackbarService } from '../../../../services/snackbar.service';
 import { OrganizationResolver } from '../../../../resolvers/organization.resolver';
 import { NotAllowedDialogBoxComponent } from '../../../common/not-allowed-dialog-box/not-allowed-dialog-box.component';
@@ -57,18 +58,15 @@ export class OrganizationProfileComponent {
       return;
     }
 
-    this.dialog.open(EditOrganisationProfileDialogComponent, {
-      width: 'min(516px, calc(100vw - 32px))',
-        data: {
-        name: this.organizationStore.organizaiton()?.name,
-        description: this.organizationStore.organizaiton()?.description,
-        logoUrl: this.organizationStore.organizaiton()?.logoUrl,
-        contactEmail: this.organizationStore.organizaiton()?.contactEmail,
-        contactPhone: this.organizationStore.organizaiton()?.contactPhone,
-        currency: this.organizationStore.organizaiton()?.currency,
-        organizationId: this.organizationStore.organizaiton()?.organizationId,
-      }
-    });
+    this.dialog.open(EditOrganisationProfileDialogComponent, mobileAwareDialogConfig('516px', {
+      name: this.organizationStore.organizaiton()?.name,
+      description: this.organizationStore.organizaiton()?.description,
+      logoUrl: this.organizationStore.organizaiton()?.logoUrl,
+      contactEmail: this.organizationStore.organizaiton()?.contactEmail,
+      contactPhone: this.organizationStore.organizaiton()?.contactPhone,
+      currency: this.organizationStore.organizaiton()?.currency,
+      organizationId: this.organizationStore.organizaiton()?.organizationId,
+    }));
   }
 
   onDeleteOrganisation() {

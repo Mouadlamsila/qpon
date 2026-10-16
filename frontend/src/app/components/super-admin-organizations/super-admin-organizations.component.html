@@ -4,7 +4,7 @@
       <p class="mat-headline-medium text-on-surface m-0">Restaurants</p>
       <p class="mat-body-medium text-on-surface-variant m-0 mt-1">Platform accounts and MVP activity.</p>
     </div>
-    <button mat-flat-button class="rounded-full" (click)="createRestaurant()"><mat-icon>add</mat-icon> Add restaurant</button>
+    <button mat-flat-button class="rounded-full whitespace-nowrap shrink-0" (click)="createRestaurant()"><mat-icon>add</mat-icon> Add restaurant</button>
   </div>
 
   <div class="flex items-center gap-3 border rounded-[4px] h-[56px] border-outline-variant px-4">
@@ -23,16 +23,61 @@
   } @else if (!restaurants().length && !error()) {
     <div class="text-center py-24 text-on-surface-variant">No restaurants found.</div>
   } @else {
-    <div class="border rounded-lg border-outline-variant overflow-hidden">
-      <table mat-table [dataSource]="restaurants()" class="w-full">
-        <ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Restaurant</th><td mat-cell *matCellDef="let restaurant"><button class="text-left font-medium hover:underline" (click)="inspect(restaurant)">{{ restaurant.name }}</button></td></ng-container>
-        <ng-container matColumnDef="status"><th mat-header-cell *matHeaderCellDef>Status</th><td mat-cell *matCellDef="let restaurant"><span class="rounded-full px-3 py-1 text-xs" [class.bg-primary-container]="restaurant.status === statuses.ACTIVE" [class.bg-error-container]="restaurant.status === statuses.SUSPENDED">{{ restaurant.status }}</span></td></ng-container>
-        <ng-container matColumnDef="offers"><th mat-header-cell *matHeaderCellDef>Offers</th><td mat-cell *matCellDef="let restaurant">{{ restaurant.offerCount }}</td></ng-container>
-        <ng-container matColumnDef="claims"><th mat-header-cell *matHeaderCellDef>Claims</th><td mat-cell *matCellDef="let restaurant">{{ restaurant.claimCount }}</td></ng-container>
-        <ng-container matColumnDef="redemptions"><th mat-header-cell *matHeaderCellDef>Redemptions</th><td mat-cell *matCellDef="let restaurant">{{ restaurant.redemptionCount }}</td></ng-container>
-        <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef></th><td mat-cell *matCellDef="let restaurant"><button mat-button (click)="toggleStatus(restaurant, $event)">{{ restaurant.status === statuses.ACTIVE ? 'Suspend' : 'Reactivate' }}</button></td></ng-container>
-        <tr mat-header-row *matHeaderRowDef="columns"></tr><tr mat-row *matRowDef="let row; columns: columns"></tr>
+    <div class="border rounded-lg border-outline-variant overflow-x-auto">
+      <table mat-table [dataSource]="restaurants()" class="w-full min-w-[520px]">
+
+        <!-- Restaurant name -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef class="px-4 py-4 text-on-surface-variant font-medium">Restaurant</th>
+          <td mat-cell *matCellDef="let restaurant" class="px-4 py-4">
+            <button class="text-left font-medium hover:underline text-on-surface" (click)="inspect(restaurant)">{{ restaurant.name }}</button>
+          </td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef class="px-4 py-4 text-on-surface-variant font-medium">Status</th>
+          <td mat-cell *matCellDef="let restaurant" class="px-4 py-4">
+            <span class="rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap"
+              [class.bg-primary-container]="restaurant.status === statuses.ACTIVE"
+              [class.text-primary]="restaurant.status === statuses.ACTIVE"
+              [class.bg-error-container]="restaurant.status === statuses.SUSPENDED"
+              [class.text-error]="restaurant.status === statuses.SUSPENDED">{{ restaurant.status }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Offers — hidden on mobile -->
+        <ng-container matColumnDef="offers">
+          <th mat-header-cell *matHeaderCellDef class="hidden sm:table-cell px-4 py-4 text-on-surface-variant font-medium">Offers</th>
+          <td mat-cell *matCellDef="let restaurant" class="hidden sm:table-cell px-4 py-4">{{ restaurant.offerCount }}</td>
+        </ng-container>
+
+        <!-- Claims — hidden on mobile -->
+        <ng-container matColumnDef="claims">
+          <th mat-header-cell *matHeaderCellDef class="hidden md:table-cell px-4 py-4 text-on-surface-variant font-medium">Claims</th>
+          <td mat-cell *matCellDef="let restaurant" class="hidden md:table-cell px-4 py-4">{{ restaurant.claimCount }}</td>
+        </ng-container>
+
+        <!-- Redemptions — hidden on mobile -->
+        <ng-container matColumnDef="redemptions">
+          <th mat-header-cell *matHeaderCellDef class="hidden md:table-cell px-4 py-4 text-on-surface-variant font-medium">Redemptions</th>
+          <td mat-cell *matCellDef="let restaurant" class="hidden md:table-cell px-4 py-4">{{ restaurant.redemptionCount }}</td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="px-4 py-4"></th>
+          <td mat-cell *matCellDef="let restaurant" class="px-4 py-4 text-right">
+            <button mat-button class="whitespace-nowrap text-sm" (click)="toggleStatus(restaurant, $event)">
+              {{ restaurant.status === statuses.ACTIVE ? 'Suspend' : 'Reactivate' }}
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns" class="hover:bg-surface-container cursor-pointer" (click)="inspect(row)"></tr>
       </table>
     </div>
   }
+
 </section>

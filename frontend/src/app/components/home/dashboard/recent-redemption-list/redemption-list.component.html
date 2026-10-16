@@ -3,7 +3,7 @@
     Redemptions
   </div>
 
-  <div class="border-[1px] rounded-[5px] border-outline-variant overflow-hidden">
+  <div class="border-[1px] rounded-[5px] border-outline-variant overflow-x-auto">
     <table mat-table [dataSource]="datasource" matSort [matSortActive]="sortOptions().active"
       [matSortDirection]="sortOptions().direction" matSortDisableClear="true" (matSortChange)="onSortChange($event)"
       class="table-fixed w-full">

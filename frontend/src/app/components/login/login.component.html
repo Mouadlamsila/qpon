@@ -1,12 +1,9 @@
-<div class="grid grid-cols-2 w-full h-full">
-  <div class="bg-primary">
-    <div
-      class="flex flex-col justify-center pt-[120px] px-[64px] pb-[48px] h-[838px]"
-    >
+<div class="flex flex-col lg:grid lg:grid-cols-2 w-full min-h-screen">
+  <!-- Brand panel — hidden on mobile, visible on large screens -->
+  <div class="hidden lg:flex bg-primary flex-col justify-between min-h-screen">
+    <div class="flex flex-col justify-center pt-[120px] px-[64px] pb-[48px] flex-1">
       <p class="mat-display-medium text-surface">Grow with discounts</p>
-      <p
-        class="mat-title-large text-surface"
-      >
+      <p class="mat-title-large text-surface">
         All your coupons in one place
       </p>
     </div>
@@ -16,13 +13,21 @@
       </p>
     </div>
   </div>
-  <div class="flex flex-col items-center justify-center min-h-screen">
-    <div class="w-[400px] flex flex-col gap-[72px]">
+
+  <!-- Login form panel -->
+  <div class="flex flex-col items-center justify-center min-h-screen px-6 py-12 sm:px-10">
+    <!-- Mobile brand accent -->
+    <div class="lg:hidden mb-10 text-center">
+      <p class="mat-headline-small text-primary font-semibold m-0">Qpon</p>
+      <p class="mat-body-medium text-on-surface-variant mt-1">Grow with discounts</p>
+    </div>
+
+    <div class="w-full max-w-[400px] flex flex-col gap-[48px] sm:gap-[72px]">
       <p class="mat-headline-medium text-on-surface text-center m-0">
         Login to your account
       </p>
-      <div class="flex flex-col gap-[48px]">
-        <form [formGroup]="loginFormGroup" (ngSubmit)="onLogin()" class="flex flex-col gap-[32px]">
+      <div class="flex flex-col gap-[32px] sm:gap-[48px]">
+        <form [formGroup]="loginFormGroup" (ngSubmit)="onLogin()" class="flex flex-col gap-[24px] sm:gap-[32px]">
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Email</mat-label>
             <input
@@ -37,7 +42,7 @@
               <mat-error>Invalid email</mat-error>
             }
           </mat-form-field>
-          <mat-form-field appearance="outline" class="h-[56px] rounded-[4px]" subscriptSizing="dynamic">
+          <mat-form-field appearance="outline" class="rounded-[4px]" subscriptSizing="dynamic">
             <mat-label>Password</mat-label>
             <input
               matInput
@@ -46,7 +51,7 @@
               required
             />
             <button
-            type="button"
+              type="button"
               mat-icon-button
               matSuffix
               (click)="hidePassword = !hidePassword"
@@ -61,7 +66,7 @@
           <button
             type="submit"
             mat-flat-button
-            class="text-on-primary mat-large-font rounded-full"
+            class="text-on-primary mat-large-font rounded-full w-full"
           >
             Log in
           </button>

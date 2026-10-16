@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-4">
-  <div class="flex justify-between">
-    <div>
+  <div class="flex flex-wrap justify-between gap-3">
+    <div class="min-w-0">
       @if(isLoading()) {
       <ngx-skeleton-loader
         [theme]="{
@@ -31,7 +31,7 @@
       </button>
     </div>
   </div>
-  <div class="inline-flex justify-start items-start gap-8 mat-body-large">
+  <div class="flex flex-wrap justify-start items-center gap-x-6 gap-y-2 mat-body-large">
     <div class="flex justify-start items-center gap-2">
       @if(isLoading()) {
       <ngx-skeleton-loader

@@ -87,8 +87,8 @@
     @if (history.length === 0) {
       <p class="text-on-surface-variant">{{ 'redeem.noRecent' | translate }}</p>
     } @else {
-      <div class="w-full overflow-hidden">
-        <table class="w-full table-fixed text-left">
+      <div class="w-full overflow-x-auto">
+        <table class="w-full table-fixed text-left min-w-[380px]">
           <thead><tr><th class="w-[27%] p-2 sm:w-[20%] lg:w-[18%]">{{ 'redemptions.offer' | translate }}</th><th class="hidden w-[20%] p-2 sm:table-cell lg:w-[17%]">{{ 'redemptions.claimCode' | translate }}</th><th class="w-[39%] p-2 sm:w-[27%] lg:w-[24%]">{{ 'redemptions.customer' | translate }}</th><th class="w-[34%] p-2 sm:w-[15%] lg:w-[14%]">{{ 'redemptions.discount' | translate }}</th><th class="hidden w-[18%] p-2 sm:table-cell">{{ 'redemptions.redeemedAt' | translate }}</th><th class="hidden w-[9%] p-2 lg:table-cell">{{ 'redemptions.redeemedBy' | translate }}</th></tr></thead>
           <tbody>
             @for (row of history; track row.redemptionId) {

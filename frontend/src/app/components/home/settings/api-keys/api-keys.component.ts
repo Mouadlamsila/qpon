@@ -18,6 +18,7 @@ import { AbilityServiceSignal } from '@casl/angular';
 import { UserAbility } from '../../../../permissions/ability';
 import { ApiKeyDto } from '../../../../../dtos/api-key.dto';
 import { ApiCredentialsDialogComponent } from './common/api-credentials-dialog/api-credentials-dialog.component';
+import { mobileAwareDialogConfig } from '../../../../utils/mobile-dialog.util';
 
 
 @Component({
@@ -52,11 +53,7 @@ export class ApiKeysComponent implements OnInit {
         effect(() => {
 			const apiKey = this.apiKeysStore.apiKey();
 			if (apiKey?.secret) {
-				const ref = this.dialog.open(ApiCredentialsDialogComponent, {
-					width: '516px',
-					disableClose: true,
-					data: { apiKey },
-				});
+				const ref = this.dialog.open(ApiCredentialsDialogComponent, mobileAwareDialogConfig('516px', { apiKey }, { disableClose: true }));
 				ref.afterClosed().subscribe(() => {
 					this.apiKeysStore.clearSecret();
 				});

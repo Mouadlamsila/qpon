@@ -1,11 +1,11 @@
 <mat-dialog-content
-  class="rounded-[5px] p-6 bg-surface-container-lowest info-dialog-shadow"
-  [ngClass]="`${width ?? 'w-[516px]'} ${height ?? 'h-auto max-h-[468px]'}`"
+  class="rounded-[5px] p-6 bg-surface-container-lowest info-dialog-shadow flex flex-col"
+  [ngClass]="`${width ?? 'w-[516px]'} ${height ?? 'h-auto max-h-[640px]'}`"
 >
-  <form [formGroup]="formGroup" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+  <form [formGroup]="formGroup" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 flex-1 min-h-0">
 
     <!-- Header -->
-    <div class="flex justify-between items-start mb-1">
+    <div class="flex justify-between items-start mb-1 shrink-0">
       <div class="flex flex-col gap-2">
         <mat-icon class="material-symbols-outlined text-on-surface">
           {{ icon }}
@@ -21,13 +21,13 @@
       </button>
     </div>
 
-    <!-- Form content from parent -->
-    <div class="flex flex-col gap-4">
+    <!-- Form content from parent — scrollable area -->
+    <div class="flex flex-col gap-4 flex-1 overflow-y-auto min-h-0 pb-2">
       <ng-content></ng-content>
     </div>
 
-    <!-- Footer buttons -->
-    <mat-dialog-actions class="!p-0 flex justify-end gap-2 -mt-3">
+    <!-- Footer buttons — always pinned at bottom -->
+    <mat-dialog-actions class="!p-0 flex justify-end gap-2 mt-1 shrink-0">
       <button mat-button mat-dialog-close type="button" class="min-w-[70px]">
         {{ cancelBtnText }}
       </button>

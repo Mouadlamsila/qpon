@@ -1,21 +1,38 @@
 @if(isLoading() || !currentOrganization()) {
 <ngx-skeleton-loader
   [theme]="{
-    height: '48px',
-    width: '252px',
+    height: '40px',
+    width: '160px',
     margin: '0px',
     padding: '0px'
   }"
+  class="hidden sm:block"
+></ngx-skeleton-loader>
+<ngx-skeleton-loader
+  [theme]="{
+    height: '36px',
+    width: '36px',
+    margin: '0px',
+    padding: '0px',
+    borderRadius: '8px'
+  }"
+  class="sm:hidden"
 ></ngx-skeleton-loader>
 }@else {
-<div class="w-[252px] rounded-[5px] bg-surface-container-low py-0.5 pl-4 flex justify-between items-center gap-2 cursor-pointer" [mat-menu-trigger-for]="options">
-  <div class="flex flex-col">
-      <div class="mat-body-medium text-on-surface truncate max-w-[170px] block">
-        {{ currentOrganization()?.name }}
-      </div>
-    <div class="mat-body-small text-on-surface-variant">{{ 'organizations.youAre' | translate }} {{ currentOrganization()?.role?.replace('_', ' ') }}</div>
+<!-- Mobile: compact button with name only -->
+<button class="sm:hidden flex items-center gap-1.5 rounded-lg bg-surface-container-low px-3 h-9 cursor-pointer border-0 outline-none max-w-[140px]" [mat-menu-trigger-for]="options">
+  <span class="mat-body-medium text-on-surface truncate flex-1 text-left">{{ currentOrganization()?.name }}</span>
+  <mat-icon class="text-on-surface-variant text-[18px] h-[18px] w-[18px] shrink-0">unfold_more</mat-icon>
+</button>
+<!-- sm+: full selector -->
+<div class="hidden sm:flex w-[252px] rounded-[5px] bg-surface-container-low py-0.5 pl-4 justify-between items-center gap-2 cursor-pointer" [mat-menu-trigger-for]="options">
+  <div class="flex flex-col min-w-0">
+    <div class="mat-body-medium text-on-surface truncate max-w-[160px] block">
+      {{ currentOrganization()?.name }}
+    </div>
+    <div class="mat-body-small text-on-surface-variant truncate">{{ 'organizations.youAre' | translate }} {{ currentOrganization()?.role?.replace('_', ' ') }}</div>
   </div>
-  <div class="flex items-center gap-2 py-2.5 px-2">
+  <div class="flex items-center gap-2 py-2.5 px-2 shrink-0">
     @if (organization()?.logoUrl || currentOrganization()?.logoUrl) {
       <img
         [src]="organization()?.logoUrl || currentOrganization()?.logoUrl"

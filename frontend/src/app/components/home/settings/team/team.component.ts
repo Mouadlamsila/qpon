@@ -24,6 +24,7 @@ import { AbilityServiceSignal } from '@casl/angular';
 import { UserAbility } from '../../../../permissions/ability';
 import { UserStore } from '../../../../store/user.store';
 import { TranslatePipe } from '../../../../pipe/translate.pipe';
+import { mobileAwareDialogConfig } from '../../../../utils/mobile-dialog.util';
 
 @Component({
     selector: 'app-team-users',
@@ -106,13 +107,10 @@ export class TeamUsersComponent implements OnInit {
             this.openNotAllowedDialogBox('You do not have permission to update member.');
             return;
         }
-        this.dialog.open(AddEditUserDialogComponent, {
-            width: '520px',
-            data: {
-                organizationId: this.organizationStore.organizaiton()?.organizationId,
-                user: user
-            }
-        });
+        this.dialog.open(AddEditUserDialogComponent, mobileAwareDialogConfig('520px', {
+            organizationId: this.organizationStore.organizaiton()?.organizationId,
+            user: user
+        }));
     }
 
 
@@ -158,12 +156,9 @@ export class TeamUsersComponent implements OnInit {
             this.openNotAllowedDialogBox('You do not have permission to create the member.');
             return;
         }
-        this.dialog.open(AddEditUserDialogComponent, {
-            width: '520px',
-            data: {
-                organizationId: this.organizationStore.organizaiton()?.organizationId
-            }
-        });
+        this.dialog.open(AddEditUserDialogComponent, mobileAwareDialogConfig('520px', {
+            organizationId: this.organizationStore.organizaiton()?.organizationId
+        }));
     }
 
 }

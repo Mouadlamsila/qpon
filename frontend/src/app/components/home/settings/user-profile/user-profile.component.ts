@@ -9,6 +9,7 @@ import { EditProfileDialogComponent } from './edit-profile-dialog/edit-profile-d
 import { MatDialog } from '@angular/material/dialog';
 import { OrganizationStore } from '../../../../store/organization.store';
 import { TranslatePipe } from '../../../../pipe/translate.pipe';
+import { mobileAwareDialogConfig } from '../../../../utils/mobile-dialog.util';
 
 @Component({
   selector: 'app-user-profile',
@@ -31,14 +32,11 @@ export class UserProfileComponent {
   organizationStore = inject(OrganizationStore);
 
   onEditProfile() {
-    this.dialog.open(EditProfileDialogComponent, {
-      width: '516px',
-      data: {
-        email: this.userStore.user()?.email,
-        name: this.userStore.user()?.name,
-        userId: this.userStore.user()?.userId,
-        organizationId: this.organizationStore.organizaiton()?.organizationId,
-      }
-    });
+    this.dialog.open(EditProfileDialogComponent, mobileAwareDialogConfig('516px', {
+      email: this.userStore.user()?.email,
+      name: this.userStore.user()?.name,
+      userId: this.userStore.user()?.userId,
+      organizationId: this.organizationStore.organizaiton()?.organizationId,
+    }));
   }
 }

@@ -2,6 +2,11 @@
 
 @config '../../tailwind.config.ts';
 
+/* Honour safe-area insets on iOS for bottom navigation */
+:root {
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 *,
 *::before,
 *::after {
@@ -90,3 +95,20 @@ input[type=number] {
 .mat-sort-header-arrow {
   opacity: 1 !important;
 }
+
+/* ===== Fullscreen dialog on mobile ===== */
+.fullscreen-dialog .mat-mdc-dialog-container {
+  border-radius: 0 !important;
+  padding: 0 !important;
+  max-height: 100dvh !important;
+}
+.fullscreen-dialog mat-dialog-content {
+  border-radius: 0 !important;
+  max-height: calc(100dvh - 0px) !important;
+  height: 100dvh !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.fullscreen-dialog .mdc-dialog__surface {
+  border-radius: 0 !important;
+}

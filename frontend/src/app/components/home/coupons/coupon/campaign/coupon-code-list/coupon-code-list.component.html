@@ -20,7 +20,7 @@
       </button>
     </div>
   </div>
-  <div class="border-[1px] rounded-[5px] border-outline-variant overflow-hidden">
+  <div class="border-[1px] rounded-[5px] border-outline-variant overflow-x-auto">
     @if(!isLoading() || couponCodesStore.isSorting()) {
     <table mat-table matSort [matSortDisableClear]="true" [matSortActive]="sortActive()"
       [matSortDirection]="sortDirection()" (matSortChange)="onSortChange($event)" [dataSource]="datasource"

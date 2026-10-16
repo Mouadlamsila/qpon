@@ -1,7 +1,69 @@
 <div>
-  <div class="w-full lg:!w-[312px]" disableClose>
-    <div class="px-3 py-3 sm:px-4 lg:pt-[30px] lg:pb-[12px]">
-      <mat-nav-list class="cursor-pointer grid grid-cols-2 gap-1 sm:grid-cols-3 lg:flex lg:flex-col lg:gap-[4px]">
+  <!-- ===== MOBILE / TABLET bottom navigation bar ===== -->
+  <nav class="lg:hidden w-full bg-surface-container-lowest border-t border-outline-variant flex items-stretch" style="height:64px">
+    <div class="w-full flex flex-row items-stretch justify-around">
+      <a routerLink="./dashboard" routerLinkActive #dashboardM="routerLinkActive"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="flex flex-col items-center justify-center flex-1 min-w-0 gap-0.5 no-underline py-2">
+        <mat-icon class="material-symbols-outlined text-[22px] h-[22px] w-[22px] leading-none"
+          [class.text-primary]="dashboardM.isActive"
+          [class.text-on-surface-variant]="!dashboardM.isActive">dashboard_2</mat-icon>
+        <span class="mat-label-small leading-none truncate max-w-full px-1 text-center"
+          [class.text-primary]="dashboardM.isActive"
+          [class.font-semibold]="dashboardM.isActive"
+          [class.text-on-surface-variant]="!dashboardM.isActive">{{ 'nav.dashboard' | translate }}</span>
+      </a>
+
+      <a routerLink="./offers" routerLinkActive #offersM="routerLinkActive"
+        class="flex flex-col items-center justify-center flex-1 min-w-0 gap-0.5 no-underline py-2">
+        <mat-icon class="material-symbols-outlined text-[22px] h-[22px] w-[22px] leading-none"
+          [class.text-primary]="offersM.isActive"
+          [class.text-on-surface-variant]="!offersM.isActive">local_activity</mat-icon>
+        <span class="mat-label-small leading-none truncate max-w-full px-1 text-center"
+          [class.text-primary]="offersM.isActive"
+          [class.font-semibold]="offersM.isActive"
+          [class.text-on-surface-variant]="!offersM.isActive">{{ 'nav.offers' | translate }}</span>
+      </a>
+
+      <a routerLink="./redemptions" routerLinkActive #redemptionsM="routerLinkActive"
+        class="flex flex-col items-center justify-center flex-1 min-w-0 gap-0.5 no-underline py-2">
+        <mat-icon class="material-symbols-outlined text-[22px] h-[22px] w-[22px] leading-none"
+          [class.text-primary]="redemptionsM.isActive"
+          [class.text-on-surface-variant]="!redemptionsM.isActive">receipt_long</mat-icon>
+        <span class="mat-label-small leading-none truncate max-w-full px-1 text-center"
+          [class.text-primary]="redemptionsM.isActive"
+          [class.font-semibold]="redemptionsM.isActive"
+          [class.text-on-surface-variant]="!redemptionsM.isActive">{{ 'nav.redemptions' | translate }}</span>
+      </a>
+
+      <a routerLink="./redeem" routerLinkActive #redeemM="routerLinkActive"
+        class="flex flex-col items-center justify-center flex-1 min-w-0 gap-0.5 no-underline py-2">
+        <mat-icon class="material-symbols-outlined text-[22px] h-[22px] w-[22px] leading-none"
+          [class.text-primary]="redeemM.isActive"
+          [class.text-on-surface-variant]="!redeemM.isActive">qr_code_scanner</mat-icon>
+        <span class="mat-label-small leading-none truncate max-w-full px-1 text-center"
+          [class.text-primary]="redeemM.isActive"
+          [class.font-semibold]="redeemM.isActive"
+          [class.text-on-surface-variant]="!redeemM.isActive">{{ 'nav.redeem' | translate }}</span>
+      </a>
+
+      <a routerLink="./settings" routerLinkActive #settingsM="routerLinkActive"
+        class="flex flex-col items-center justify-center flex-1 min-w-0 gap-0.5 no-underline py-2">
+        <mat-icon class="material-symbols-outlined text-[22px] h-[22px] w-[22px] leading-none"
+          [class.text-primary]="settingsM.isActive"
+          [class.text-on-surface-variant]="!settingsM.isActive">settings</mat-icon>
+        <span class="mat-label-small leading-none truncate max-w-full px-1 text-center"
+          [class.text-primary]="settingsM.isActive"
+          [class.font-semibold]="settingsM.isActive"
+          [class.text-on-surface-variant]="!settingsM.isActive">{{ 'nav.settings' | translate }}</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ===== DESKTOP sidebar ===== -->
+  <div class="hidden lg:block w-[312px]" disableClose>
+    <div class="px-3 py-3 lg:pt-[30px] lg:pb-[12px]">
+      <mat-nav-list class="cursor-pointer flex flex-col gap-[4px]">
         <a routerLink="./dashboard" routerLinkActive #dashboard="routerLinkActive"
           [routerLinkActiveOptions]="{ exact: false }">
           <mat-list-item [activated]="dashboard.isActive">

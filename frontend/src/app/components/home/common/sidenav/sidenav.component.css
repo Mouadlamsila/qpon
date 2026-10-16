@@ -1,0 +1,5 @@
+/* Host must be a block so that fixed/absolute positioning on the element works */
+:host {
+  display: block;
+  width: 100%;
+}
