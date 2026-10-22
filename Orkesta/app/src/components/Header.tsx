@@ -1,5 +1,12 @@
-// ORKESTA OS — brand only. Pas de toggle : caisse = /, admin = /admin.
+import { navigate, usePath } from '../lib/router'
+import { useIsAdmin } from '../lib/admin'
+
+// ORKESTA OS — brand + lien Admin (uniquement si session admin).
 export default function Header() {
+  const path = usePath()
+  const admin = useIsAdmin()
+  const onAdmin = path === '/admin' || path.startsWith('/admin/')
+
   return (
     <header className="sticky top-0 z-20 border-b border-ink/10 bg-cream">
       <div className="page-width flex items-center gap-2.5 px-4 py-3">
@@ -9,6 +16,15 @@ export default function Header() {
         <span className="text-[15px] font-extrabold tracking-tight text-ink">
           ORKESTA OS
         </span>
+        {admin && !onAdmin && (
+          <button
+            type="button"
+            onClick={() => navigate('/admin')}
+            className="ml-auto rounded-full border border-ink/15 bg-white px-3 py-1.5 text-xs font-bold text-ink/60"
+          >
+            Admin
+          </button>
+        )}
       </div>
     </header>
   )

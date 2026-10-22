@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { supabase } from './supabase'
 import type { Channel } from './types'
 
@@ -58,6 +59,33 @@ export async function isAdmin(): Promise<boolean> {
     .eq('id', data.user.id)
     .single()
   return prof?.role === 'admin_foued'
+}
+
+// Lien "Admin" dans le header : seulement si le compte connecté est admin.
+// UX uniquement — /admin reste protégé par PIN + login + rôle.
+export function useIsAdmin(): boolean {
+  const [admin, setAdmin] = useState(false)
+  useEffect(() => {
+    if (!supabase) return
+    let alive = true
+    const check = async () => {
+      const { data: sess } = await supabase!.auth.getSession() // local (offline OK)
+      if (!alive) return
+      if (!sess.session) { setAdmin(false); return }
+      const { data: prof, error } = await supabase!
+        .from('profiles')
+        .select('role')
+        .eq('id', sess.session.user.id)
+        .single()
+      if (!alive) return
+      // Erreur réseau → garde l'état précédent. Sinon rôle = vérité.
+      if (!error) setAdmin(prof?.role === 'admin_foued')
+    }
+    void check()
+    const { data } = supabase.auth.onAuthStateChange(() => void check())
+    return () => { alive = false; data.subscription.unsubscribe() }
+  }, [])
+  return admin
 }
 
 // Charge le dashboard complet (1 zones + 1 orders + 1 org call).

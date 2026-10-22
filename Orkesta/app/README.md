@@ -47,6 +47,7 @@ npm run dev          # → http://localhost:5173
 
 Pas de router externe : `history.pushState` + `usePath` (`src/lib/router.ts`). Netlify SPA fallback sert `index.html` pour `/admin`.
 **Sécurité** : AuthGate = UX + tenant ; la vraie protection reste **Supabase Auth + RLS** (anon = 0 row). Un compte non-admin qui tente `/admin` est refusé.
+**Header** : le lien `Admin` n'apparaît que si le compte connecté est `admin_foued` (sinon rien — accès par URL possible mais PIN + login + rôle requis).
 
 ## Sécurité — RLS (migration `0002_harden_rls.sql`)
 
