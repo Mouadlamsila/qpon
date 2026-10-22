@@ -21,7 +21,7 @@ Exécution continue. Update status mli kol phase tkml.
 - [x] **P1 dashboard** — périodes jour/semaine/mois/tout + comparaison période précédente · CA Sur place/Livraison/Uber/Takeaway/Appli + panier moyen · table promo (used/CA, activer/désactiver) · flyers distribués éditables (taux recalculé) · dernières commandes détaillées (heure/resto/zone/promo/canal) · auto-refresh 30 s
 - [x] **P2 ROI** — coût campagne (saisie admin) → coût/commande + ROI · top zones · panier moyen · aperçu WhatsApp (copier/ouvrir)
 - [x] **Ajout restaurant** — UI `+ Restaurant` via Edge Function `add-restaurant` (service role, admin vérifié) + fallback `scripts/add-restaurant.mjs`
-- [x] **Admin dark** — header + dashboard `#111`, cartes `white/5`, accents orange (V5)
+- [x] **Admin clair** — header + dashboard beige (retour demandé par Foued), cartes blanches, accents orange
 - [x] **Historique caisse** — table Dexie `orders` (survit à la sync) + pull des 50 dernières commandes serveur
 - [x] **Tests** — `tsc` ✓ · vitest **19/19** ✓ · build ✓ · `verify-dashboard.mjs` (filtre + embed CSV + prev) ✓ · `test-multi.mjs` (admin 2 orgs / tenant 1 org / filtre) ✓
 
@@ -45,4 +45,4 @@ Exécution continue. Update status mli kol phase tkml.
 ## ⚠️ Not verified (honest)
 - Full Dexie→Supabase browser E2E (offline/online sim) — khtaj DevTools throttle f `npm start`
 - Edge Function `add-restaurant` non déployée (pas de token Supabase CLI) — code écrit, fallback testé par script uniquement
-- Rendu visuel dark admin non testé sur device réel (tsc/build ✓)
+- Rendu visuel admin non testé sur device réel (tsc/build ✓)

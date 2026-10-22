@@ -55,7 +55,7 @@
    (badge discret "⏳ en attente"). **Jamais** de message d'erreur bloquant.
 8. **Typography trapue, lisible** → Geist/Inter, taille généreuse (18-22px),
    contraste fort (noir sur beige). Lisible à bras longs sur tablette.
-9. **Mode Caisse = fond clair** (`#FEF9EC`), **Mode Admin = fond sombre** (`#111`).
+9. **Mode Caisse = fond clair** (`#FEF9EC`), **Mode Admin = fond clair** (`#FEF9EC`) — override Foued du BRIEF qui prévoyait `#111`.
    Le serveur sait toujours dans quel mode il est par la couleur de fond.
 
 ### Layout Caisse (Meta-feed style)

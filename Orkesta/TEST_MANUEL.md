@@ -82,7 +82,7 @@ Durée ≈ 20 min. Coche ✅ mn ma tkml kol bloq. Chb3 l'evidence (screenshot / 
 - [ ] **QR par zone** → 3 QRs → phone: scan BLEU → app yfta7 w **zone BLEU déjà sélectionnée**
 - [ ] **+ Restaurant** → formulaire → si Edge Function déployée : nouveau resto dans le sélecteur ; sinon message clair (fallback `scripts/add-restaurant.mjs`)
 - [ ] Auto-refresh ≤ 30 s : nouvelle commande caisse → dashboard se met à jour sans reload
-- [ ] Thème admin **sombre** (header + dashboard), lisible tablette/PC
+- [ ] Thème admin **clair/beige** (header + dashboard), lisible tablette/PC
 
 ---
 
