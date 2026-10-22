@@ -454,7 +454,8 @@ function AddRestaurantModal({ onClose, onDone }: { onClose: () => void; onDone: 
           {busy ? '…' : 'Créer le restaurant'}
         </button>
         <p className="text-center text-[10px] leading-relaxed text-ink/40">
-          Crée l'organisation + le compte tablette. Nécessite la fonction Edge `add-restaurant` déployée.
+          Crée l'organisation + le compte tablette. Nécessite la fonction Edge `add-restaurant` déployée,
+          sinon : <code>node scripts/add-restaurant.mjs "Nom" email "mdp≥8"</code>
         </p>
       </form>
     </Modal>

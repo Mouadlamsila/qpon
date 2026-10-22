@@ -322,6 +322,11 @@ export async function addRestaurant(name: string, email: string, password: strin
   })
   if (error) {
     const msg = (data as { error?: string } | null)?.error
+    if (!msg && /failed to send|failed to fetch|networkerror/i.test(error.message)) {
+      throw new Error(
+        "Edge Function 'add-restaurant' injoignable (non déployée ?). Déploie-la (README) ou crée le resto avec : node scripts/add-restaurant.mjs \"Nom\" email \"motdepasse≥8\"",
+      )
+    }
     throw new Error(msg ?? error.message)
   }
   if (data && (data as { error?: string }).error) throw new Error((data as { error: string }).error)
