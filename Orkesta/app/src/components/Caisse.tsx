@@ -61,6 +61,13 @@ export default function Caisse() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zones])
 
+  // Lock = sign-out → wipeLocal (App). Jamais perdre une commande non sync.
+  function lock() {
+    const unsynced = pending + syncErrors.length
+    if (unsynced > 0 && !window.confirm(`${unsynced} commande(s) pas encore synchronisée(s) seront perdues. Verrouiller quand même ?`)) return
+    void supabase?.auth.signOut()
+  }
+
   async function save() {
     if (!ready || !rid || !zoneId || !promoId || !channel) return
     const promo = promos.find((p) => p.id === promoId)
@@ -91,7 +98,21 @@ export default function Caisse() {
 
   return (
     <main className="page-width px-4 pb-28 pt-4">
-      <ClientSelector orgs={orgs} active={activeOrg} onSelect={(o) => setOrgId(o.id)} />
+      <div className="mb-5 flex items-stretch gap-2">
+        <div className="min-w-0 flex-1">
+          <ClientSelector orgs={orgs} active={activeOrg} onSelect={(o) => setOrgId(o.id)} />
+        </div>
+        {supabase && (
+          <button
+            type="button"
+            onClick={lock}
+            aria-label="Verrouiller la caisse"
+            className="tap shrink-0 rounded-[28px] border border-ink/15 bg-white px-4 text-xs font-bold text-ink/60"
+          >
+            Lock
+          </button>
+        )}
+      </div>
 
       {/* Erreurs de sync = jamais silencieux (FK/RLS) */}
       {syncErrors.length > 0 && (
@@ -240,20 +261,6 @@ export default function Caisse() {
           </ul>
         )}
       </Section>
-
-      {/* Changer de restaurant/tablette : sign-out → wipe (App) → AuthGate login */}
-      {supabase && (
-        <button
-          type="button"
-          onClick={() => {
-            if (pending > 0 && !window.confirm(`${pending} commande(s) pas encore synchronisée(s). Changer de compte quand même ?`)) return
-            void supabase?.auth.signOut()
-          }}
-          className="mt-2 w-full py-3 text-center text-[11px] font-semibold text-ink/30"
-        >
-          Changer de compte
-        </button>
-      )}
     </main>
   )
 }
@@ -283,7 +290,7 @@ function AddCard({ label, onClick }: { label: string; onClick: () => void }) {
 
 function ClientSelector({ orgs, active, onSelect }: { orgs: Organization[]; active: Organization | null; onSelect: (o: Organization) => void }) {
   return (
-    <label className="mb-5 flex items-center gap-3 rounded-[28px] border border-ink/10 bg-white p-4">
+    <label className="flex items-center gap-3 rounded-[28px] border border-ink/10 bg-white p-4">
       <span className="grid size-10 shrink-0 place-items-center rounded-full bg-cream text-ink">🏪</span>
       <span className="min-w-0 flex-1">
         <span className="block text-[11px] font-bold uppercase text-ink/50">Choisis client</span>

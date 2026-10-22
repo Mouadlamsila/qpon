@@ -23,6 +23,7 @@ Exécution continue. Update status mli kol phase tkml.
 - [x] **Ajout restaurant** — UI `+ Restaurant` via RPC SQL `admin_create_restaurant` (security definer, admin-only, anon interdit) + fallback `scripts/add-restaurant.mjs`
 - [x] **Admin clair** — header + dashboard beige (retour demandé par Foued), cartes blanches, accents orange
 - [x] **Historique caisse** — table Dexie `orders` (survit à la sync) + pull des 50 dernières commandes serveur
+- [x] **Lock caisse** — bouton haut droite (à côté du client), confirmation si pending/erreur, sign-out → wipe local
 - [x] **Tests** — `tsc` ✓ · vitest **19/19** ✓ · build ✓ · `verify-dashboard.mjs` (filtre + embed CSV + prev) ✓ · `test-multi.mjs` (admin 2 orgs / tenant 1 org / filtre) ✓
 
 ## ⏳ Reste

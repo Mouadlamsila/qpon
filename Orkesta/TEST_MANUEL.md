@@ -98,6 +98,7 @@ Durée ≈ 20 min. Coche ✅ mn ma tkml kol bloq. Chb3 l'evidence (screenshot / 
 
 ## 6. Révocation / wipe (P6 — BRIEF §8)
 
+- [ ] **Caisse → Lock** (à droite du sélecteur client) → si commandes en attente/erreur : confirmation ; sinon retour direct au login
 - [ ] Admin → **Lock** (sign-out) → rwj3 l `/` → **AuthGate login** (kolchi local mss7, serveur intact)
 - [ ] Rje3 login `crousty@orkesta.com` → zones/promos/orders kayrj3ou **mn Supabase** (mchi mn seed)
 - [ ] ⚠️ Tchecki qbel haka: les rows **f Supabase ba9yin** (wipe = local only, serveur = source of truth)

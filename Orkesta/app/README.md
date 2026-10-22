@@ -64,7 +64,7 @@ Pas de router externe : `history.pushState` + `usePath` (`src/lib/router.ts`). N
 
 ## Modes
 
-- **Mode Caisse** (serveur restaurant) : login à `/` (une seule fois), puis 1 écran, < 2 sec — zone → promo → canal → ✓. Gros targets, couleur = repère, zéro clavier. Offline-first (badge ⏳). + nouvelle zone/promo, + tel optionnel (4 chiffres, RGPD), code promo (BLEU10 → pré-remplit). Login d'un autre restaurant = purge locale + pull de son tenant.
+- **Mode Caisse** (serveur restaurant) : login à `/` (une seule fois), puis 1 écran, < 2 sec — zone → promo → canal → ✓. Gros targets, couleur = repère, zéro clavier. Offline-first (badge ⏳). **Lock** en haut = sign-out + purge locale (confirmation si commandes non sync). + nouvelle zone/promo, + tel optionnel (4 chiffres, RGPD), code promo (BLEU10 → pré-remplit).
 - **Mode Admin** (Foued) : PIN + login → **filtre restaurant** (« Tous clients » / précis) + **périodes** (jour / semaine / mois / tout) · 10 KPI + panier moyen · **coût campagne / coût commande / ROI / comparaison** · table zone (taux + flyers éditables) · table promo (activer/désactiver) · clients + classement rentabilité · CSV (restaurant inclus) · **aperçu WhatsApp** · QR par zone · **ajout restaurant**.
 
 ## Ajouter un restaurant
