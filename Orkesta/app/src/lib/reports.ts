@@ -1,35 +1,36 @@
 import { supabase } from './supabase'
 import type { Dashboard } from './admin'
+import type { Period } from './types'
+import { periodLabel, periodStart } from './period'
 
 // P4 — Reports. 2 niveaux (BRIEF §7).
 // Simple : WhatsApp (envoyable au restaurant). CSV : export complet pour Foued.
 
-export type Period = 'all' | 'today'
+export type { Period }
 
-export function periodLabel(p: Period): string {
-  return p === 'today' ? "AUJOURD'HUI" : 'TOUT'
-}
-
-// Début de journée locale → ISO (filtre serveur).
-export function startOfTodayIso(): string {
-  const d = new Date()
-  d.setHours(0, 0, 0, 0)
-  return d.toISOString()
-}
+const fmt = (n: number) => n.toFixed(2)
 
 export function buildWhatsAppSummary(d: Dashboard, period: Period = 'all'): string {
   const top = d.byZone.slice(0, 3)
+  const delta = d.prev && d.prev.caTotal > 0
+    ? ((d.caTotal - d.prev.caTotal) / d.prev.caTotal) * 100
+    : null
   return [
     `Bilan ${d.orgName} — ${periodLabel(period)}:`,
     `📦 Distribués: ${d.distribues}`,
     `✅ Utilisés: ${d.utilises}`,
     `📈 Taux: ${d.taux.toFixed(1)}%`,
-    `💰 CA Total: ${d.caTotal.toFixed(2)}€`,
-    `🍽 Sur Place: ${d.caSurPlace.toFixed(2)}€`,
-    `🛵 Livraison: ${d.caLivraison.toFixed(2)}€`,
+    `💰 CA Total: ${fmt(d.caTotal)}€`,
+    `🍽 Sur Place: ${fmt(d.caSurPlace)}€`,
+    `🛵 Livraison: ${fmt(d.caLivraison)}€`,
+    `💸 Coût campagne: ${fmt(d.cost)}€`,
+    `📊 Coût / commande: ${fmt(d.costPerOrder)}€`,
+    `📈 ROI: ${d.roi === null ? '—' : `${d.roi.toFixed(1)}%`}`,
+    `🧺 Panier moyen: ${fmt(d.panierMoyen)}€`,
+    `📅 vs période précédente: ${delta === null ? '—' : `${delta >= 0 ? '+' : ''}${delta.toFixed(1)}%`}`,
     ``,
     `Top Zones:`,
-    ...top.map((z) => `- ${z.name}: ${z.used} (${z.ca.toFixed(2)}€)`),
+    ...top.map((z) => `- ${z.name}: ${z.used} (${fmt(z.ca)}€)`),
     ``,
     `Généré via Orkesta OS`,
   ].join('\n')
@@ -49,12 +50,14 @@ interface ExportRow {
   client_last4: string | null
   zones: { name: string } | null
   promos: { name: string } | null
+  organizations: { name: string } | null
 }
 
 export function toCsv(rows: ExportRow[]): string {
-  const header = ['date', 'zone', 'promo', 'canal', 'montant_eur', 'client_last4']
+  const header = ['date', 'restaurant', 'zone', 'promo', 'canal', 'montant_eur', 'client_last4']
   const lines = rows.map((r) => [
     r.created_at,
+    csv(r.organizations?.name ?? ''),
     csv(r.zones?.name ?? ''),
     csv(r.promos?.name ?? ''),
     r.channel,
@@ -65,7 +68,7 @@ export function toCsv(rows: ExportRow[]): string {
 }
 
 // Export CSV de TOUTES les commandes (pagination PostgREST, cap 1000/page).
-export async function exportCsv(period: Period = 'all'): Promise<void> {
+export async function exportCsv(period: Period = 'all', orgId: string | null = null): Promise<void> {
   if (!supabase) throw new Error('Supabase non configuré')
 
   const PAGE = 1000
@@ -73,10 +76,12 @@ export async function exportCsv(period: Period = 'all'): Promise<void> {
   for (let from = 0; ; from += PAGE) {
     let q = supabase
       .from('orders')
-      .select('created_at, amount, channel, client_last4, zones(name), promos(name)')
+      .select('created_at, amount, channel, client_last4, zones(name), promos(name), organizations(name)')
       .order('created_at', { ascending: false })
       .range(from, from + PAGE - 1)
-    if (period === 'today') q = q.gte('created_at', startOfTodayIso())
+    if (orgId) q = q.eq('restaurant_id', orgId)
+    const start = periodStart(period)
+    if (start) q = q.gte('created_at', start.toISOString())
 
     const { data, error } = await q
     if (error) throw error

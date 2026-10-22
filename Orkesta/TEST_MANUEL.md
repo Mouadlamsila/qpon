@@ -18,8 +18,8 @@ Durée ≈ 20 min. Coche ✅ mn ma tkml kol bloq. Chb3 l'evidence (screenshot / 
 - [ ] **Aucun bouton Admin visible** · pas de sélecteur multi-restaurant (1 tenant ghir)
 - [ ] Choisis client → **Crousty Verviers**
 - [ ] Chois zone (ex: BLEU) → promo → canal (ex: SUR_PLACE) → bouton vert **✓ Enregistrer** ywali activé
-- [ ] Tap **✓ Enregistrer** → toast ✓ → **selection entière t3awed** (client suivant prêt) < 2 sec
-- [ ] Section **Dernières commandes** → commande jdida btrej` f l'wast
+- [ ] Tap **✓ Enregistrer** → toast ✓ **avec zone + promo + canal** → **selection entière t3awed** (client suivant prêt) < 2 sec
+- [ ] Section **Dernières commandes** → commande jdida btrej` f l'wast **w ba9ya mwjouda men ba3d sync** (heure + zone + promo + canal)
 
 **Evidence**: Supabase → `orders` → row jdida, `client_uuid` = UUID, `zone_id` mlée.
 
@@ -55,19 +55,34 @@ Durée ≈ 20 min. Coche ✅ mn ma tkml kol bloq. Chb3 l'evidence (screenshot / 
 
 ## 4. Admin / Reports (P3+P4)
 
-- [ ] 6 KPI cards wufaq b données réelles
-- [ ] **Table par zone** → distribués/used/CA per zone
-- [ ] **Export CSV** → fichier `orkesta-orders.csv` yte7mel, Excel yfta7 bla mochkil (accents: distribués)
-- [ ] **Résumé WhatsApp** → tab jdida wa.me → message format exact:
+- [ ] **Filtre restaurant** : « Tous clients » ↔ **Crousty Verviers** → KPI/tables changent, pas de data mélangée
+- [ ] **Périodes** : Auj. / Semaine / Mois / Tout → chiffres + « vs période préc. » cohérents
+- [ ] 10 KPI + panier moyen + coût/commande/ROI (— si pas de coût saisi)
+- [ ] **Table par zone** → posés/used/taux/CA ; modifier **posés** (input) → taux se recalcule
+- [ ] **Table par promo** → used/CA + **Désactiver/Activer**
+- [ ] **Clients — classement** (mode Tous) → CA + panier moyen
+- [ ] **Dernières commandes** → heure + restaurant + zone + promo + canal + montant
+- [ ] **Export CSV** → `orkesta-<période>-<date>.csv`, colonne `restaurant`, Excel FR OK
+- [ ] **Résumé WhatsApp** → **aperçu** (copier / ouvrir) avec coût, ROI, panier, comparaison :
   ```
+  Bilan Crousty Verviers — TOUT:
   📦 Distribués: …
   ✅ Utilisés: …
   📈 Taux: …%
   💰 CA Total: …€
   🍽 Sur Place: …€
   🛵 Livraison: …€
+  💸 Coût campagne: …€
+  📊 Coût / commande: …€
+  📈 ROI: …%
+  🧺 Panier moyen: …€
+  📅 vs période précédente: …%
   ```
+- [ ] **Coût campagne** : sélectionne un resto → saisis 100 → ROI/comparaison se mettent à jour
 - [ ] **QR par zone** → 3 QRs → phone: scan BLEU → app yfta7 w **zone BLEU déjà sélectionnée**
+- [ ] **+ Restaurant** → formulaire → si Edge Function déployée : nouveau resto dans le sélecteur ; sinon message clair (fallback `scripts/add-restaurant.mjs`)
+- [ ] Auto-refresh ≤ 30 s : nouvelle commande caisse → dashboard se met à jour sans reload
+- [ ] Thème admin **sombre** (header + dashboard), lisible tablette/PC
 
 ---
 

@@ -26,6 +26,7 @@ export default function Caisse() {
   const [promoId, setPromoId] = useState<string | null>(null)
   const [channel, setChannel] = useState<Channel | null>(null)
   const [saved, setSaved] = useState(false)
+  const [last, setLast] = useState<{ zone: string; promo: string; channel: Channel } | null>(null)
   const [showZoneModal, setShowZoneModal] = useState(false)
   const [showPromoModal, setShowPromoModal] = useState(false)
   const [telOpen, setTelOpen] = useState(false)
@@ -63,6 +64,7 @@ export default function Caisse() {
   async function save() {
     if (!ready || !rid || !zoneId || !promoId || !channel) return
     const promo = promos.find((p) => p.id === promoId)
+    const zone = zones.find((z) => z.id === zoneId)
     const amount = channel === 'LIVRAISON' ? promo?.priceDelivery ?? 0 : promo?.pricePlace ?? 0
 
     await recordOrder({
@@ -76,7 +78,8 @@ export default function Caisse() {
       createdAt: Date.now(),
     })
 
-    // Reset pour client suivant — feedback immédiat.
+    // Reset pour client suivant — feedback immédiat avec le détail (BRIEF §4.5).
+    setLast({ zone: zone?.name ?? '—', promo: promo?.name ?? '—', channel })
     setZoneId(null)
     setPromoId(null)
     setChannel(null)
@@ -205,7 +208,7 @@ export default function Caisse() {
         {ready ? '✓ Enregistrer' : 'Choisis zone, promo, canal'}
       </button>
 
-      {saved && <Toast />}
+      {saved && <Toast last={last} />}
 
       {showZoneModal && rid && <ZoneModal restaurantId={rid} onClose={() => setShowZoneModal(false)} />}
       {showPromoModal && rid && <PromoModal restaurantId={rid} onClose={() => setShowPromoModal(false)} />}
@@ -221,12 +224,17 @@ export default function Caisse() {
               const z = zones.find((x) => x.id === o.zoneId)
               const p = promos.find((x) => x.id === o.promoId)
               return (
-                <li key={o.id} className="flex items-center gap-2 rounded-2xl border border-ink/10 bg-white px-3 py-2.5 text-sm">
+              <li key={o.id} className="rounded-2xl border border-ink/10 bg-white px-3 py-2.5 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 font-mono text-[10px] text-ink/40">{clock(o.createdAt)}</span>
                   <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: z?.color ?? '#999' }} />
                   <span className="min-w-0 flex-1 truncate font-semibold text-ink">{p?.name ?? '—'}</span>
-                  <span className="shrink-0 rounded-full bg-cream px-2 py-0.5 text-[10px] font-bold uppercase text-ink/60">{o.channel}</span>
                   <span className="shrink-0 font-mono text-xs font-bold text-ink">{o.amount}€</span>
-                </li>
+                </div>
+                <p className="mt-0.5 truncate pl-10 text-[10px] text-ink/40">
+                  {z?.name ?? '—'} · {o.channel}
+                </p>
+              </li>
               )
             })}
           </ul>
@@ -299,18 +307,24 @@ function ClientSelector({ orgs, active, onSelect }: { orgs: Organization[]; acti
   )
 }
 
-function Toast() {
+function Toast({ last }: { last: { zone: string; promo: string; channel: Channel } | null }) {
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-24 page-width px-4">
       <div className="rounded-[28px] bg-ink px-5 py-4 text-white shadow-lg">
         <div className="flex items-center gap-3">
           <span className="grid size-9 shrink-0 place-items-center rounded-full bg-wa text-lg">✓</span>
-          <div>
+          <div className="min-w-0">
             <p className="text-base font-extrabold">Commande enregistrée</p>
-            <p className="text-sm text-white/60">Prêt pour le client suivant</p>
+            <p className="truncate text-sm text-white/60">
+              {last ? `${last.zone} · ${last.promo} · ${last.channel}` : 'Prêt pour le client suivant'}
+            </p>
           </div>
         </div>
       </div>
     </div>
   )
+}
+
+function clock(ts: number): string {
+  return new Date(ts).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
 }

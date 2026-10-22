@@ -13,6 +13,8 @@ const db = new Dexie('orkesta') as Dexie & {
   zones: EntityTable<Zone, 'id'>
   promos: EntityTable<Promo, 'id'>
   pendingOrders: EntityTable<PendingOrder, 'id'>
+  // Historique local (survit à la sync, contrairement à pendingOrders).
+  orders: EntityTable<Order, 'id'>
 }
 
 db.version(1).stores({
@@ -22,6 +24,14 @@ db.version(1).stores({
   promos: 'id, restaurantId',
   // client_uuid (id) = clé d'idempotency. status = filtre de sync.
   pendingOrders: 'id, status, restaurantId',
+})
+
+db.version(2).stores({
+  orgs: 'id, name',
+  zones: 'id, restaurantId',
+  promos: 'id, restaurantId',
+  pendingOrders: 'id, status, restaurantId',
+  orders: 'id, restaurantId, createdAt',
 })
 
 // P6 — Révocation tablette : "collaboration stoppée → tablette vidée" (BRIEF §8).

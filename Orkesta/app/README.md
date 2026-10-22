@@ -11,7 +11,7 @@ Caisse rapide + suivi de campagnes flyers pour restaurants. **Product brief mét
 | UI | React 19 + Vite + **TypeScript strict** + **Tailwind v4** (tokens V5) |
 | Offline | **Dexie.js** (IndexedDB) + PWA (vite-plugin-pwa) |
 | Backend | **Supabase** — Postgres + Auth + **RLS** (restaurant_id isolation) |
-| Tests | **Vitest** (12 tests : reports format + sync queue/idempotency) |
+| Tests | **Vitest** (19 tests : reports, sync queue/idempotency, périodes) |
 
 ## Run (dev)
 
@@ -65,7 +65,27 @@ Pas de router externe : `history.pushState` + `usePath` (`src/lib/router.ts`). N
 ## Modes
 
 - **Mode Caisse** (serveur restaurant) : login à `/` (une seule fois), puis 1 écran, < 2 sec — zone → promo → canal → ✓. Gros targets, couleur = repère, zéro clavier. Offline-first (badge ⏳). + nouvelle zone/promo, + tel optionnel (4 chiffres, RGPD), code promo (BLEU10 → pré-remplit). Login d'un autre restaurant = purge locale + pull de son tenant.
-- **Mode Admin** (Foued) : PIN + login → dashboard (6 KPI), table par zone, dernières commandes, **Export CSV**, **Résumé WhatsApp** (format 📦✅📈💰), **QR par zone**.
+- **Mode Admin** (Foued) : PIN + login → **filtre restaurant** (« Tous clients » / précis) + **périodes** (jour / semaine / mois / tout) · 10 KPI + panier moyen · **coût campagne / coût commande / ROI / comparaison** · table zone (taux + flyers éditables) · table promo (activer/désactiver) · clients + classement rentabilité · CSV (restaurant inclus) · **aperçu WhatsApp** · QR par zone · **ajout restaurant**.
+
+## Ajouter un restaurant
+
+**UI** : `/admin` → `+ Restaurant` → nom + email + mot de passe (≥8).
+La création passe par l'Edge Function `add-restaurant` (service role, admin vérifié) :
+
+```bash
+cd Orkesta/app
+npx supabase login
+npx supabase link --project-ref iitroivqxhmnedkwwyyh
+npx supabase functions deploy add-restaurant
+```
+
+**Fallback local** (si la fonction n'est pas déployée) :
+
+```bash
+node scripts/add-restaurant.mjs "Crousty Dison" dison@orkesta.com "motdepasse≥8"
+```
+
+Le compte créé est `server_restaurant` lié à la nouvelle organisation. Il se connecte à `/` (AuthGate) et ne voit que son restaurant (RLS).
 
 ## Architecture
 
@@ -75,19 +95,22 @@ src/lib/
   constants.ts  # 5 canaux, couleurs zones, THEME V5, ADMIN_PIN
   db.ts         # Dexie schema + wipeLocal() (révocation)
   supabase.ts   # client (optionnel — app tournée offline sans)
-  store.ts      # live queries (Zones/Promos/Orders) + recordOrder
+  store.ts      # live queries (Zones/Promos/Orders) + recordOrder + historique local
   sync.ts       # P2 : pushOrders (upsert idempotent) + pullReference + engine
-  admin.ts      # P3 : loadDashboard, signIn/isAdmin (RLS)
-  reports.ts    # P4 : WhatsApp summary (format exact), CSV, wa.me
+  admin.ts      # P3 : loadDashboard (filtre resto + période), coûts/ROI, addRestaurant
+  period.ts     # périodes jour/semaine/mois + fenêtre précédente
+  reports.ts    # P4 : WhatsApp summary, CSV paginé (restaurant inclus), wa.me
   seed.ts       # démo offline (org + 3 zones + 5 promos)
 supabase/migrations/0001_init.sql   # 7 tables + RLS + idempotency
-scripts/        # migrate, seed, verify, create/link-admin, tests
+supabase/migrations/0002_harden_rls.sql  # SELECT+INSERT restaurant, admin only write
+supabase/functions/add-restaurant/  # onboarding restaurant (service role)
+scripts/        # migrate, seed, verify-rls, verify-dashboard, add-restaurant, tests
 tests/          # vitest (reports + sync)
 ```
 
 ### Sync offline-first (P2)
-1. Écriture locale → `pendingOrders` (status=pending), `client_uuid` = idempotency key.
-2. Engine (15s + online + visibilitychange) → **PUSH** (upsert `onConflict:id`, drain) → **PULL** (orgs/zones/promos remplacent le cache, server wins).
+1. Écriture locale → `orders` (historique) + `pendingOrders` (status=pending), `client_uuid` = idempotency key.
+2. Engine (15s + online + visibilitychange) → **PUSH** (upsert `onConflict:id`, drain) → **PULL** (orgs/zones/promos + 50 dernières commandes, server wins).
 3. Offline → skip silencieux. Push échec → status=error (pas de retry infini).
 
 ### Sécurité / multi-tenant
@@ -98,13 +121,16 @@ tests/          # vitest (reports + sync)
 ## Tests + scripts
 
 ```bash
-npm test                      # vitest : reports + sync (12 tests)
+npm test                      # vitest : reports + sync + périodes (19 tests)
 npm run seed                  # seed démo Supabase (idempotent)
+node scripts/verify-rls.mjs   # 23 assertions : anon 0 row, isolation, anti-delete, anti-escalade
+node scripts/verify-dashboard.mjs  # requêtes dashboard (filtre resto, embed CSV, campagne, prev)
 node scripts/verify.mjs       # stats + RLS anon=[]
 node scripts/verify-admin.mjs # admin login → data visible
 node scripts/test-idempotency.mjs  # double-push → 1 row
 node scripts/test-logins.mjs  # login admin + tablette (RLS)
-node scripts/signup-restaurant.mjs + finish-restaurant-user.mjs  # compte tablette
+node scripts/test-multi.mjs  # crée+nettoie un resto test → admin voit 2 orgs, tenant 1 seule
+node scripts/add-restaurant.mjs "Nom" email "mdp≥8"  # fallback sans Edge Function
 ```
 
 ## Deploy
@@ -116,10 +142,12 @@ node scripts/signup-restaurant.mjs + finish-restaurant-user.mjs  # compte tablet
 - **Révocation d'une tablette** : supprimer/bannir le compte `server_restaurant` dans Supabase → Authentication. Le refresh échoue → `SIGNED_OUT` → `wipeLocal()` (BRIEF §8). (Granularité = compte restaurant, pas appareil : la table `devices` reste à brancher si besoin.)
 - **Backup** : Supabase free tier n'inclut pas de backups auto (pause après 7j d'inactivité). Export manuel : `Export CSV` (admin) + dump SQL `pg_dump "$DB_URL" > backup.sql`.
 - **Clés** : `.env` jamais commité. Rotation de l'anon key = redéployer le front.
-- **Comptes** : 1 compte `server_restaurant` par restaurant (script `signup-restaurant.mjs` + `finish-restaurant-user.mjs`).
+- **Comptes** : 1 compte `server_restaurant` par restaurant — UI `+ Restaurant` (Edge Function) ou `scripts/add-restaurant.mjs`.
 
 ## Status
 
-- ✅ P0 fondations · P1 caisse UI · Backend RLS · P2 sync (idempotency ✓) · P3 admin · P4 reports · P5 V2 (QR + code promo) · P6 (wipe + 12 tests + deploy)
+- ✅ P0 fondations · P1 caisse UI · Backend RLS · P2 sync (idempotency ✓) · P3 admin · P4 reports · P5 V2 (QR + code promo) · P6 (wipe + tests + deploy)
+- ✅ Multi-restaurant : filtre + classement · périodes 4 · 10 KPI · promo/clients · coût/ROI/comparaison · CSV restaurant · aperçu WhatsApp · ajout restaurant (Edge Function)
 - ✅ Fixes backend : PIN ne donne plus l'admin sans session · push row-par-row (une erreur ne bloque plus le lot) · zones/promos créés offline poussés avant les orders · CSV = **toutes** les commandes (paginated) · WhatsApp = nom réel du resto + filtre période · commandes en erreur **visibles** (bandeau + retry) · compte tablette restaurant (sync sans login admin)
-- ⚠️ Non vérifié : flux Dexie→Supabase E2E en navigateur réel (offline/online sim via DevTools throttle) — code testé unit + idempotency prouvée au niveau DB.
+- ⚠️ Limites connues : dashboard plafonné à 1000 commandes (PostgREST) — paginer si volume supérieur · **édition zones/promos limitée** (flyers + activer/désactiver ; pas de renommage/prix) · suppression zone/promo bloquée par FK · V2 restantes : carte zones, tracking scans QR, clients récurrents, A/B.
+- ⚠️ Non vérifié : flux Dexie→Supabase E2E en navigateur réel (offline/online sim via DevTools throttle) — code testé unit + idempotency prouvée au niveau DB. Edge Function `add-restaurant` écrite mais **non déployée** (pas de token CLI) ; fallback script testé.

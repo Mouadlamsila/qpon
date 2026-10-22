@@ -9,6 +9,9 @@ export type Channel =
 
 export type UserRole = 'admin_foued' | 'server_restaurant'
 
+// Périodes dashboard admin (BRIEF §5.2).
+export type Period = 'all' | 'today' | 'week' | 'month'
+
 export interface Organization {
   id: string
   name: string

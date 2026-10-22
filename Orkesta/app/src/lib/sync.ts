@@ -114,6 +114,28 @@ export async function pullReference(): Promise<void> {
       id: p.id, restaurantId: p.restaurant_id, name: p.name, pricePlace: Number(p.price_place), priceDelivery: Number(p.price_delivery), active: p.active,
     })))
   })
+
+  // Historique local : dernières commandes serveur (survit à la sync).
+  const { data: hist, error: histErr } = await supabase
+    .from('orders')
+    .select('id, restaurant_id, zone_id, promo_id, channel, amount, client_last4, created_at')
+    .order('created_at', { ascending: false })
+    .limit(50)
+  if (histErr) log(`pull history FAIL: ${histErr.message}`)
+  if (hist) {
+    await db.orders.bulkPut(hist.map((o) => ({
+      id: o.id,
+      restaurantId: o.restaurant_id,
+      zoneId: o.zone_id,
+      promoId: o.promo_id,
+      channel: o.channel,
+      amount: Number(o.amount),
+      clientLast4: o.client_last4,
+      createdAt: Date.parse(o.created_at),
+    })))
+    const all = await db.orders.orderBy('createdAt').reverse().toArray()
+    if (all.length > 200) await db.orders.bulkDelete(all.slice(200).map((x) => x.id))
+  }
 }
 
 // Un cycle complet : push puis pull. Silencieux (offline = skip, jamais d'erreur bloquante).

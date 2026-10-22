@@ -5,6 +5,9 @@
 CREDENTIALS.local.md
 *.local.md
 
+# Supabase CLI (cache/link local)
+app/supabase/.temp/
+
 # Dépendances / builds
 node_modules/
 dist/
