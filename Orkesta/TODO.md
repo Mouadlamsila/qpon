@@ -20,14 +20,13 @@ Exécution continue. Update status mli kol phase tkml.
 - [x] **P0 multi-restaurant** — sélecteur admin « Tous clients »/précis, `orgName` réel, `restaurant_id`/nom dans commandes récentes + CSV, classement clients
 - [x] **P1 dashboard** — périodes jour/semaine/mois/tout + comparaison période précédente · CA Sur place/Livraison/Uber/Takeaway/Appli + panier moyen · table promo (used/CA, activer/désactiver) · flyers distribués éditables (taux recalculé) · dernières commandes détaillées (heure/resto/zone/promo/canal) · auto-refresh 30 s
 - [x] **P2 ROI** — coût campagne (saisie admin) → coût/commande + ROI · top zones · panier moyen · aperçu WhatsApp (copier/ouvrir)
-- [x] **Ajout restaurant** — UI `+ Restaurant` via Edge Function `add-restaurant` (service role, admin vérifié) + fallback `scripts/add-restaurant.mjs`
+- [x] **Ajout restaurant** — UI `+ Restaurant` via RPC SQL `admin_create_restaurant` (security definer, admin-only, anon interdit) + fallback `scripts/add-restaurant.mjs`
 - [x] **Admin clair** — header + dashboard beige (retour demandé par Foued), cartes blanches, accents orange
 - [x] **Historique caisse** — table Dexie `orders` (survit à la sync) + pull des 50 dernières commandes serveur
 - [x] **Tests** — `tsc` ✓ · vitest **19/19** ✓ · build ✓ · `verify-dashboard.mjs` (filtre + embed CSV + prev) ✓ · `test-multi.mjs` (admin 2 orgs / tenant 1 org / filtre) ✓
 
 ## ⏳ Reste
 ### Code (P1/P2 restants)
-- [ ] Déployer l'Edge Function : `npx supabase login && npx supabase link --ref iitroivqxhmnedkwwyyh && npx supabase functions deploy add-restaurant`
 - [ ] Édition/suppression **zones** (nom/code/couleur) — suppression bloquée par FK si commandes
 - [ ] Édition **promos** (nom/prix) — actuellement activer/désactiver seulement
 - [ ] « Reset jour » — sémantique à confirmer avec Foued (reset flyers ? compteurs ?)
@@ -44,5 +43,5 @@ Exécution continue. Update status mli kol phase tkml.
 
 ## ⚠️ Not verified (honest)
 - Full Dexie→Supabase browser E2E (offline/online sim) — khtaj DevTools throttle f `npm start`
-- Edge Function `add-restaurant` non déployée (pas de token Supabase CLI) — code écrit, fallback testé par script uniquement
 - Rendu visuel admin non testé sur device réel (tsc/build ✓)
+- RPC onboarding + isolation multi-tenant : testées end-to-end (`scripts/test-multi.mjs`) ✓

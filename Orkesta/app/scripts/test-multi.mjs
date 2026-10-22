@@ -1,6 +1,5 @@
-// Vérifie l'isolation multi-tenant + le script add-restaurant (crée puis nettoie).
+// Vérifie la RPC d'onboarding + l'isolation multi-tenant (crée puis nettoie).
 // Usage : node scripts/test-multi.mjs
-import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import pg from 'pg'
 import { createClient } from '@supabase/supabase-js'
@@ -16,6 +15,8 @@ const ref = new URL(url).hostname.split('.')[0]
 const stamp = Date.now()
 const name = `ZZ Test ${stamp}`
 const email = `zz-test-${stamp}@orkesta.com`
+const tenantName = `ZZ Tenant ${stamp}`
+const tenantEmail = `zz-tenant-${stamp}@orkesta.com`
 const password = 'TestPass123!'
 
 const db = new pg.Client({
@@ -29,35 +30,57 @@ const db = new pg.Client({
 await db.connect()
 
 try {
-  execFileSync(process.execPath, ['scripts/add-restaurant.mjs', name, email, password], { stdio: 'pipe' })
+  // Droits : anon interdit, authenticated autorisé (le is_admin() filtre ensuite).
+  const grants = await db.query(
+    `select has_function_privilege('anon', 'public.admin_create_restaurant(text,text,text)', 'EXECUTE') as anon_exec,
+            has_function_privilege('authenticated', 'public.admin_create_restaurant(text,text,text)', 'EXECUTE') as auth_exec`,
+  )
+  if (grants.rows[0].anon_exec) throw new Error('anon peut exécuter la RPC (doit être interdit)')
+  if (!grants.rows[0].auth_exec) throw new Error('authenticated ne peut pas exécuter la RPC')
 
+  // Admin : crée le restaurant via la même RPC que l'UI.
   const admin = createClient(url, anon)
   const { error: aErr } = await admin.auth.signInWithPassword({ email: 'foued@orkesta.com', password: env('ADMIN_PASSWORD') })
   if (aErr) throw aErr
+  const { data: orgId, error: rpcErr } = await admin.rpc('admin_create_restaurant', {
+    p_name: name, p_email: email, p_password: password,
+  })
+  if (rpcErr) throw rpcErr
+  if (!orgId) throw new Error('RPC: org non retournée')
+
   const orgs = await admin.from('organizations').select('id, name')
   if (orgs.error) throw orgs.error
   if (orgs.data.length < 2) throw new Error(`admin ne voit pas les 2 orgs (${orgs.data.length})`)
-  const temp = orgs.data.find((o) => o.name === name)
-  if (!temp) throw new Error('org temporaire absente')
+  const temp = orgs.data.find((o) => o.id === orgId)
+  if (temp?.name !== name) throw new Error('org temporaire absente')
 
-  const scoped = await admin.from('orders').select('id').eq('restaurant_id', temp.id)
+  const scoped = await admin.from('orders').select('id').eq('restaurant_id', orgId)
   if (scoped.error) throw scoped.error
   if (scoped.data.length !== 0) throw new Error('filtre restaurant: orders inattendues')
 
+  // Tenant : login OK, une seule org visible, et ne peut PAS créer de resto.
   const tenant = createClient(url, anon)
   const { error: tErr } = await tenant.auth.signInWithPassword({ email, password })
   if (tErr) throw tErr
   const tOrgs = await tenant.from('organizations').select('id, name')
   if (tOrgs.error) throw tOrgs.error
-  if (tOrgs.data.length !== 1 || tOrgs.data[0].id !== temp.id) {
+  if (tOrgs.data.length !== 1 || tOrgs.data[0].id !== orgId) {
     throw new Error(`RLS tenant: ${tOrgs.data.length} org(s) visible(s)`)
   }
+  const { error: forbidErr } = await tenant.rpc('admin_create_restaurant', {
+    p_name: tenantName, p_email: tenantEmail, p_password: password,
+  })
+  if (!forbidErr) throw new Error('un restaurant a pu créer un autre restaurant (faille)')
 
-  console.log(`✅ multi-tenant OK — admin ${orgs.data.length} orgs, tenant 1 org, filtre 0 commande`)
+  console.log(`✅ RPC + multi-tenant OK — admin ${orgs.data.length} orgs, tenant 1 org, création refusée`)
 } finally {
-  await db.query('delete from public.profiles where email = $1', [email]).catch(() => {})
-  await db.query('delete from auth.users where email = $1', [email]).catch(() => {})
-  await db.query('delete from public.organizations where name = $1', [name]).catch(() => {})
+  for (const e of [email, tenantEmail]) {
+    await db.query('delete from public.profiles where email = $1', [e]).catch(() => {})
+    await db.query('delete from auth.users where email = $1', [e]).catch(() => {})
+  }
+  for (const n of [name, tenantName]) {
+    await db.query('delete from public.organizations where name = $1', [n]).catch(() => {})
+  }
   await db.end()
   console.log('🧹 temp nettoyé')
 }

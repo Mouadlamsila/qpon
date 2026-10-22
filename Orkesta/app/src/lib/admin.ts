@@ -314,20 +314,20 @@ export async function setZoneFlyers(id: string, flyers: number): Promise<void> {
   if (error) throw error
 }
 
-// Onboarding restaurant via Edge Function (service role côté serveur).
+// Onboarding restaurant via RPC SQL admin-only (migration 0003).
+// Pas d'Edge Function à déployer : la fonction vérifie is_admin() et crée
+// org + auth user (bcrypt) + identity + profile.
 export async function addRestaurant(name: string, email: string, password: string): Promise<void> {
   if (!supabase) throw new Error('Supabase non configuré')
-  const { data, error } = await supabase.functions.invoke('add-restaurant', {
-    body: { name, email, password },
+  const { error } = await supabase.rpc('admin_create_restaurant', {
+    p_name: name,
+    p_email: email,
+    p_password: password,
   })
   if (error) {
-    const msg = (data as { error?: string } | null)?.error
-    if (!msg && /failed to send|failed to fetch|networkerror/i.test(error.message)) {
-      throw new Error(
-        "Edge Function 'add-restaurant' injoignable (non déployée ?). Déploie-la (README) ou crée le resto avec : node scripts/add-restaurant.mjs \"Nom\" email \"motdepasse≥8\"",
-      )
+    if (/could not find the function|does not exist/i.test(error.message)) {
+      throw new Error('RPC admin_create_restaurant absente — applique la migration 0003.')
     }
-    throw new Error(msg ?? error.message)
+    throw new Error(error.message)
   }
-  if (data && (data as { error?: string }).error) throw new Error((data as { error: string }).error)
 }

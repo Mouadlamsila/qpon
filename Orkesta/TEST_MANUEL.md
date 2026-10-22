@@ -80,7 +80,7 @@ Durée ≈ 20 min. Coche ✅ mn ma tkml kol bloq. Chb3 l'evidence (screenshot / 
   ```
 - [ ] **Coût campagne** : sélectionne un resto → saisis 100 → ROI/comparaison se mettent à jour
 - [ ] **QR par zone** → 3 QRs → phone: scan BLEU → app yfta7 w **zone BLEU déjà sélectionnée**
-- [ ] **+ Restaurant** → formulaire → si Edge Function déployée : nouveau resto dans le sélecteur ; sinon message clair (fallback `scripts/add-restaurant.mjs`)
+- [ ] **+ Restaurant** → formulaire → nouveau resto dans le sélecteur + login OK (RPC admin-only) ; un compte resto ne peut pas créer (Admin requis)
 - [ ] Auto-refresh ≤ 30 s : nouvelle commande caisse → dashboard se met à jour sans reload
 - [ ] Thème admin **clair/beige** (header + dashboard), lisible tablette/PC
 

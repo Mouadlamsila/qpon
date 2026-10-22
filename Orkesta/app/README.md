@@ -70,16 +70,16 @@ Pas de router externe : `history.pushState` + `usePath` (`src/lib/router.ts`). N
 ## Ajouter un restaurant
 
 **UI** : `/admin` → `+ Restaurant` → nom + email + mot de passe (≥8).
-La création passe par l'Edge Function `add-restaurant` (service role, admin vérifié) :
+La création passe par la **RPC SQL** `admin_create_restaurant` (migration `0003_add_restaurant_rpc.sql`) : `security definer`, `is_admin()` obligatoire, `anon` interdit. **Aucune Edge Function à déployer.**
+
+Si la migration n'est pas encore appliquée sur une base fraîche :
 
 ```bash
 cd Orkesta/app
-npx supabase login
-npx supabase link --project-ref iitroivqxhmnedkwwyyh
-npx supabase functions deploy add-restaurant
+node scripts/migrate.mjs
 ```
 
-**Fallback local** (si la fonction n'est pas déployée) :
+**Fallback CLI** :
 
 ```bash
 node scripts/add-restaurant.mjs "Crousty Dison" dison@orkesta.com "motdepasse≥8"
@@ -103,8 +103,8 @@ src/lib/
   seed.ts       # démo offline (org + 3 zones + 5 promos)
 supabase/migrations/0001_init.sql   # 7 tables + RLS + idempotency
 supabase/migrations/0002_harden_rls.sql  # SELECT+INSERT restaurant, admin only write
-supabase/functions/add-restaurant/  # onboarding restaurant (service role)
-scripts/        # migrate, seed, verify-rls, verify-dashboard, add-restaurant, tests
+supabase/migrations/0003_add_restaurant_rpc.sql  # onboarding restaurant (RPC admin-only)
+scripts/        # migrate, seed, verify-rls, verify-dashboard, test-multi, add-restaurant, tests
 tests/          # vitest (reports + sync)
 ```
 
@@ -130,7 +130,7 @@ node scripts/verify-admin.mjs # admin login → data visible
 node scripts/test-idempotency.mjs  # double-push → 1 row
 node scripts/test-logins.mjs  # login admin + tablette (RLS)
 node scripts/test-multi.mjs  # crée+nettoie un resto test → admin voit 2 orgs, tenant 1 seule
-node scripts/add-restaurant.mjs "Nom" email "mdp≥8"  # fallback sans Edge Function
+node scripts/add-restaurant.mjs "Nom" email "mdp≥8"  # fallback CLI (sans UI)
 ```
 
 ## Deploy
@@ -142,12 +142,12 @@ node scripts/add-restaurant.mjs "Nom" email "mdp≥8"  # fallback sans Edge Func
 - **Révocation d'une tablette** : supprimer/bannir le compte `server_restaurant` dans Supabase → Authentication. Le refresh échoue → `SIGNED_OUT` → `wipeLocal()` (BRIEF §8). (Granularité = compte restaurant, pas appareil : la table `devices` reste à brancher si besoin.)
 - **Backup** : Supabase free tier n'inclut pas de backups auto (pause après 7j d'inactivité). Export manuel : `Export CSV` (admin) + dump SQL `pg_dump "$DB_URL" > backup.sql`.
 - **Clés** : `.env` jamais commité. Rotation de l'anon key = redéployer le front.
-- **Comptes** : 1 compte `server_restaurant` par restaurant — UI `+ Restaurant` (Edge Function) ou `scripts/add-restaurant.mjs`.
+- **Comptes** : 1 compte `server_restaurant` par restaurant — UI `+ Restaurant` (RPC admin-only) ou `scripts/add-restaurant.mjs`.
 
 ## Status
 
 - ✅ P0 fondations · P1 caisse UI · Backend RLS · P2 sync (idempotency ✓) · P3 admin · P4 reports · P5 V2 (QR + code promo) · P6 (wipe + tests + deploy)
-- ✅ Multi-restaurant : filtre + classement · périodes 4 · 10 KPI · promo/clients · coût/ROI/comparaison · CSV restaurant · aperçu WhatsApp · ajout restaurant (Edge Function)
+- ✅ Multi-restaurant : filtre + classement · périodes 4 · 10 KPI · promo/clients · coût/ROI/comparaison · CSV restaurant · aperçu WhatsApp · ajout restaurant (RPC admin-only)
 - ✅ Fixes backend : PIN ne donne plus l'admin sans session · push row-par-row (une erreur ne bloque plus le lot) · zones/promos créés offline poussés avant les orders · CSV = **toutes** les commandes (paginated) · WhatsApp = nom réel du resto + filtre période · commandes en erreur **visibles** (bandeau + retry) · compte tablette restaurant (sync sans login admin)
 - ⚠️ Limites connues : dashboard plafonné à 1000 commandes (PostgREST) — paginer si volume supérieur · **édition zones/promos limitée** (flyers + activer/désactiver ; pas de renommage/prix) · suppression zone/promo bloquée par FK · V2 restantes : carte zones, tracking scans QR, clients récurrents, A/B.
-- ⚠️ Non vérifié : flux Dexie→Supabase E2E en navigateur réel (offline/online sim via DevTools throttle) — code testé unit + idempotency prouvée au niveau DB. Edge Function `add-restaurant` écrite mais **non déployée** (pas de token CLI) ; fallback script testé.
+- ⚠️ Non vérifié : flux Dexie→Supabase E2E en navigateur réel (offline/online sim via DevTools throttle) — code testé unit + idempotency prouvée au niveau DB. RPC d'onboarding testée end-to-end (`scripts/test-multi.mjs`).
