@@ -1,0 +1,78 @@
+@import 'tailwindcss';
+
+/* Orkesta design tokens — V5 reference
+   Ne jamais modifier beige (#FEF9EC) ni orange (#FF4D00). */
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, Consolas, monospace;
+
+  --color-cream: #fef9ec; /* Mode Caisse background */
+  --color-ink: #111111; /* text / buttons */
+  --color-flame: #ff4d00; /* accent principal (orange) */
+  --color-mute: #e5e7eb; /* gris inactif */
+  --color-wa: #22c55e; /* WhatsApp green */
+
+  --color-zone-blue: #2563eb;
+  --color-zone-green: #16a34a;
+  --color-zone-black: #0f0f0f;
+  --color-zone-orange: #f97316;
+
+  --radius-card: 28px; /* rayon V5 */
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Repère mode : fond = indicateur */
+  background: var(--color-cream);
+  color: var(--color-ink);
+  /* évite le double-tap zoom sur tablette */
+  touch-action: manipulation;
+}
+
+/* Responsive page shell — phone (28rem = max-w-md) → tablet (56rem) → desktop (68rem).
+   Shared par main + header + save button + toast → largeurs toujours alignées.
+   Phone < 48rem : identique à avant (max-w-md). */
+.page-width {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 28rem;
+}
+@media (min-width: 48rem) {
+  .page-width {
+    max-width: 56rem;
+  }
+}
+@media (min-width: 64rem) {
+  .page-width {
+    max-width: 68rem;
+  }
+}
+
+/* Zone deco circle 15% opacity — repère visuel rapide, pas décoratif */
+.deco-circle {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+}
+
+/* Haptic feedback helper (tap targets) */
+@media (pointer: fine) {
+  .tap:active {
+    transform: scale(0.97);
+  }
+}
