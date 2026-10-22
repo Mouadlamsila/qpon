@@ -1,0 +1,27 @@
+# Orkesta — secrets & artefacts (le projet peut être déplacé tel quel)
+.env
+.env.*
+!.env.example
+CREDENTIALS.local.md
+*.local.md
+
+# Dépendances / builds
+node_modules/
+dist/
+dist-ssr/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Éditeurs / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.sw?
