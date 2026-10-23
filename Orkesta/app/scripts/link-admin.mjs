@@ -6,7 +6,8 @@ const env = Object.fromEntries(
     .map((l) => { const [k, ...v] = l.split('='); return [k.trim(), v.join('=').trim()] }),
 )
 const url = env.VITE_SUPABASE_URL, anon = env.VITE_SUPABASE_ANON_KEY
-const EMAIL = 'foued@orkesta.com', PASSWORD = 'foued2026'
+const EMAIL = 'foued@orkesta.com', PASSWORD = env.ADMIN_PASSWORD
+if (!PASSWORD) throw new Error('ADMIN_PASSWORD manquant dans .env')
 const ref = new URL(url).hostname.split('.')[0]
 const c = new pg.Client({ host: 'aws-0-eu-north-1.pooler.supabase.com', port: 6543, user: 'postgres.' + ref, password: env.VITE_SUPABASE_DB_PASSWORD, database: 'postgres', ssl: { rejectUnauthorized: false } })
 await c.connect()

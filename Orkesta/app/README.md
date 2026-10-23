@@ -136,7 +136,7 @@ node scripts/add-restaurant.mjs "Nom" email "mdp≥8"  # fallback CLI (sans UI)
 ## Deploy
 
 **Netlify** :
-- **Base directory** : `Orkesta/app` (monorepo) — sinon Netlify ne trouve pas `netlify.toml`.
+- **Base directory** : `app` si tu déploies le repo `orkesta` (racine = Orkesta) — `Orkesta/app` depuis le monorepo `qpon`. Sinon Netlify ne trouve pas `netlify.toml`.
 - Build `npm run build` → `dist`, SPA fallback fourni, Node 22.
 - **Env obligatoires** (Site settings → Environment variables) : `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. Sans elles, le build **échoue volontairement** (pas de mode démo en prod).
 - **Supabase Auth** → URL Configuration → Site URL = URL Netlify.

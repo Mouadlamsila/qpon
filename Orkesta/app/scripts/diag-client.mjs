@@ -5,7 +5,7 @@ const sb = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE
 
 const { data: auth, error: authErr } = await sb.auth.signInWithPassword({
   email: 'foued@orkesta.com',
-  password: 'foued2026',
+  password: process.env.ADMIN_PASSWORD ?? '',
 })
 console.log('signIn:', authErr ? 'ERR ' + authErr.message : 'OK', auth.user?.email)
 

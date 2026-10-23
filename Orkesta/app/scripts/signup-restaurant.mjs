@@ -5,7 +5,8 @@ const env = Object.fromEntries(
     .map((l) => { const [k, ...v] = l.split('='); return [k.trim(), v.join('=').trim()] }),
 )
 const EMAIL = 'crousty@orkesta.com'
-const PASSWORD = 'crousty2026'
+const PASSWORD = env.RESTAURANT_PASSWORD
+if (!PASSWORD) throw new Error('RESTAURANT_PASSWORD manquant dans .env')
 
 const r = await fetch(`${env.VITE_SUPABASE_URL}/auth/v1/signup`, {
   method: 'POST',

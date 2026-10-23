@@ -14,7 +14,8 @@ console.log('connected')
 const ORG_NAME = 'Crousty Verviers'
 
 const EMAIL = 'crousty@orkesta.com'
-const PASSWORD = 'crousty2026'
+const PASSWORD = env.RESTAURANT_PASSWORD
+if (!PASSWORD) throw new Error('RESTAURANT_PASSWORD manquant dans .env')
 
 const org = await c.query(`select id from public.organizations where name=$1 limit 1`, [ORG_NAME])
 if (!org.rows[0]) { console.log('FAIL: org introuvable'); await c.end(); process.exit(1) }

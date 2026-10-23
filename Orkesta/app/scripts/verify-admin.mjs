@@ -6,11 +6,13 @@ const env = Object.fromEntries(
 )
 const url = env.VITE_SUPABASE_URL
 const anon = env.VITE_SUPABASE_ANON_KEY
+const adminPw = env.ADMIN_PASSWORD
+if (!adminPw) throw new Error('ADMIN_PASSWORD manquant dans .env')
 
 // 1. signIn
 const si = await fetch(`${url}/auth/v1/token?grant_type=password`, {
   method: 'POST', headers: { apikey: anon, 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email: 'foued@orkesta.com', password: 'foued2026' }),
+  body: JSON.stringify({ email: 'foued@orkesta.com', password: adminPw }),
 })
 const tok = await si.json()
 console.log(`signIn: ${si.status} ${tok.msg ?? ''}`)

@@ -10,7 +10,8 @@ const env = Object.fromEntries(
 const url = env.VITE_SUPABASE_URL
 const anon = env.VITE_SUPABASE_ANON_KEY
 const EMAIL = 'foued@orkesta.com'
-const PASSWORD = 'foued2026'
+const PASSWORD = env.ADMIN_PASSWORD
+if (!PASSWORD) throw new Error('ADMIN_PASSWORD manquant dans .env')
 
 // 1. try signup (ignore "already exists")
 const su = await fetch(`${url}/auth/v1/signup`, {

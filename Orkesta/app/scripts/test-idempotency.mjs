@@ -7,7 +7,9 @@ const env = Object.fromEntries(
 const url = env.VITE_SUPABASE_URL, anon = env.VITE_SUPABASE_ANON_KEY
 
 // login admin
-const si = await fetch(`${url}/auth/v1/token?grant_type=password`, { method: 'POST', headers: { apikey: anon, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'foued@orkesta.com', password: 'foued2026' }) })
+const adminPw = env.ADMIN_PASSWORD
+if (!adminPw) throw new Error('ADMIN_PASSWORD manquant dans .env')
+const si = await fetch(`${url}/auth/v1/token?grant_type=password`, { method: 'POST', headers: { apikey: anon, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'foued@orkesta.com', password: adminPw }) })
 const tok = await si.json()
 if (!tok.access_token) { console.log('FAIL login'); process.exit(1) }
 const H = { apikey: anon, Authorization: `Bearer ${tok.access_token}`, 'Content-Type': 'application/json' }
