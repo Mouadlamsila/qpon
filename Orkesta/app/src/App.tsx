@@ -3,16 +3,18 @@ import Header from './components/Header'
 import Caisse from './components/Caisse'
 import Admin from './components/Admin'
 import AuthGate from './components/AuthGate'
+import Profile from './components/Profile'
 import { seedIfEmpty } from './lib/seed'
 import { startSyncEngine } from './lib/sync'
 import { wipeLocal } from './lib/db'
 import { supabase } from './lib/supabase'
 import { usePath } from './lib/router'
 
-// / = Caisse (tablette) · /admin = Dashboard Foued. Séparation nette.
+// / = Caisse (tablette) · /admin = Dashboard Foued · /profile = Profil utilisateur.
 export default function App() {
   const path = usePath()
   const isAdmin = path === '/admin' || path.startsWith('/admin/')
+  const isProfile = path === '/profile' || path.startsWith('/profile/')
 
   useEffect(() => {
     // Démo offline uniquement : avec Supabase, la caisse attend le login (AuthGate)
@@ -33,7 +35,13 @@ export default function App() {
   return (
     <div className="min-h-dvh bg-cream text-ink">
       <Header />
-      {isAdmin ? <Admin /> : <AuthGate><Caisse /></AuthGate>}
+      {isAdmin ? (
+        <Admin />
+      ) : isProfile ? (
+        <AuthGate><Profile /></AuthGate>
+      ) : (
+        <AuthGate><Caisse /></AuthGate>
+      )}
     </div>
   )
 }

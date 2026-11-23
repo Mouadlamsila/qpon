@@ -107,6 +107,7 @@ export default function Admin() {
   async function changeFlyers(id: string, flyers: number) {
     try {
       await setZoneFlyers(id, flyers)
+      flash('Flyers mis à jour')
       setNonce((x) => x + 1)
     } catch (e) {
       setErr((e as Error).message)
@@ -121,67 +122,123 @@ export default function Admin() {
 
   return (
     <main className="min-h-dvh bg-cream text-ink">
-      <div className="page-width px-4 py-4">
-        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h1 className="text-lg font-extrabold">DASHBOARD FOUED</h1>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-ink/40">Performance temps réel</p>
+      <div className="page-width space-y-5 px-4 py-5">
+        {/* Top Header + Quick Actions */}
+        <div className="flex flex-col gap-3 rounded-[28px] border border-ink/10 bg-white p-4 sm:p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-extrabold tracking-tight text-ink">Dashboard Foued</h1>
+                <span className="rounded-full bg-flame/10 px-2.5 py-0.5 text-[11px] font-bold text-flame">
+                  {periodLabel(period)}
+                </span>
+              </div>
+              <p className="mt-0.5 text-xs font-medium text-ink/50">
+                {dash ? `${dash.orgName} · Performance temps réel` : 'Chargement des données…'}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setShowAdd(true)}
+                className="tap rounded-full bg-ink px-3.5 py-1.5 text-xs font-bold text-white"
+              >
+                + Restaurant
+              </button>
+              <button
+                type="button"
+                disabled={!dash}
+                onClick={() => void exportCsv(period, orgId).catch((e) => setErr((e as Error).message))}
+                className="tap rounded-full border border-ink/15 bg-white px-3 py-1.5 text-xs font-bold text-ink/80 disabled:opacity-40"
+              >
+                Export CSV
+              </button>
+              <button
+                type="button"
+                disabled={!dash}
+                onClick={() => setShowWa(true)}
+                className="tap rounded-full bg-wa px-3 py-1.5 text-xs font-bold text-white disabled:opacity-40"
+              >
+                WhatsApp
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                className="tap rounded-full border border-ink/15 bg-white px-3 py-1.5 text-xs font-bold text-ink/70"
+              >
+                Caisse
+              </button>
+              <button
+                type="button"
+                onClick={() => void lock()}
+                className="tap rounded-full border border-flame/25 bg-flame/5 px-3 py-1.5 text-xs font-bold text-flame"
+              >
+                Lock
+              </button>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={orgId ?? ''}
-              onChange={(e) => setOrgId(e.target.value || null)}
-              className="max-w-44 rounded-full border border-ink/15 bg-white px-3 py-1.5 text-xs font-bold text-ink focus:outline-none"
-            >
-              <option value="" className="text-ink">Tous clients</option>
-              {(dash?.orgs ?? []).map((o) => (
-                <option key={o.id} value={o.id} className="text-ink">{o.name}</option>
-              ))}
-            </select>
-            <div className="flex overflow-hidden rounded-full border border-ink/15 text-[11px] font-bold">
+
+          {/* Filter Toolbar */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-ink/10 pt-3">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-wide text-ink/40">Client</span>
+              <select
+                value={orgId ?? ''}
+                onChange={(e) => setOrgId(e.target.value || null)}
+                className="max-w-52 rounded-full border border-ink/15 bg-cream/60 px-3.5 py-1.5 text-xs font-bold text-ink focus:border-ink focus:outline-none"
+              >
+                <option value="" className="text-ink">Tous clients</option>
+                {(dash?.orgs ?? []).map((o) => (
+                  <option key={o.id} value={o.id} className="text-ink">{o.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex overflow-hidden rounded-full border border-ink/15 bg-cream/50 p-0.5 text-[11px] font-bold">
               {(['today', 'week', 'month', 'all'] as Period[]).map((p) => (
                 <button
                   key={p}
                   type="button"
                   onClick={() => setPeriod(p)}
-                  className={`px-2.5 py-1.5 ${period === p ? 'bg-flame text-white' : 'text-ink/60'}`}
+                  className={`rounded-full px-3 py-1 transition-colors ${
+                    period === p ? 'bg-flame text-white' : 'text-ink/60 hover:text-ink'
+                  }`}
                 >
                   {shortPeriod(p)}
                 </button>
               ))}
             </div>
-            <button onClick={() => setShowAdd(true)} className="tap rounded-full border border-ink/15 bg-white px-3 py-1.5 text-xs font-bold text-ink/70">
-              + Restaurant
-            </button>
-            <button onClick={() => navigate('/')} className="tap rounded-full border border-ink/15 bg-white px-3 py-1.5 text-xs font-bold text-ink/70">
-              Caisse
-            </button>
-            <button onClick={() => void lock()} className="tap rounded-full border border-ink/15 bg-white px-3 py-1.5 text-xs font-bold text-ink/70">
-              Lock
-            </button>
           </div>
         </div>
 
-        {err && <p className="mb-3 rounded-2xl bg-flame/15 p-3 text-sm text-flame">{err}</p>}
+        {err && <p className="rounded-2xl bg-flame/15 p-3 text-sm font-semibold text-flame">{err}</p>}
 
         {!dash ? (
           <p className="py-16 text-center text-sm text-ink/40">Chargement stats…</p>
         ) : (
           <Stats
             d={dash}
-            period={period}
             cost={cost}
             onCost={setCost}
             onSaveCost={() => void saveCost()}
-            onCsv={() => void exportCsv(period, orgId).catch((e) => setErr((e as Error).message))}
-            onWa={() => setShowWa(true)}
+            onSelectOrg={(id) => setOrgId(id)}
             onTogglePromo={(id, active) => void togglePromo(id, active)}
             onFlyers={(id, n) => void changeFlyers(id, n)}
           />
         )}
 
-        {/* Dev only — session/RLS/sync en clair, sans console */}
-        {import.meta.env.DEV && <div className="mt-4"><DebugPanel /></div>}
+        {/* Dev only — replié par défaut pour ne pas encombrer */}
+        {import.meta.env.DEV && (
+          <details className="rounded-[28px] border border-ink/10 bg-white/70 px-4 py-3">
+            <summary className="cursor-pointer select-none text-xs font-bold uppercase tracking-wide text-ink/50">
+              Diagnostic développeur
+            </summary>
+            <div className="mt-3">
+              <DebugPanel />
+            </div>
+          </details>
+        )}
       </div>
 
       {showWa && dash && <WaModal d={dash} period={period} onClose={() => setShowWa(false)} />}
@@ -201,15 +258,13 @@ export default function Admin() {
 }
 
 function Stats({
-  d, period, cost, onCost, onSaveCost, onCsv, onWa, onTogglePromo, onFlyers,
+  d, cost, onCost, onSaveCost, onSelectOrg, onTogglePromo, onFlyers,
 }: {
   d: Dashboard
-  period: Period
   cost: string
   onCost: (v: string) => void
   onSaveCost: () => void
-  onCsv: () => void
-  onWa: () => void
+  onSelectOrg: (id: string) => void
   onTogglePromo: (id: string, active: boolean) => void
   onFlyers: (id: string, n: number) => void
 }) {
@@ -217,130 +272,333 @@ function Stats({
     ? ((d.caTotal - d.prev.caTotal) / d.prev.caTotal) * 100
     : null
 
+  const channels = [
+    { label: 'Sur place', value: d.caSurPlace },
+    { label: 'Livraison', value: d.caLivraison },
+    { label: 'Takeaway', value: d.caTakeaway },
+    { label: 'Uber', value: d.caUber },
+    { label: 'Appli', value: d.caAppli },
+  ]
+
+  const maxZoneCa = Math.max(1, ...d.byZone.map((z) => z.ca))
+
   return (
     <div className="space-y-4">
-      {/* KPI — BRIEF §5.3 + §6 */}
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-5">
-        <Kpi label="Distribués" value={String(d.distribues)} />
-        <Kpi label="Utilisés" value={String(d.utilises)} />
-        <Kpi label="Taux" value={`${d.taux.toFixed(1)}%`} />
-        <Kpi label="CA Total" value={`${d.caTotal.toFixed(2)}€`} accent />
-        <Kpi label="Panier moyen" value={`${d.panierMoyen.toFixed(2)}€`} />
-        <Kpi label="Sur place" value={`${d.caSurPlace.toFixed(2)}€`} />
-        <Kpi label="Livraison" value={`${d.caLivraison.toFixed(2)}€`} />
-        <Kpi label="Uber" value={`${d.caUber.toFixed(2)}€`} />
-        <Kpi label="Takeaway" value={`${d.caTakeaway.toFixed(2)}€`} />
-        <Kpi label="Appli" value={`${d.caAppli.toFixed(2)}€`} />
-      </div>
-
-      {/* ROI / coût / comparaison */}
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-        <Kpi label="Coût campagne" value={`${d.cost.toFixed(2)}€`} />
-        <Kpi label="Coût / commande" value={`${d.costPerOrder.toFixed(2)}€`} />
-        <Kpi label="ROI" value={d.roi === null ? '—' : `${d.roi.toFixed(1)}%`} />
-        <Kpi
-          label="vs période préc."
-          value={delta === null ? '—' : `${delta >= 0 ? '+' : ''}${delta.toFixed(1)}%`}
-          accent={delta !== null && delta < 0}
-        />
-      </div>
-
-      {/* Coût campagne : saisi par Foued (BRIEF §6) */}
-      {d.orgId && (
-        <div className="flex gap-2">
-          <input
-            value={cost}
-            onChange={(e) => onCost(e.target.value.replace(/[^\d.]/g, ''))}
-            placeholder="Coût campagne € (ex: 250)"
-            inputMode="decimal"
-            className="min-w-0 flex-1 rounded-2xl border border-ink/15 bg-white px-4 py-3 text-base font-semibold text-ink placeholder:text-ink/30 focus:border-ink focus:outline-none"
-          />
-          <button type="button" onClick={onSaveCost} className="tap shrink-0 rounded-2xl bg-flame px-4 text-sm font-bold text-white">
-            Ajouter
-          </button>
-        </div>
-      )}
-
-      {/* Actions rapport */}
-      <div className="grid grid-cols-2 gap-2 md:max-w-md">
-        <button type="button" onClick={onCsv} className="tap rounded-[20px] border border-ink/15 bg-white py-3 text-sm font-bold text-ink">
-          Export CSV
-        </button>
-        <button type="button" onClick={onWa} className="tap rounded-[20px] bg-wa py-3 text-sm font-bold text-white">
-          Résumé WhatsApp
-        </button>
-      </div>
-
-      {/* Table par zone — BRIEF §5.5 */}
-      <section>
-        <h2 className="mb-2 text-xs font-bold uppercase tracking-wide text-ink/50">Table par zone</h2>
-        <div className="overflow-hidden rounded-[28px] border border-ink/10 bg-white">
-          {d.byZone.length === 0 && <p className="p-4 text-center text-sm text-ink/40">Aucune zone</p>}
-          {d.byZone.map((z) => (
-            <div key={z.id} className="flex items-center gap-2 border-b border-ink/5 px-4 py-3 text-sm last:border-0">
-              <span className="size-3 shrink-0 rounded-full" style={{ backgroundColor: z.color }} />
-              <span className="min-w-0 flex-1 truncate font-semibold">{z.name}</span>
-              <span className="flex shrink-0 items-center gap-1 text-[10px] text-ink/40">
-                <input
-                  key={z.flyersDistributed}
-                  type="number"
-                  defaultValue={z.flyersDistributed}
-                  onBlur={(e) => {
-                    if (e.target.value === '') { e.target.value = String(z.flyersDistributed); return }
-                    const n = Number(e.target.value)
-                    if (Number.isFinite(n) && n !== z.flyersDistributed) onFlyers(z.id, n)
-                  }}
-                  className="w-16 rounded-lg border border-ink/15 bg-white px-1.5 py-0.5 text-right font-mono text-[11px] text-ink focus:border-ink focus:outline-none"
-                  aria-label={`Flyers distribués ${z.name}`}
-                />
-                posés
+      {/* 1. Hero KPIs (4 cartes hiérarchisées) */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {/* CA Total */}
+        <div className="rounded-[28px] bg-flame p-5 text-white">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-white/75">CA Total</p>
+            {delta !== null && (
+              <span className="rounded-full bg-white/20 px-2 py-0.5 font-mono text-[10px] font-bold text-white">
+                {delta >= 0 ? '+' : ''}{delta.toFixed(1)}%
               </span>
-              <span className="shrink-0 text-ink/60">{z.used} util.</span>
-              <span className="shrink-0 font-mono text-xs font-bold text-ink/70">{z.taux.toFixed(1)}%</span>
-              <span className="shrink-0 font-mono text-xs font-bold text-flame">{z.ca.toFixed(0)}€</span>
-            </div>
-          ))}
+            )}
+          </div>
+          <p className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">
+            {d.caTotal.toFixed(2)}€
+          </p>
+          <p className="mt-1 text-[11px] font-medium text-white/75">
+            {delta === null ? 'Toutes périodes confondues' : 'vs période précédente'}
+          </p>
         </div>
-      </section>
 
-      {/* Table par promo — BRIEF §5.6 */}
-      <section>
-        <h2 className="mb-2 text-xs font-bold uppercase tracking-wide text-ink/50">Table par promo</h2>
-        <div className="overflow-hidden rounded-[28px] border border-ink/10 bg-white">
-          {d.byPromo.length === 0 && <p className="p-4 text-center text-sm text-ink/40">Aucune promo</p>}
-          {d.byPromo.map((p) => (
-            <div key={p.id} className="flex items-center gap-2 border-b border-ink/5 px-4 py-3 text-sm last:border-0">
-              <span className="min-w-0 flex-1">
-                <span className="block truncate font-semibold">{p.name}</span>
-                <span className="block font-mono text-[10px] text-ink/40">{p.pricePlace}€ / {p.priceDelivery}€</span>
-              </span>
-              <span className="shrink-0 text-ink/60">{p.used} util.</span>
-              <span className="shrink-0 font-mono text-xs font-bold text-flame">{p.ca.toFixed(0)}€</span>
-              <button
-                type="button"
-                onClick={() => onTogglePromo(p.id, !p.active)}
-                className={`tap shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${p.active ? 'bg-cream text-ink/60' : 'bg-wa/20 text-wa'}`}
+        {/* Coupons utilisés / distribués */}
+        <div className="rounded-[28px] border border-ink/10 bg-white p-5">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-ink/50">Coupons utilisés</p>
+            <span className="rounded-full bg-cream px-2 py-0.5 font-mono text-[10px] font-bold text-ink">
+              {d.taux.toFixed(1)}%
+            </span>
+          </div>
+          <p className="mt-2 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+            {d.utilises}
+          </p>
+          <p className="mt-1 text-[11px] font-medium text-ink/50">
+            sur {d.distribues} flyers posés
+          </p>
+        </div>
+
+        {/* Panier moyen */}
+        <div className="rounded-[28px] border border-ink/10 bg-white p-5">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-ink/50">Panier moyen</p>
+          <p className="mt-2 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+            {d.panierMoyen.toFixed(2)}€
+          </p>
+          <p className="mt-1 text-[11px] font-medium text-ink/50">
+            Moyenne par commande
+          </p>
+        </div>
+
+        {/* ROI */}
+        <div className="rounded-[28px] border border-ink/10 bg-white p-5">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-ink/50">ROI Campagne</p>
+            {d.roi !== null && (
+              <span
+                className={`rounded-full px-2 py-0.5 font-mono text-[10px] font-bold ${
+                  d.roi >= 0 ? 'bg-wa/15 text-wa' : 'bg-flame/15 text-flame'
+                }`}
               >
-                {p.active ? 'Désactiver' : 'Activer'}
-              </button>
-            </div>
-          ))}
+                {d.roi >= 0 ? 'Rentable' : 'Déficit'}
+              </span>
+            )}
+          </div>
+          <p
+            className={`mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl ${
+              d.roi === null ? 'text-ink/40' : d.roi >= 0 ? 'text-wa' : 'text-flame'
+            }`}
+          >
+            {d.roi === null ? '—' : `${d.roi.toFixed(1)}%`}
+          </p>
+          <p className="mt-1 text-[11px] font-medium text-ink/50">
+            Coût {d.cost.toFixed(0)}€ · {d.costPerOrder.toFixed(2)}€/cmd
+          </p>
         </div>
-      </section>
+      </div>
 
-      {/* Clients (restaurants) + panier moyen — BRIEF §5.7 / §9.5 */}
+      {/* 2. Canaux de vente + Budget campagne (2 colonnes) */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {/* Canaux */}
+        <section className="rounded-[28px] border border-ink/10 bg-white p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-extrabold text-ink">Canaux de vente</h2>
+              <p className="text-xs text-ink/45">Répartition du chiffre d'affaires</p>
+            </div>
+            <span className="font-mono text-xs font-bold text-ink/50">{d.caTotal.toFixed(2)}€</span>
+          </div>
+          <div className="space-y-3">
+            {channels.map((c) => {
+              const pct = d.caTotal > 0 ? (c.value / d.caTotal) * 100 : 0
+              return (
+                <div key={c.label}>
+                  <div className="mb-1 flex items-center justify-between text-xs">
+                    <span className="font-bold text-ink">{c.label}</span>
+                    <span className="font-mono text-ink/70">
+                      <span className="font-bold text-ink">{c.value.toFixed(2)}€</span>
+                      <span className="ml-1.5 text-[10px] text-ink/45">({pct.toFixed(0)}%)</span>
+                    </span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-cream">
+                    <div
+                      className="h-full rounded-full bg-flame transition-all"
+                      style={{ width: `${Math.min(100, pct)}%` }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+
+        {/* Budget & Rentabilité */}
+        <section className="flex flex-col justify-between rounded-[28px] border border-ink/10 bg-white p-5">
+          <div>
+            <h2 className="text-sm font-extrabold text-ink">Budget &amp; Rentabilité</h2>
+            <p className="mb-4 text-xs text-ink/45">Suivi des dépenses d'acquisition</p>
+
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-2xl bg-cream/60 p-3">
+                <p className="text-[10px] font-bold uppercase text-ink/50">Coût total</p>
+                <p className="mt-1 font-mono text-base font-extrabold text-ink">{d.cost.toFixed(2)}€</p>
+              </div>
+              <div className="rounded-2xl bg-cream/60 p-3">
+                <p className="text-[10px] font-bold uppercase text-ink/50">Coût / cmd</p>
+                <p className="mt-1 font-mono text-base font-extrabold text-ink">{d.costPerOrder.toFixed(2)}€</p>
+              </div>
+              <div className="rounded-2xl bg-cream/60 p-3">
+                <p className="text-[10px] font-bold uppercase text-ink/50">Net généré</p>
+                <p className="mt-1 font-mono text-base font-extrabold text-ink">
+                  {(d.caTotal - d.cost).toFixed(0)}€
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 border-t border-ink/10 pt-4">
+            {d.orgId ? (
+              <div className="flex gap-2">
+                <input
+                  value={cost}
+                  onChange={(e) => onCost(e.target.value.replace(/[^\d.]/g, ''))}
+                  placeholder="Ajouter un coût campagne € (ex: 250)"
+                  inputMode="decimal"
+                  className="min-w-0 flex-1 rounded-2xl border border-ink/15 bg-cream/40 px-3.5 py-2.5 text-sm font-semibold text-ink placeholder:text-ink/35 focus:border-ink focus:bg-white focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={onSaveCost}
+                  className="tap shrink-0 rounded-2xl bg-flame px-4 py-2.5 text-xs font-bold text-white"
+                >
+                  + Ajouter
+                </button>
+              </div>
+            ) : (
+              <p className="rounded-2xl bg-cream/60 px-3.5 py-2.5 text-xs font-medium text-ink/55">
+                Sélectionne un restaurant dans le filtre client pour saisir un coût campagne.
+              </p>
+            )}
+          </div>
+        </section>
+      </div>
+
+      {/* 3. Zones & Promos (2 colonnes) */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {/* Table par zone */}
+        <section className="rounded-[28px] border border-ink/10 bg-white p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-extrabold text-ink">Performance par zone</h2>
+              <p className="text-xs text-ink/45">Modifie le nombre de flyers posés directement</p>
+            </div>
+            <span className="rounded-full bg-cream px-2.5 py-1 text-[11px] font-bold text-ink/60">
+              {d.byZone.length}
+            </span>
+          </div>
+
+          {d.byZone.length === 0 ? (
+            <p className="py-6 text-center text-xs text-ink/40">Aucune zone</p>
+          ) : (
+            <div className="divide-y divide-ink/5">
+              {d.byZone.map((z) => (
+                <div key={z.id} className="py-3 first:pt-1 last:pb-1">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="size-3 shrink-0 rounded-full" style={{ backgroundColor: z.color }} />
+                    <span className="min-w-0 flex-1 truncate font-bold text-ink">{z.name}</span>
+                    <span className="flex shrink-0 items-center gap-1 text-[11px] text-ink/45">
+                      <input
+                        key={z.flyersDistributed}
+                        type="number"
+                        defaultValue={z.flyersDistributed}
+                        onBlur={(e) => {
+                          if (e.target.value === '') { e.target.value = String(z.flyersDistributed); return }
+                          const n = Number(e.target.value)
+                          if (Number.isFinite(n) && n !== z.flyersDistributed) onFlyers(z.id, n)
+                        }}
+                        className="w-16 rounded-lg border border-ink/15 bg-cream/40 px-1.5 py-0.5 text-right font-mono text-xs font-bold text-ink focus:border-ink focus:bg-white focus:outline-none"
+                        aria-label={`Flyers distribués ${z.name}`}
+                      />
+                      posés
+                    </span>
+                    <span className="shrink-0 text-xs font-medium text-ink/60">{z.used} util.</span>
+                    <span className="shrink-0 rounded-full bg-cream px-2 py-0.5 font-mono text-[11px] font-bold text-ink/70">
+                      {z.taux.toFixed(1)}%
+                    </span>
+                    <span className="w-14 shrink-0 text-right font-mono text-xs font-extrabold text-flame">
+                      {z.ca.toFixed(0)}€
+                    </span>
+                  </div>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-cream">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: `${Math.min(100, (z.ca / maxZoneCa) * 100)}%`,
+                        backgroundColor: z.color,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Table par promo */}
+        <section className="rounded-[28px] border border-ink/10 bg-white p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-extrabold text-ink">Performance par promo</h2>
+              <p className="text-xs text-ink/45">Tarifs sur place / livraison et statut</p>
+            </div>
+            <span className="rounded-full bg-cream px-2.5 py-1 text-[11px] font-bold text-ink/60">
+              {d.byPromo.length}
+            </span>
+          </div>
+
+          {d.byPromo.length === 0 ? (
+            <p className="py-6 text-center text-xs text-ink/40">Aucune promo</p>
+          ) : (
+            <div className="divide-y divide-ink/5">
+              {d.byPromo.map((p) => (
+                <div key={p.id} className="flex items-center gap-2.5 py-2.5 first:pt-1 last:pb-1 text-sm">
+                  <span className="min-w-0 flex-1">
+                    <span className={`block truncate font-bold ${p.active ? 'text-ink' : 'text-ink/40 line-through'}`}>
+                      {p.name}
+                    </span>
+                    <span className="block font-mono text-[11px] text-ink/45">
+                      {p.pricePlace}€ place · {p.priceDelivery}€ livr.
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-xs font-medium text-ink/60">{p.used} util.</span>
+                  <span className="w-14 shrink-0 text-right font-mono text-xs font-extrabold text-flame">
+                    {p.ca.toFixed(0)}€
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onTogglePromo(p.id, !p.active)}
+                    className={`tap shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                      p.active
+                        ? 'bg-cream text-ink/70 hover:bg-ink/10'
+                        : 'bg-wa/15 text-wa hover:bg-wa/25'
+                    }`}
+                  >
+                    {p.active ? 'Désactiver' : 'Activer'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+
+      {/* 4. Clients — Classement rentabilité */}
       {d.orgId === null && d.byOrg.length > 0 && (
-        <section>
-          <h2 className="mb-2 text-xs font-bold uppercase tracking-wide text-ink/50">Clients — classement rentabilité</h2>
-          <div className="overflow-hidden rounded-[28px] border border-ink/10 bg-white">
+        <section className="rounded-[28px] border border-ink/10 bg-white p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-extrabold text-ink">Clients — Classement rentabilité</h2>
+              <p className="text-xs text-ink/45">Clique sur un restaurant pour filtrer le dashboard</p>
+            </div>
+            <span className="rounded-full bg-cream px-2.5 py-1 text-[11px] font-bold text-ink/60">
+              {d.byOrg.length} restaurant{d.byOrg.length > 1 ? 's' : ''}
+            </span>
+          </div>
+
+          <div className="divide-y divide-ink/5">
             {d.byOrg.map((o, i) => (
-              <div key={o.id} className="flex items-center gap-2 border-b border-ink/5 px-4 py-3 text-sm last:border-0">
-                <span className="w-5 shrink-0 font-mono text-xs font-bold text-ink/40">#{i + 1}</span>
-                <span className="min-w-0 flex-1 truncate font-semibold">{o.name}</span>
-                <span className="shrink-0 text-ink/50">{o.orders} cmd</span>
-                <span className="shrink-0 font-mono text-xs font-bold text-flame">{o.ca.toFixed(0)}€</span>
-                <span className="hidden shrink-0 font-mono text-[10px] text-ink/40 sm:inline">panier {o.panierMoyen.toFixed(1)}€</span>
-                <span className={`shrink-0 font-mono text-xs font-bold ${o.roi === null ? 'text-ink/30' : o.roi >= 0 ? 'text-wa' : 'text-flame'}`}>
+              <div key={o.id} className="flex flex-wrap items-center gap-3 py-3 first:pt-1 last:pb-1 text-sm">
+                <span
+                  className={`grid size-7 shrink-0 place-items-center rounded-full font-mono text-xs font-extrabold ${
+                    i === 0 ? 'bg-flame text-white' : 'bg-cream text-ink/60'
+                  }`}
+                >
+                  #{i + 1}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onSelectOrg(o.id)}
+                  className="min-w-0 flex-1 truncate text-left font-bold text-ink hover:text-flame"
+                >
+                  {o.name}
+                </button>
+                <span className="shrink-0 text-xs font-medium text-ink/60">{o.orders} cmd</span>
+                <span className="hidden shrink-0 font-mono text-xs text-ink/50 sm:inline">
+                  panier {o.panierMoyen.toFixed(1)}€
+                </span>
+                <span className="w-16 shrink-0 text-right font-mono text-xs font-extrabold text-flame">
+                  {o.ca.toFixed(0)}€
+                </span>
+                <span
+                  className={`w-16 shrink-0 rounded-full px-2 py-0.5 text-center font-mono text-[11px] font-bold ${
+                    o.roi === null
+                      ? 'bg-cream text-ink/35'
+                      : o.roi >= 0
+                        ? 'bg-wa/15 text-wa'
+                        : 'bg-flame/15 text-flame'
+                  }`}
+                >
                   {o.roi === null ? '—' : `${o.roi.toFixed(0)}%`}
                 </span>
               </div>
@@ -349,34 +607,53 @@ function Stats({
         </section>
       )}
 
-      {/* Dernières commandes — heure + restaurant + zone + promo + canal + montant */}
-      <section>
-        <h2 className="mb-2 text-xs font-bold uppercase tracking-wide text-ink/50">Dernières commandes</h2>
+      {/* 5. Dernières commandes */}
+      <section className="rounded-[28px] border border-ink/10 bg-white p-5">
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-extrabold text-ink">Dernières commandes</h2>
+            <p className="text-xs text-ink/45">10 dernières validations enregistrées</p>
+          </div>
+          <span className="rounded-full bg-cream px-2.5 py-1 text-[11px] font-bold text-ink/60">
+            {d.recent.length}
+          </span>
+        </div>
+
         {d.recent.length === 0 ? (
-          <p className="rounded-[28px] border border-dashed border-ink/15 p-4 text-center text-sm text-ink/40">Aucune commande</p>
+          <p className="rounded-2xl border border-dashed border-ink/15 p-6 text-center text-xs text-ink/40">
+            Aucune commande sur cette période
+          </p>
         ) : (
-          <ul className="space-y-1.5 md:grid md:grid-cols-2 md:gap-1.5 md:space-y-0">
+          <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
             {d.recent.map((o) => (
-              <li key={o.id} className="rounded-2xl border border-ink/10 bg-white px-3 py-2.5 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="shrink-0 font-mono text-[10px] text-ink/40">{time(o.createdAt)}</span>
-                  <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: o.zoneColor }} />
-                  <span className="min-w-0 flex-1 truncate font-semibold">{o.promoName}</span>
-                  <span className="shrink-0 font-mono text-xs font-bold">{o.amount}€</span>
+              <li
+                key={o.id}
+                className="flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-cream/35 px-3.5 py-2.5"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="shrink-0 font-mono text-[11px] font-bold text-ink/45">
+                      {time(o.createdAt)}
+                    </span>
+                    <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: o.zoneColor }} />
+                    <span className="truncate text-sm font-bold text-ink">{o.promoName}</span>
+                  </div>
+                  <p className="mt-0.5 truncate pl-11 text-[11px] text-ink/50">
+                    {o.orgName} · {o.zoneName} ·{' '}
+                    <span className="font-semibold text-ink/70">{o.channel}</span>
+                  </p>
                 </div>
-                <p className="mt-0.5 truncate pl-10 text-[10px] text-ink/40">
-                  {o.orgName} · {o.zoneName} · {o.channel}
-                </p>
+                <span className="shrink-0 rounded-full bg-white px-2.5 py-1 font-mono text-xs font-extrabold text-ink shadow-2xs">
+                  {o.amount}€
+                </span>
               </li>
             ))}
           </ul>
         )}
       </section>
 
-      {/* P5 — QR par zone (scan → ?zone= → pré-remplit) */}
+      {/* 6. QR par zone */}
       <ZoneQR zones={d.byZone} />
-
-      <p className="pb-6 text-center text-[10px] text-ink/30">Période : {periodLabel(period)}</p>
     </div>
   )
 }
@@ -387,15 +664,6 @@ function shortPeriod(p: Period): string {
 
 function time(iso: string): string {
   return new Date(iso).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' })
-}
-
-function Kpi({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
-  return (
-    <div className={`rounded-[28px] p-4 ${accent ? 'bg-flame text-white' : 'border border-ink/10 bg-white text-ink'}`}>
-      <p className={`text-[11px] font-bold uppercase ${accent ? 'text-white/70' : 'text-ink/50'}`}>{label}</p>
-      <p className="mt-1 text-xl font-extrabold">{value}</p>
-    </div>
-  )
 }
 
 function WaModal({ d, period, onClose }: { d: Dashboard; period: Period; onClose: () => void }) {
@@ -472,20 +740,21 @@ function PinGate({ onUnlock }: { onUnlock: () => void }) {
   }
 
   return (
-    <div className={shake ? 'animate-pulse' : ''}>
-      <p className="text-sm font-bold uppercase text-ink/50">Mode Foued — PIN requis</p>
-      <p className="mb-4 text-xs text-ink/40">Entre le code pour accéder aux stats</p>
-      <p className="mb-4 font-mono text-3xl tracking-[0.4em] text-ink">{'•'.repeat(pin.length) || '————'}</p>
+    <div className={`mx-auto max-w-xs rounded-[28px] border border-ink/10 bg-white p-6 ${shake ? 'animate-pulse' : ''}`}>
+      <p className="text-xs font-bold uppercase tracking-wide text-ink/50">Mode Foued — PIN requis</p>
+      <p className="mb-4 mt-1 text-xs text-ink/45">Entre le code pour accéder aux stats</p>
+      <p className="mb-5 font-mono text-3xl tracking-[0.4em] text-ink">{'•'.repeat(pin.length) || '————'}</p>
       <div className="grid grid-cols-3 gap-2">
         {['1','2','3','4','5','6','7','8','9','','0','⌫'].map((k, i) => (
           <button
             key={i}
+            type="button"
             disabled={!k}
             onClick={() => {
               if (k === '⌫') setPin((p) => p.slice(0, -1))
               else if (k) { const nv = pin + k; setPin(nv); if (nv.length === 4) submit(nv) }
             }}
-            className="tap rounded-2xl border border-ink/10 bg-white py-4 text-xl font-bold text-ink disabled:border-0 disabled:bg-transparent"
+            className="tap rounded-2xl border border-ink/10 bg-cream/40 py-3.5 text-xl font-bold text-ink hover:bg-cream disabled:border-0 disabled:bg-transparent"
           >
             {k}
           </button>
@@ -518,26 +787,26 @@ function Login({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <>
-      <p className="mb-4 text-sm font-bold uppercase text-ink/50">Connexion Foued</p>
+    <div className="mx-auto max-w-sm rounded-[28px] border border-ink/10 bg-white p-6 text-left">
+      <p className="mb-4 text-sm font-extrabold uppercase tracking-wide text-ink/60">Connexion Foued</p>
       <form onSubmit={submit} className="space-y-3">
         <input className={inputCls} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         <input className={inputCls} type="password" placeholder="Mot de passe" value={pw} onChange={(e) => setPw(e.target.value)} required />
         {err && <p className="text-sm text-flame">{err}</p>}
-        <button type="submit" disabled={busy} className="tap w-full rounded-[28px] bg-flame py-4 text-base font-extrabold text-white disabled:bg-mute">
+        <button type="submit" disabled={busy} className="tap w-full rounded-[28px] bg-flame py-3.5 text-base font-extrabold text-white disabled:bg-mute">
           {busy ? '…' : 'Se connecter'}
         </button>
       </form>
-    </>
+    </div>
   )
 }
 
-const inputCls = 'w-full rounded-2xl border border-ink/15 bg-white px-4 py-3 text-base font-semibold text-ink placeholder:text-ink/40 focus:border-ink focus:outline-none'
+const inputCls = 'w-full rounded-2xl border border-ink/15 bg-cream/40 px-4 py-3 text-base font-semibold text-ink placeholder:text-ink/40 focus:border-ink focus:bg-white focus:outline-none'
 
 function Pad({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
     <main className="min-h-dvh bg-cream text-ink">
-      <div className={`page-width px-4 py-16 text-center ${className ?? ''}`}>{children}</div>
+      <div className={`page-width px-4 py-12 text-center ${className ?? ''}`}>{children}</div>
     </main>
   )
 }

@@ -18,6 +18,12 @@ export interface ZoneStat {
   taux: number
 }
 
+export interface CostRow {
+  id: string
+  date: string
+  cost: number
+}
+
 export interface PromoStat {
   id: string
   name: string
